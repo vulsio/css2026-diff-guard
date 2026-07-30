@@ -13,7 +13,7 @@ CSS 2026 OWS トラック投稿用たたき台(第 2 稿 / A4 4ページ目安�
 - 「脆弱性情報の上流はどれほど動くか — 公開前差分ゲートによる 82 日間の定量観測」
 - 「公開前差分ゲートで観測した脆弱性フィードの不安定性と公開品質管理の実践」
 
-元資料: docs/diff-guard-incidents.md(発動事例集)、diff-guard.md(設計・検証)、
+元資料(maintainer ローカル workspace のパス。この repo には含まれない): docs/diff-guard-incidents.md(発動事例集)、diff-guard.md(設計・検証)、
 vulsio/css2025-vuls2/docs/css.pdf(昨年論文)。数値・識別子はすべて元資料からの転記。
 TeX 化の際は run ID / digest は脚注または付録リポジトリ参照に落とす。
 -->
