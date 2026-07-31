@@ -29,7 +29,8 @@ TeX 化の際は run ID / digest は脚注または付録リポジトリ参照�
 - [ ] 用語統一: 「差分ゲート」「閾値ゲート」「ゲート」呼びをやめる方向(概要は「公開前検査」に統一済み、フィードバック反映)。本文は §1 で「公開前検査(diff guard)」と一度定義し、以後「検査」または「diff guard」で通す案。タイトルの「公開前差分ゲート」も要修正
 - [ ] 欧文語のカタカナ化を本文でも統一(概要は advisory→アドバイザリ対応済み)。本文に advisory 表記が多数残存。fixture, baseline, target, promote, grooming 等をどこまで開くかも方針を決める(固有名詞・コマンド名は英字のまま)
 - [ ] 「抽出器」「ビルダ」の初出定義を本文で明示(概要からは排除済み、フィードバック反映)。§2.1 の fetch / extract / db build 工程と語の対応(抽出器 = extract 工程のコード、ビルダ = db build のコード)を §2.1 か §4 の初出で一言定義する
-- [ ] タイトル確定(冒頭コメントに代案 2 つ。ただし上記の用語統一を反映して再検討)
+- [ ] タイトル確定 — 和文・英文セットで(冒頭コメントに和文代案 2 つ、概要直下に英文案。用語統一を反映して再検討)
+- [ ] 和文概要を修正したら英文 Abstract も追従させる(概要直下に併記済み)
 - [ ] 観測期間を投稿時点まで延長するか決める — 現本文は 82 日 / 671 run / 50 episode(〜07-14)固定。A-18〜A-21(07-15〜07-26)を含めるなら `stats.py` を `guard-failures.tsv` に再実行して全数値を更新
 - [ ] 図 4 枚の作成(方針決定済み: 人間の手描きはしない。図 1 = TikZ、図 2〜4 = matplotlib でベクタ PDF 生成):
   - 図 1: パイプライン全体図 + ガード挿入位置 + 各工程の履歴 — **TikZ**(standalone クラスで単体プレビュー可、本文 TeX 化を待たず着手できる)
@@ -58,6 +59,13 @@ TeX 化の際は run ID / digest は脚注または付録リポジトリ参照�
 <!-- 用語メモ(2026-07-29 フィードバック反映): 概要では「差分ゲート」の造語をやめ
 「公開前検査」に統一。「閾値ゲート」という第二の呼び名も排除(→「閾値による単純な判定」)。
 本文はまだ「ゲート/diff guard」呼びのまま — 統一方針は TODO 参照。 -->
+
+**英文タイトル(案)**: Measuring Upstream Instability of Vulnerability Information: An 82-Day Exhaustive Study of Pre-Publication Inspection on a History-Managed Database Pipeline
+
+**Abstract**: Vulnerability databases are built by aggregating many upstream data sources, but these upstreams are not always stable: data disappears, and published advisories are retroactively rewritten. To quantify this instability, we implemented a pre-publication inspection in the CI pipeline that builds and publishes the database of Vuls, an open-source vulnerability scanner. The inspection compares each publication candidate with the previously published version in terms of detection results and detection-criteria structure, and when the change rate exceeds a threshold, it withholds publication pending human review. In an exhaustive study covering 82 days of production operation, the inspection fired on 50 independent events, and our previously reported infrastructure, which keeps every pipeline stage under version control, allowed us to attribute every event to either upstream data changes or our own processing such as data transformation and database construction. We show that everyday fluctuation and structural events are separated by an order of magnitude in change rate, making this simple threshold-based inspection practical, and that the inspection blocked the publication of defective databases three times.
+
+<!-- 英文は和文概要(現行版)の忠実訳。和文を直したら英文も追従させること。
+タイトル和英とも未確定(用語統一 TODO と連動)。 -->
 
 <!-- 概要の文体メモ: em-dash(—)は和文では使わない方針(ユーザー指摘)。本文にも
 「〜 — 〜」構文が複数残っているので、TeX 化時に一掃する(TODO 参照)。
