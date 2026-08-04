@@ -6,6 +6,8 @@
 \usepackage{listings}
 \usepackage{url}
 \urlstyle{same}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
 
 \newcommand{\cssyear}[0]{2026}
 \newcommand{\cssname}[0]{CSS 2026}
@@ -92,9 +94,36 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
 
 \begin{figure}[tb]
 \centering
-\fbox{\parbox{0.95\linewidth}{\small
-(図1予定)全体アーキテクチャ．上流40+ソース $\rightarrow$ fetch / extract / db build(各工程Git履歴管理\cite{nakaoka2025}) $\rightarrow$ 公開前検査 $\rightarrow$ GHCR公開 $\rightarrow$ スキャナ．検査の挿入位置，FAIL時に候補がタグなしで残るフロー，および切り分け手順(\ref{sec:method}節)が参照する各工程の履歴を1枚に示す．}}
-\caption{脆弱性DB公開パイプラインと公開前検査(作成予定)}
+\begin{tikzpicture}[font=\footnotesize, >=Stealth,
+  b/.style={draw, rounded corners=1pt, align=center, inner sep=3pt, minimum height=5mm},
+  hist/.style={b, fill=gray!15},
+  lbl/.style={font=\scriptsize, text=black!70},
+  note/.style={font=\scriptsize, text=black!60, align=left}]
+  \node[b]    (up)   at (0,0)     {上流データソース(40+)};
+  \node[hist] (raw)  at (0,-0.95) {raw(Git履歴)};
+  \node[hist] (ext)  at (0,-1.9)  {extracted(Git履歴)};
+  \node[hist] (cand) at (0,-2.85) {候補DB(digestのみでpush)};
+  \node[b, fill=orange!20] (g) at (0,-3.8) {公開前検査(M / O / D)};
+  \node[b]    (pub)  at (-1.7,-4.9) {GHCRタグ公開};
+  \node[hist] (hold) at (1.8,-4.9)  {保留(タグなしdigest)};
+  \draw[->] (up) -- (raw)   node[midway,left,lbl] {fetch};
+  \draw[->] (raw) -- (ext)  node[midway,left,lbl] {extract(抽出器)};
+  \draw[->] (ext) -- (cand) node[midway,left,lbl] {db build(ビルダ)};
+  \draw[->] (cand) -- (g);
+  \draw[->] (g) -- (pub)  node[midway,left,lbl]  {PASS};
+  \draw[->] (g) -- (hold) node[midway,right,lbl] {FAIL};
+  \draw[->] (hold) -- (pub) node[midway,below,lbl] {人間レビュー後promote};
+  \draw[->, dashed] (pub.west) .. controls +(-0.75,0.3) and +(-1.3,-0.1) .. (g.west)
+    node[pos=0.45,left,lbl,align=center] {baseline\\(直前公開版)};
+  \node[note] (n1) at (3.35,-0.95) {上流確定};
+  \node[note] (n2) at (3.35,-1.9)  {抽出器除外};
+  \node[note] (n3) at (3.35,-2.85) {ビルダ除外};
+  \node[note, align=center] at (3.35,-0.2) {原因帰属(\ref{sec:method}章)\\が参照};
+  \draw[densely dotted] (raw.east)  -- (n1.west);
+  \draw[densely dotted] (ext.east)  -- (n2.west);
+  \draw[densely dotted] (cand.east) -- (n3.west);
+\end{tikzpicture}
+\caption{脆弱性DB公開パイプラインと公開前検査．全工程がGit履歴管理\cite{nakaoka2025}され，原因帰属(\ref{sec:method}章)は各工程の履歴を参照する．}
 \label{fig:arch}
 \end{figure}
 
@@ -143,9 +172,8 @@ DB単体でもスキャナ単体でも正常であり，組み合わせの非互
 
 \begin{figure}[tb]
 \centering
-\fbox{\parbox{0.95\linewidth}{\small
-(図2予定)導入前ベンチマークの日次変動率時系列(35ペア)．中央値0.3\% / 最大6.2\%の正常帯と，2件の上流イベント(65.1\% / 12から16\%)が桁で分離することを示す．}}
-\caption{導入前44日間ベンチマークの日次変動率(作成予定)}
+\includegraphics[width=\linewidth]{./figures/fig2-benchmark.pdf}
+\caption{導入前ベンチマーク: 連続1日ペア35組の最大変動率(対数軸)．破線はdb既定閾値10\%．橙の2ペアが実在の上流イベント(Red Hat VEX構造変更65.1\%，SUSE OVAL再発行16.1\%)であり，正常帯(中央値0.3\%)と桁で分離する．}
 \label{fig:benchmark}
 \end{figure}
 
@@ -241,13 +269,12 @@ FAIL中はpromoteがあるまでbaselineが動かず，同じ差分で6時間お
 \end{tabular}
 \end{table}
 
-\begin{figure}[tb]
+\begin{figure*}[tb]
 \centering
-\fbox{\parbox{0.95\linewidth}{\small
-(図3予定)82日間の発動タイムライン．横軸日付，縦軸ソース(ubuntu / microsoft / suse / rocky / alma / oracle / amazon / fedora / cpe / redhat / debian)，各episodeを持続時間の横棒で示すガントチャート．promote時刻とoverride導入時点を縦線で重ねる．}}
-\caption{発動イベントのタイムライン(作成予定)}
+\includegraphics[width=\textwidth]{./figures/fig3-timeline.pdf}
+\caption{82日間の発動タイムライン(source-episode 50件)．横棒は各episodeの持続期間(FAIL初出から終端まで)，点線はoverride導入時点(seed: 初期シード，snap: ubuntu:snap，windows: windows系detection，rocky: rocky\_10，per-source: ソース単位化)．per-source化後のcpe\_*系はcpe行に含めた．}
 \label{fig:timeline}
-\end{figure}
+\end{figure*}
 
 \subsection{実害を防いだ3事例}
 \label{sec:prevented}
@@ -321,9 +348,8 @@ VulnCheckの全年代CVEへの生成CPE一括付与(\ref{sec:prevented}節)は�
 
 \begin{figure}[tb]
 \centering
-\fbox{\parbox{0.95\linewidth}{\small
-(図4予定)全FAIL行(1,040行)の変動率ヒストグラム(対数軸)．日常変動帯(5から20\%)と構造イベント帯(100\%超)の二峰性，および閾値(5\% / 10\%)とoverride値の位置を示す．}}
-\caption{FAIL行の変動率分布(作成予定)}
+\includegraphics[width=\linewidth]{./figures/fig4-histogram.pdf}
+\caption{全FAIL行(1,040行)の変動率分布(対数軸)．破線は既定閾値(detection 5\% / db 10\%)．日常変動の本体に対し，100\%超の構造イベント群が裾として分離する．FAIL中はcron再実行により同一イベントの行が繰り返し計上される点に注意．}
 \label{fig:histogram}
 \end{figure}
 
@@ -380,6 +406,11 @@ SLSA\cite{slsa}，in-toto\cite{torres19}，reproducible builds\cite{lamb22}，Si
 宣言的制約によるデータ品質検証\cite{schelter18,breck19}に加え，パイプライン自身の実行履歴から検証基準を自動導出する研究\cite{tu23,redyuk21}，新しいデータバッチが履歴から逸脱した際に下流のML再学習をブロックするゲート\cite{shankar23}があり，特に後者は「履歴との比較で公開・利用を止める」という意味論まで本稿と同型である．
 テスト理論の観点では，本稿の検査は前公開版を比較対象(オラクル)とするdifferential testing\cite{mckeeman98}の時間軸変種，あるいはデータartifactに対する回帰テスト\cite{yoo12}の適用とみなせる．
 これらとの差分は，(1)列統計ではなく検知結果と検知条件構造という意味レベルの差分を取ること，(2)セキュリティクリティカルな公開物を対象に，監査証跡付きのhuman-in-the-loop overrideを備えること，(3)検査の発動記録そのものを上流不安定性の測定データとして全数分析したこと，の3点である．
+
+\textbf{国内の関連研究}:
+国内では，脆弱性対策情報データベースJVNの提案\cite{terada05}に始まる脆弱性情報流通の系譜があり，近年は本トラックでOSSの脆弱性修正状況の収集と調査\cite{kuzuno24}，PSIRT向け脆弱性スクリーニング\cite{kanai24}など，公開脆弱性情報とその利用の間の乖離を扱う研究が続いている．
+またIPAのJVN iPedia登録状況レポート\cite{ipa-jvnipedia}は，2024年のNVD公開遅延が国内DBの登録数を減少させたことを公式に記録しており，上流の不安定性が国内の脆弱性情報基盤へ波及する実例である．
+一方，フィード内容の経時的不安定性を定量計測した国内の学術研究は，我々の調査の範囲では見当たらない．
 
 \section{おわりに}
 \label{sec:conclusion}
