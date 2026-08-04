@@ -112,7 +112,7 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
   \draw[->] (cand) -- (g);
   \draw[->] (g) -- (pub)  node[midway,left,lbl]  {PASS};
   \draw[->] (g) -- (hold) node[midway,right,lbl] {FAIL};
-  \draw[->] (hold) -- (pub) node[midway,below,lbl] {人間レビュー後promote};
+  \draw[->] (hold) -- (pub) node[midway,below=5pt,lbl] {人間レビュー後promote};
   \draw[->, dashed] (pub.west) .. controls +(-0.75,0.3) and +(-1.3,-0.1) .. (g.west)
     node[pos=0.45,left,lbl,align=center] {baseline\\(直前公開版)};
   \node[note] (n1) at (3.35,-0.95) {上流確定};
