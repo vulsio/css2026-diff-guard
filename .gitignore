@@ -332,3 +332,7 @@ TSWLatexianTemp*
 
 ## Built paper PDF (figures' PDFs are kept; only the main output is ignored)
 docs/css.pdf
+
+## Python
+__pycache__/
+*.pyc
