@@ -330,8 +330,9 @@ TSWLatexianTemp*
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
 
-## Built paper PDF (figures' PDFs are kept; only the main output is ignored)
-docs/css.pdf
+## Built paper PDF (docs/css2026-diff-guard.pdf) is committed for sharing,
+## like css2025-vuls2. Rebuild with `cd docs && make build` and commit it
+## together with source changes.
 
 ## Python
 __pycache__/

@@ -20,28 +20,28 @@ TeX 化の際は run ID / digest は脚注または付録リポジトリ参照�
 
 ## 執筆 TODO
 
-**原稿の正本は [docs/css.tex](docs/css.tex)**(単一ファイル + [docs/refs.bib](docs/refs.bib))。この md は TODO 管理と素材置き場。ビルドは `cd docs && make build`(Docker の paperist/alpine-texlive-ja + latexmk。css2026-data の構成を移植)。2026-07-29 時点で 7 ページ(本文+文献 ≈6.8 / 上限 8、研究倫理は制限外)。
+**原稿の正本は [docs/css2026-diff-guard.tex](docs/css2026-diff-guard.tex)**(単一ファイル + [docs/refs.bib](docs/refs.bib))。この md は TODO 管理と素材置き場。ビルドは `cd docs && make build`(Docker の paperist/alpine-texlive-ja + latexmk。css2026-data の構成を移植)。2026-07-29 時点で 7 ページ(本文+文献 ≈6.8 / 上限 8、研究倫理は制限外)。
 
 **締切(CSS 2026)**
-- [ ] **アブストラクト登録: 2026-08-03(月)24:00** — css.tex の abstract を投稿システムへ
+- [ ] **アブストラクト登録: 2026-08-03(月)24:00** — css2026-diff-guard.tex の abstract を投稿システムへ
 - [ ] 最終原稿: 2026-08-21(金)17:00。本文最大 8 ページ(参考文献含む)+ 付録最大 5 ページ
 - [ ] OWS 専用ページの投稿要領を確認(和文/英文、テンプレート、採録形態)
 
 **内容(未完)**
-- [ ] タイトル確定 — 和文・英文セットで(css.tex 冒頭。現状は仮)
-- [x] 著者確定: 篠原 俊一、中岡 典弘、神戸 康多(いずれもフューチャー株式会社)— css.tex 反映済み
+- [ ] タイトル確定 — 和文・英文セットで(css2026-diff-guard.tex 冒頭。現状は仮)
+- [x] 著者確定: 篠原 俊一、中岡 典弘、神戸 康多(いずれもフューチャー株式会社)— css2026-diff-guard.tex 反映済み
 - [x] 研究倫理: 申込フォームが「倫理的な問題に関係しない」セレクトボックスだったため 3 文に短縮(公開情報のみ + 倫理的問題に関係しない + ベンダ非難の意図なし)
 - [ ] 観測期間を投稿時点まで延長するか決める — 現本文は 82 日 / 671 run / 50 episode(〜07-14)固定。延長するなら `stats.py` を `guard-failures.tsv` に再実行して全数値を更新
-- [x] 図 4 枚(2026-07-29 完了): fig:arch = TikZ を css.tex 内に直書き / fig:benchmark, fig:timeline, fig:histogram = [figs/](figs/) の matplotlib スクリプトで docs/figures/*.pdf を生成(データは figs/data/ に同梱。期間延長時は episodes.tsv 再抽出 + スクリプト再実行)。組み込み後 8 ページちょうど(文献は 8 ページ目前半で終了 = 上限内、研究倫理は制限外)
+- [x] 図 4 枚(2026-07-29 完了): fig:arch = TikZ を css2026-diff-guard.tex 内に直書き / fig:benchmark, fig:timeline, fig:histogram = [figs/](figs/) の matplotlib スクリプトで docs/figures/*.pdf を生成(データは figs/data/ に同梱。期間延長時は episodes.tsv 再抽出 + スクリプト再実行)。組み込み後 8 ページちょうど(文献は 8 ページ目前半で終了 = 上限内、研究倫理は制限外)
   - 注: figs/data/guard-failures.tsv には 07-14 以降の行も含まれるため、fig4 スクリプトは観測窓(〜07-14)でフィルタして 1,040 行に一致させている
 - [ ] triage の AI 委任を本文に明記するか検討(§4 の手順書共有のくだり + §6.6 の役割分担と接続。概要には入れない = 決定済み)
 - [x] 関連研究: 国内先行の調査(2026-07-29 完了)。結論: フィード不安定性を定量計測した国内学術研究は見当たらず(新規性の根拠として §7 に明記)。追加引用 4 件 — 寺田ら JVN 提案(情処論文誌 2005)、葛野ら(CSS2024 OWS)、金井ら(CSS2024 OWS、**著者陣に本論文著者を含む自己先行**)、IPA JVN iPedia 四半期レポート(NVD 遅延の国内波及を公式記録)。CSS2024/2025 分は OWS 公式プログラムページでタイトル・著者確認(予稿 PDF は非公開)
 - [ ] 発動事例の全数データの公開方法を決める(付録 5 ページ枠 or 公開リポジトリ参照)
 - [ ] 細部の書誌修正: wunder24 の巻号表記(number 欠落で「Vol. 5 , .」と出る)。分量超過時の削減候補: nguyen13, wunder24(croft23 は TeX 化時に未引用となり既に落ちている)
-- [ ] 和文概要を修正したら英文 Abstract も追従させる(css.tex 内で隣接)
+- [ ] 和文概要を修正したら英文 Abstract も追従させる(css2026-diff-guard.tex 内で隣接)
 
 **TeX 化時(2026-07-29 完了)**
-- [x] css.cls 様式へ転記 — 単一ファイル docs/css.tex + refs.bib。ビルド確認済み
+- [x] css.cls 様式へ転記 — 単一ファイル docs/css2026-diff-guard.tex + refs.bib。ビルド確認済み
 - [x] 句読点を「，．」へ変換
 - [x] em-dash(「〜 — 〜」挿入構文)を句読点や接続詞に書き換え
 - [x] 「・」整理(2 項は「と」「か」、複合名詞列挙は禁止。「収集・変換・構築」型のみ残置)
