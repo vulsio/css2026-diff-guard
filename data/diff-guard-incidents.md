@@ -12,7 +12,7 @@
 - vulsio/vuls-data-db の全 run ログ・PR 本文・コミット履歴・promote-digest 履歴(GitHub API による全数収集、2026-07-14 実施)
 - 各発動時の triage セッション記録(diff-guard-triage skill による調査。2026-06-08 以降はセッション記録が完全に残存)
 - ローカル再現記録 `vuls-data-db/local-diff-guard.lo/`(2026-04-27 の初期ストリーク triage)
-- 設計・検証記録 [`../diff-guard.md`](../diff-guard.md), [`../verification-playbook.md`](../verification-playbook.md)
+- 設計・検証記録 `diff-guard.md`, `verification-playbook.md`(maintainer ローカル workspace。この repo には含まれない)
 
 ---
 
@@ -20,7 +20,7 @@
 
 ### 1.1 動機となった2つのインシデント(ガード導入前)
 
-diff-guard は、以下の 2 件の「壊れた vuls.db を公開してしまった」インシデントを受けて設計された(詳細は [`../diff-guard.md`](../diff-guard.md))。
+diff-guard は、以下の 2 件の「壊れた vuls.db を公開してしまった」インシデントを受けて設計された。
 
 | | インシデント 1: RHEL VEX バグ | インシデント 2: Ubuntu `vulnerable: false` バグ |
 |---|---|---|
@@ -592,7 +592,7 @@ episode 粒度で見たときの要点:
 
 ### 参照資料
 
-- 設計・検証: [`../diff-guard.md`](../diff-guard.md)(Guard 1/2 の設計、回帰テスト、44 日ベンチマーク)、[`../verification-playbook.md`](../verification-playbook.md)
+- 設計・検証: `diff-guard.md`(Guard 1/2 の設計、回帰テスト、44 日ベンチマーク)、`verification-playbook.md`(いずれも maintainer ローカル workspace)
 - 初期ストリークのローカル再現一式: `vuls-data-db/local-diff-guard.lo/20260427-vuls-nightly-db-2796a350-vs-0/`(diff-guard-status.md / diff-report.md / diff-detection-report.md)
 - triage 手順: `vuls-data-db/.claude/skills/diff-guard-triage/SKILL.md`
 - 運用 runbook: `vuls-data-db/.github/diff-guard-override-grooming-runbook.md`、grooming issue テンプレート `diff-guard-override-grooming-issue.md`
