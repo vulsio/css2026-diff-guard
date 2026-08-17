@@ -103,7 +103,7 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
   \node[hist] (raw)  at (0,-0.95) {raw(Git履歴)};
   \node[hist] (ext)  at (0,-1.9)  {extracted(Git履歴)};
   \node[hist] (cand) at (0,-2.85) {候補DB(digestのみでpush)};
-  \node[b, fill=orange!20] (g) at (0,-3.8) {公開前検査(DN / DO / DB)};
+  \node[b, fill=orange!20] (g) at (0,-3.8) {公開前検査(Dn / Do / DB)};
   \node[b]    (pub)  at (-1.7,-4.9) {GHCRタグ公開};
   \node[hist] (hold) at (1.8,-4.9)  {保留(タグなしdigest)};
   \draw[->] (up) -- (raw)   node[midway,left,lbl] {fetch};
@@ -180,13 +180,13 @@ DB単体でもスキャナ単体でも正常であり，組み合わせの非互
 \subsection{3つのチェック}
 \label{sec:checks}
 
-公開CIの圧縮後・公開前に，次の3チェックを実行する(検知結果差分の2つをDN(新スキャナ)とDO(旧スキャナ)，DB構造差分をDBと略記する)．
+公開CIの圧縮後・公開前に，次の3チェックを実行する(検知結果差分の2つをDn(新スキャナ)とDo(旧スキャナ)，DB構造差分をDBと略記する)．
 
 \begin{itemize}
-\item \textbf{DN: 検知結果差分(スキャナ最新版)}．
+\item \textbf{Dn: 検知結果差分(スキャナ最新版)}．
 baselineとtargetの両DBに対して同一のスキャン結果fixture群(実機スキャン由来，数十ファイル)でスキャナを実際に実行し，ファイル単位で検知CVE集合を比較する．
 変動率は(追加数+削除数)/baseline検知数で定義する．
-\item \textbf{DO: 検知結果差分(固定した旧バージョンのスキャナ)}．
+\item \textbf{Do: 検知結果差分(固定した旧バージョンのスキャナ)}．
 過去バージョンとの組でのみ現れる非互換退行(インシデント2型)を捕捉する．
 \item \textbf{DB: DB構造差分}．
 BoltDBを直接開き，ecosystem(後にソース単位へ細分化)ごとに検知条件木をleaf Criterionレベルまで平坦化して構造比較する．
