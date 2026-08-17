@@ -31,11 +31,11 @@ diff-guard は、以下の 2 件の「壊れた vuls.db を公開してしまっ
 
 ### 1.2 ガードの構成
 
-DB 公開前(compact 後・push 前)に 3 つのチェックを composite action(`.github/actions/diff-guard/action.yml`)として実行する。以下、run 表では **M / O / D** と略記する:
+DB 公開前(compact 後・push 前)に 3 つのチェックを composite action(`.github/actions/diff-guard/action.yml`)として実行する。以下、本文は論文と同じ **Dn / Do / DB** 表記を用いる(付録の run 表 02a〜02e と log-extracts は収集時の略記 **M / O / D** のまま。M=Dn、O=Do、D=DB):
 
-1. **M — `vuls diff detection`(vuls0 master HEAD)** — baseline DB と候補 DB で同一スキャン結果(vulsio/integration の fixture 群)に対する検知 CVE 集合をファイル単位で比較。大きな検知差 ≒ 出荷不可のシグナル。
-2. **O — `vuls diff detection`(pinned 旧 vuls0 バイナリ)** — 過去バージョンの vuls0 に対してのみ現れる退行(インシデント 2 型)を捕捉。
-3. **D — `vuls diff db`** — BoltDB を直接開き、ecosystem ごとに detection データを leaf Criterion レベルで構造比較(Detection Change Rate)+ Windows KB データの比較(KB Change Rate)。スキャン結果・バイナリ不要の構造ガード。
+1. **Dn — `vuls diff detection`(vuls0 master HEAD)** — baseline DB と候補 DB で同一スキャン結果(vulsio/integration の fixture 群)に対する検知 CVE 集合をファイル単位で比較。大きな検知差 ≒ 出荷不可のシグナル。
+2. **Do — `vuls diff detection`(pinned 旧 vuls0 バイナリ)** — 過去バージョンの vuls0 に対してのみ現れる退行(インシデント 2 型)を捕捉。
+3. **DB — `vuls diff db`** — BoltDB を直接開き、ecosystem ごとに detection データを leaf Criterion レベルで構造比較(Detection Change Rate)+ Windows KB データの比較(KB Change Rate)。スキャン結果・バイナリ不要の構造ガード。
 
 導入当初は最初に FAIL したチェックでガードが停止していたが、2026-05-08 のリファクタ(PR #144)以降は **3 チェックとも必ず走り切り、最後の集約ステップで fail** する(1 つの失敗が他のシグナルを隠さない設計。`diff guard failed: detection(master)=X detection(old)=Y db=Z` の形で記録される)。レポートは `$GITHUB_STEP_SUMMARY` に常時出力され、監査証跡になる。
 
@@ -76,7 +76,7 @@ Detection (default 5%):  debian_13=20, ubuntu_2604=50, rocky_10=20,
 | 2026-05-21/22 | 失敗履歴の統計 triage から override 初期値シード | PR #152(nightly), #153(main) |
 | 2026-05-25 | `ubuntu:snap=30` 追加(→ §4 P-3) | PR #156 |
 | 2026-05-28 | `microsoft=35` を db-main にも追加、windows fixture を detection セットに投入 | PR #158 |
-| 2026-06-08 | vuls0_old_ref bump(O チェックの対象ファミリ拡大)。run summary に promote コマンドのコピペ出力 | PR #166, #165 |
+| 2026-06-08 | vuls0_old_ref bump(Do チェックの対象ファミリ拡大)。run summary に promote コマンドのコピペ出力 | PR #166, #165 |
 | 2026-06-11 | `windows_*` detection override 27 件追加(→ §4 A-1) | PR #167 |
 | 2026-06-15 | `rocky_10=20` 追加(→ §4 A-2) | PR #169 |
 | 2026-06-18 | 「vuls-data-db への `gh workflow run` を AI からは実行しない」絶対ルール成文化(§4 A-5 の直後) | CLAUDE.md |
@@ -105,7 +105,7 @@ diff-guard-triage skill(`vuls-data-db/.claude/skills/diff-guard-triage/SKILL.md`
 
 ## 4. 発動事例カタログ
 
-各事例に記載: 発生日時(UTC)/ workflow と run / baseline・target digest / 失敗チェック(M/O/D)と対象・変動率 / データ変更の実体(smoking gun)/ 切り分け判定 / 対応。digest は `ghcr.io/vulsio/vuls-nightly-db@sha256:...` の sha256 部分。個々の run の完全な FAIL 行と候補 digest は付録の run 表を参照。
+各事例に記載: 発生日時(UTC)/ workflow と run / baseline・target digest / 失敗チェック(Dn/Do/DB)と対象・変動率 / データ変更の実体(smoking gun)/ 切り分け判定 / 対応。digest は `ghcr.io/vulsio/vuls-nightly-db@sha256:...` の sha256 部分。個々の run の完全な FAIL 行と候補 digest は付録の run 表を参照。
 
 ---
 
@@ -115,9 +115,9 @@ diff-guard-triage skill(`vuls-data-db/.claude/skills/diff-guard-triage/SKILL.md`
 
 ガード投入の**翌日から**発動が始まり、初の手動 promote(4/27)まで 20 run が連続 FAIL した。3 つの独立した上流イベントが重なっている:
 
-1. **microsoft KB 134.3%**(D、nightly のみ): 初発動 run は DB(Nightly) [24891731249](https://github.com/vulsio/vuls-data-db/actions/runs/24891731249)(04-24 13:21)。`microsoft` ecosystem の KB Change Rate 134.3%(Detection 0.0%)。旧い `:nightly` baseline に対する Windows KB データの大規模更新
-2. **ubuntu:26.04 19.8%**(D、main は 04-25 01:09 の [24918908102](https://github.com/vulsio/vuls-data-db/actions/runs/24918908102) から): Ubuntu 26.04 リリース直後の ubuntu-cve-tracker 大量 triage による構造 churn(Changed Root **18,871 件**)
-3. **debian_13 6.0%**(M、04-25 18:31 以降): Debian trixie への新規 CVE 一括流入(2119 → 2246、Added 127 / Removed 0、CVE-2026-31536〜31580 等の連番)。当時のガードは最初の FAIL で停止する実装だったため、M(debian_13)が FAIL すると D(ubuntu:26.04)は記録に現れなくなる — 04-27 のローカル全チェック再現(`vuls-data-db/local-diff-guard.lo/20260427-vuls-nightly-db-2796a350-vs-0/`、候補 `2796a350…`)で両方が FAIL することを確認している
+1. **microsoft KB 134.3%**(DB、nightly のみ): 初発動 run は DBB(Nightly) [24891731249](https://github.com/vulsio/vuls-data-db/actions/runs/24891731249)(04-24 13:21)。`microsoft` ecosystem の KB Change Rate 134.3%(Detection 0.0%)。旧い `:nightly` baseline に対する Windows KB データの大規模更新
+2. **ubuntu:26.04 19.8%**(DB、main は 04-25 01:09 の [24918908102](https://github.com/vulsio/vuls-data-db/actions/runs/24918908102) から): Ubuntu 26.04 リリース直後の ubuntu-cve-tracker 大量 triage による構造 churn(Changed Root **18,871 件**)
+3. **debian_13 6.0%**(Dn、04-25 18:31 以降): Debian trixie への新規 CVE 一括流入(2119 → 2246、Added 127 / Removed 0、CVE-2026-31536〜31580 等の連番)。当時のガードは最初の FAIL で停止する実装だったため、Dn(debian_13)が FAIL すると DB(ubuntu:26.04)は記録に現れなくなる — 04-27 のローカル全チェック再現(`vuls-data-db/local-diff-guard.lo/20260427-vuls-nightly-db-2796a350-vs-0/`、候補 `2796a350…`)で両方が FAIL することを確認している
 - **判定**: いずれも **upstream-driven (a)**(新ディストリ立ち上がり期の bulk churn + ベンダー月次データ)
 - **対応**:
   - 04-27 05:27〜06:00 に初の手動 promote: `e8fa973dc5f78c177382fae10c5ef5476deca7ced97f5a6c9d75696c4c58a935` → :nightly、`2796a3508aa0e0d433f27ee475cdfb7e993cac80ecea1e3a9411f30738939bb8` → :latest / :0(初回試行 run 24978122420 は失敗し 17 分後に再試行成功 — promote パス自体の初運用)
@@ -130,17 +130,17 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 
 | 期間 | ターゲット(チェック) | 観測値 | 性質 |
 |---|---|---|---|
-| 04-30〜05-01 | ubuntu_2604(M) | 38.8% | 未来リリースの小 baseline churn |
-| 05-02〜05-09 | debian_13(M) | 5.1–5.9%(断続) | trixie への定常的新 CVE 流入 |
-| 05-05〜05-06 | opensuse_tumbleweed(M) | 7.1% | rolling release は設計上 churn する |
-| 05-06 | debian_13 14.1% + debian_12 8.8%(M) | — | 単発スパイク |
-| 05-08 | ubuntu_2604 14.5% + ubuntu_2404 5.5%(M+O) | — | — |
-| 05-10〜05-11 | amazon_2023(M) | 7.0% | ガード停止中に溜まったバッチ |
-| 05-10〜05-11 | opensuse_leap_16 / 〜_kernel-default-base(M) | 100.0%(baseline 空: 0→1601 / 0→1553) | 新規 ecosystem 追加 |
-| 05-13〜05-14 | oracle_8(M+O)+ microsoft KB 15.6–18.3%(D, nightly) | 6.7–7.0% | 単発の vendor advisory バッチ + Patch Tuesday |
-| 05-16〜05-18 | amazon_2_extra_kernel(M) | 12.4% | 単発バッチ |
-| 05-18 | fedora:45(D) | 39.3% | 直近リリースの churn |
-| 05-20 | ubuntu:16.04(D) 39.0–39.5% + ubuntu:26.04 17.0%(D) | — | **EOL ディストリが 39% 動くのは異常**として意図的に override せず残置 |
+| 04-30〜05-01 | ubuntu_2604(Dn) | 38.8% | 未来リリースの小 baseline churn |
+| 05-02〜05-09 | debian_13(Dn) | 5.1–5.9%(断続) | trixie への定常的新 CVE 流入 |
+| 05-05〜05-06 | opensuse_tumbleweed(Dn) | 7.1% | rolling release は設計上 churn する |
+| 05-06 | debian_13 14.1% + debian_12 8.8%(Dn) | — | 単発スパイク |
+| 05-08 | ubuntu_2604 14.5% + ubuntu_2404 5.5%(Dn+Do) | — | — |
+| 05-10〜05-11 | amazon_2023(Dn) | 7.0% | ガード停止中に溜まったバッチ |
+| 05-10〜05-11 | opensuse_leap_16 / 〜_kernel-default-base(Dn) | 100.0%(baseline 空: 0→1601 / 0→1553) | 新規 ecosystem 追加 |
+| 05-13〜05-14 | oracle_8(Dn+Do)+ microsoft KB 15.6–18.3%(DB, nightly) | 6.7–7.0% | 単発の vendor advisory バッチ + Patch Tuesday |
+| 05-16〜05-18 | amazon_2_extra_kernel(Dn) | 12.4% | 単発バッチ |
+| 05-18 | fedora:45(DB) | 39.3% | 直近リリースの churn |
+| 05-20 | ubuntu:16.04(DB) 39.0–39.5% + ubuntu:26.04 17.0%(DB) | — | **EOL ディストリが 39% 動くのは異常**として意図的に override せず残置 |
 
 - **集計**(PR #152 / #153 の triage): db-nightly は 2026-04-30〜05-20 で **47 failed run / 7 イベント**、全て diff-guard trip。db-main は 05-01〜05-20 の 34 失敗中 33 が diff-guard trip、1 件のみ CI インフラ flake(run 25377929034)
 - **判定**: 大半が **upstream-driven (a)** または **threshold-only**(小 baseline)。ここで「**繰り返し発生する上流由来 churn のみ override で緩和し、成熟ディストリの単発スパイクは fail させて人間に見せる**」という運用基準が確立された
@@ -149,7 +149,7 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 #### P-3. 2026-05-23 〜 05-25 — ubuntu:snap: Go crypto 一括開示で小 baseline が跳ねる
 
 - **Run**: 05-23 07:59 の DB [26327547220](https://github.com/vulsio/vuls-data-db/actions/runs/26327547220) から 05-25 03:41 まで、DB / DB(Nightly) 両系統の全 scheduled run(計 16 run)が連続 FAIL
-- **FAIL 行**: D `ubuntu:snap` Detection Change Rate **21.7%**(閾値 10%)、KB 0.0%
+- **FAIL 行**: DB `ubuntu:snap` Detection Change Rate **21.7%**(閾値 10%)、KB 0.0%
 - **Anchors**(代表 run 26369890091 の triage): baseline `:0` = `sha256:d99cb46514d604e6ebd10e19863677743830e72bfc189ff6985811d922e9868b` / target = `sha256:8871c3e0c78c119fa01d6b9d1448174cd2afc10b4a20099bb0b41dc2ce7026c7`。`created_by` 同一(`vuls v0.0.1-alpha.0.20260520015748-4012c541274e`)→ builder 除外。ubuntu-cve-tracker raw `14909141`(05-22 14:28Z)→ `282e9683`(05-24 02:16Z)、窓内に `pkg/{extract,fetch}/ubuntu/tracker/` のコミットなし → extractor 除外
 - **Smoking gun**: 追加 root ID 13 件すべてが raw の新規ファイル(`active/2026/CVE-2026-39827.json` 〜 `CVE-2026-46598.json`)で、いずれも `"packages": { "snapd": { "releases": { "snap": { "status": "needs-triage" } } } }`。description が `go.dev/cl/781320` / `GO-2026-5016` を参照 → **Go crypto 系一括開示**に対する Ubuntu tracker の snapd(同梱 `golang-go.crypto`)triage バッチ
 - **判定**: **upstream-driven (a)**。ubuntu:snap は baseline 57 → 70 root と極小のため単一バッチで 10% を超える(threshold-only 的性質の複合)
@@ -157,19 +157,19 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 
 #### P-4. 2026-05-27 〜 05-28 — AlmaLinux 10 errata feed 再キュレーション(上流の恒久的データ品質イベント)
 
-- **Run**: 05-27 08:53 DB [26501231316](https://github.com/vulsio/vuls-data-db/actions/runs/26501231316) から両系統で連続 FAIL。**alma_10 99.2%(M+O)/ alma:10 99.7%(D)** — さらに 05-28 04:00 の run 26553857530 / 26553887891 では **alma_10 428.3% / alma:10 264.0%** まで拡大
+- **Run**: 05-27 08:53 DB [26501231316](https://github.com/vulsio/vuls-data-db/actions/runs/26501231316) から両系統で連続 FAIL。**alma_10 99.2%(Dn+Do)/ alma:10 99.7%(DB)** — さらに 05-28 04:00 の run 26553857530 / 26553887891 では **alma_10 428.3% / alma:10 264.0%** まで拡大
 - **データ変更の実体**(07-02 の再調査で確定): AlmaLinux が 2026-05-19〜26 に errata feed を複数回**再キュレーション** — advisory 数 279 → 一時 60、ALSA-2025 → ALSA-2026 再採番を伴う。削除 143 advisory が参照する 434 CVE のうち **376 件(87%)が feed から完全消失**。2025-11-26 にも −102 件のパージ実績(反復性のある上流運用)
 - **判定**: **upstream-driven (c) 恒久的データ品質イベント**。上流データが「正」だが検知能力の実質的毀損を伴う
 - **対応**:
   - 閾値 override 案(PR #159)は**却下** — 閾値で吸収すべき性質ではない
   - 05-28 に promote で復旧(01:10〜05:34 に 4 digest: `34c24f3b…`→:0, `ba970318…`→:nightly, `d2c2a106…`→:0, `aee9b836…`→:nightly)
   - **alma-errata の extracted dotgit commit を Makefile でピン留め**(db-main.mk: `564e8bdd1c936e2f09452a6370a0cd63c6b0be3d`(05-21 時点)、db-nightly.mk: `e6b3fde`(05-27))して以後の劣化取り込みを停止 → 後日の計画的アンピンが A-14
-- **小規模な後続**: 05-28 19:59〜 rocky_9 5.4%(M+O、単発、05-29 promote)、05-29 opensuse_leap_16 系 12.9〜13.6%(新 ecosystem シーディング継続、05-29 promote)
+- **小規模な後続**: 05-28 19:59〜 rocky_9 5.4%(Dn+Do、単発、05-29 promote)、05-29 opensuse_leap_16 系 12.9〜13.6%(新 ecosystem シーディング継続、05-29 promote)
 
 #### P-5. 2026-05-30 〜 06-08 — rocky_10 初期シーディング + 6月初旬の windows 大変動
 
-- **rocky_10**: 05-30 08:11([26678908271](https://github.com/vulsio/vuls-data-db/actions/runs/26678908271))〜06-01 に **rocky_10 34.4%(M+O)+ rocky:10 14.1%(D)** で両系統連続 FAIL。06-04〜05 に 11.6%、06-06〜08 に 8.7% と減衰しつつ再発。Rocky Linux 10 リリース直後のベンダー errata 初期シーディング(baseline 122 → 205 と成長中の小 baseline)
-- **windows**: 06-02 に windows_* ×12 max 44.8%(M)、06-06〜08 に windows_* ×13 **max 76.3%**(M+O)が rocky_10 と重なって FAIL(個別 triage 記録なし。当時 detection 側 windows override は未導入)
+- **rocky_10**: 05-30 08:11([26678908271](https://github.com/vulsio/vuls-data-db/actions/runs/26678908271))〜06-01 に **rocky_10 34.4%(Dn+Do)+ rocky:10 14.1%(DB)** で両系統連続 FAIL。06-04〜05 に 11.6%、06-06〜08 に 8.7% と減衰しつつ再発。Rocky Linux 10 リリース直後のベンダー errata 初期シーディング(baseline 122 → 205 と成長中の小 baseline)
+- **windows**: 06-02 に windows_* ×12 max 44.8%(Dn)、06-06〜08 に windows_* ×13 **max 76.3%**(Dn+Do)が rocky_10 と重なって FAIL(個別 triage 記録なし。当時 detection 側 windows override は未導入)
 - **判定**: いずれも **upstream-driven (a)**(初期シーディング / Microsoft データ更新)
 - **対応**: 都度 promote(06-01, 06-02, 06-05, 06-08 — 付録 03)。rocky_10 は 6/14 再発時に override 化(→ A-2)
 
@@ -182,7 +182,7 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 #### A-1. 2026-06-10 — Windows 6月 Patch Tuesday(detection 側の閾値非対称の露呈)
 
 - **Run**: DB(Nightly) [27304209180](https://github.com/vulsio/vuls-data-db/actions/runs/27304209180)(06-09 Patch Tuesday の翌日、06-10 20:27)
-- **FAIL**: M で **windows 系 13 ファイル、5.3〜14.2%、全て Added のみ**。最大 windows_11_25h2 / 24h2 = 14.2%(1081→1235、+154)、windows_server_2025 9.6%、windows_10_22h2 5.4% など
+- **FAIL**: Dn で **windows 系 13 ファイル、5.3〜14.2%、全て Added のみ**。最大 windows_11_25h2 / 24h2 = 14.2%(1081→1235、+154)、windows_server_2025 9.6%、windows_10_22h2 5.4% など
 - **データ変更**: 2026-06-09 Patch Tuesday の新規 advisory/KB 一括公開(純増)
 - **判定**: **upstream-driven (a) / threshold-only の複合**。db 側には `microsoft=35` override が既にあったのに、detection 側の windows は default 5% のままという**非対称**が根本原因(PR #158 で windows fixture を detection セットに入れた時点の据え置きが伏線)
 - **対応**: PR #167(06-11)で `windows_*` 全 27 ファイルに detection override を 2 段階で追加(高 churn 世代 =20、その他 =10)。vuls2 の override は完全一致キーのみ(glob 非対応)のため全列挙。「月ごとにどのファイルが 5% を超えるかはローテーションする」ことも列挙の理由。直後の 06-12 に早速 windows_server_2008_r2 26.8% / 2012_r2 10.1% が新閾値 10% を超えて FAIL(付録 02b)
@@ -190,7 +190,7 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 #### A-2. 2026-06-13 〜 06-14 — rocky_10 新規 errata バッチ
 
 - **Run**: 06-13 08:41 から連続、代表 DB [27508894556](https://github.com/vulsio/vuls-data-db/actions/runs/27508894556)(06-14 19:01)
-- **FAIL**: M+O。**rocky_10 205→227、+22、10.7% > 5%**(nightly 側は並行して cpe 40.1% も FAIL — 後述 A-8 前段の nightly cpe 変動系列)
+- **FAIL**: Dn+Do。**rocky_10 205→227、+22、10.7% > 5%**(nightly 側は並行して cpe 40.1% も FAIL — 後述 A-8 前段の nightly cpe 変動系列)
 - **Anchors**: baseline `:0` = `sha256:450a9bd4…1001`(06-13 02:43 の**自動 promote** — 06-08 の手動 promote `bfbdad3d` ではない。baseline 特定の落とし穴として記録)/ target = `sha256:903923f681fb3e716409b84d72fed07fdd98eb65349e59268b2c24a4aad9637e`。builder 同一、extractor コミットなし
 - **Smoking gun**: Rocky 10 向け新規 errata 8 件 — RLSA-2026:24985(poppler, Important, published 06-13, CVE-2026-23186), 25111, 25112, 25115, 25191, 25216, 25225, 25237
 - **判定**: **upstream-driven (a)**
@@ -199,7 +199,7 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 #### A-3. 2026-06-15 〜 06-16 — fedora:45 マスアップデート(単一 advisory が 5,312 criterions)
 
 - **Run**: 06-15 11:36 から連続、代表 DB [27589528643](https://github.com/vulsio/vuls-data-db/actions/runs/27589528643) + Nightly [27593150221](https://github.com/vulsio/vuls-data-db/actions/runs/27593150221)
-- **FAIL**: **D のみ**。fedora:45 Detection Change Rate 264.5 → **268.8% > override 50%**(criterions 1987 → 7329、+5342)。detection は PASS(fixture に F45 の広範なパッケージがないため)
+- **FAIL**: **DB のみ**。fedora:45 Detection Change Rate 264.5 → **268.8% > override 50%**(criterions 1987 → 7329、+5342)。detection は PASS(fixture に F45 の広範なパッケージがないため)
 - **Smoking gun**: **FEDORA-2026-54c7ad647e** — 約 600 src package を束ねた Bodhi マスアップデート(単一 advisory で 3.5MB / 5,312 criterions、extracted commit `404324ae` 06-15 21:10 で新規追加)。他 3 advisory(+21/+8/+1)と合計 5,342 で増分と完全一致
 - **判定**: **upstream-driven (a)**
 - **対応**: promote — main `sha256:95a6038a388ea769a635098524615a645963c32443fe446e383165667fc4f6ee`(:0)、nightly `sha256:0133aa170bb2e21af28de1bed657047df96e0e35b322f89879873ef0cd8a5291`(:nightly)。06-16 07:28–29 実施
@@ -207,20 +207,20 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 #### A-4. 2026-06-16 — Microsoft CVRF 2026-Jun 全消失(ガードが出荷を止めた成功事例 ①)
 
 - **Run**: 06-16 10:46 から連続、代表 DB [27646259547](https://github.com/vulsio/vuls-data-db/actions/runs/27646259547) + Nightly [27647167088](https://github.com/vulsio/vuls-data-db/actions/runs/27647167088)(両 run の diff レポートはバイト一致)
-- **FAIL**: M のみ。**windows 13 ターゲットで削除のみの大変動** — windows_11_21h2 879→472(46.3%)、windows_11_25h2 1235→722(41.5%)、windows_server_2025 1802→1285(28.7%)等
+- **FAIL**: Dn のみ。**windows 13 ターゲットで削除のみの大変動** — windows_11_21h2 879→472(46.3%)、windows_11_25h2 1235→722(41.5%)、windows_server_2025 1802→1285(28.7%)等
 - **Anchors**: main baseline `:0` = `sha256:95a6038a…`(06-16 07:29 promote、A-3 の復旧 digest)/ main target = `sha256:ff6889e11c00ca49b6fe40d98dcd6cfb10655e89a7343f93f5aee05e73222b58`。nightly baseline = `sha256:0133aa17…` / target = `sha256:b8c1fee3b0f80ba5b7619d293b389efa0f5b7ea52427bb36175056cf1407fc45`
 - **Smoking gun**: raw microsoft-cvrf `4b5baa9→44181ca` で **`2026-Jun/` ディレクトリが丸ごと消失(723 → 0 ファイル)**。extracted `5e47f25→b21d21d` で CVE ファイル 777 本削除(うち 754 が CVE-2026、206,903 行削除)。例: CVE-2026-48574("Windows Media RCE", published 2026-06-09)がファイルごと消失。June 件数は 723→0→811 とフラップし、06-16 16:33 の raw `34a4bd5` で復旧
 - **検証補強**: fetcher(`pkg/fetch/microsoft/cvrf/cvrf.go`)は fail-hard 設計でスキップ機構なし・期間中コード変更ゼロ → **MSRC API 側が一時的に June ドキュメントを返さなくなった**と判断
 - **判定**: **upstream-driven (b) 一時的データ障害**。候補 DB は June の Windows 脆弱性情報を欠く欠陥品
 - **対応**: **候補 ff6889e1 / b8c1fee3 は promote しない**。上流回復後の再実行のみで復旧。ガードが「大量 false negative の DB 公開」を水際で止めた、設計意図どおりの発動
 - **副次的発見(ガードの盲点 2 件)**:
-  - O が PASS したのは red herring — 旧 vuls0 用 fixture セットからは windows_*.json が除外されている(action.yml)ため microsoft データを評価していない
-  - **D も PASS** — KB Change Rate は KB キー集合(10667→10667)しか見ておらず、CVE エントリの大量消失を見逃した(triage skill の警告事項に成文化: 「KB Change Rate = 0% は『変化なし』を意味しない」)
+  - Do が PASS したのは red herring — 旧 vuls0 用 fixture セットからは windows_*.json が除外されている(action.yml)ため microsoft データを評価していない
+  - **DB も PASS** — KB Change Rate は KB キー集合(10667→10667)しか見ておらず、CVE エントリの大量消失を見逃した(triage skill の警告事項に成文化: 「KB Change Rate = 0% は『変化なし』を意味しない」)
 
 #### A-5. 2026-06-17 — fedora:45 マスアップデート撤回(A-3 の鏡像)
 
 - **Run**: 06-17 10:19 から連続、代表 DB [27715637419](https://github.com/vulsio/vuls-data-db/actions/runs/27715637419) + Nightly [27716617109](https://github.com/vulsio/vuls-data-db/actions/runs/27716617109)
-- **FAIL**: D、fedora:45 **72.5% > 50%**(criterions 7329 → 2017)。Removed Root ID は **FEDORA-2026-54c7ad647e ただ 1 件**(5312/7329 = 72.5% で数値一致)
+- **FAIL**: DB、fedora:45 **72.5% > 50%**(criterions 7329 → 2017)。Removed Root ID は **FEDORA-2026-54c7ad647e ただ 1 件**(5312/7329 = 72.5% で数値一致)
 - **Smoking gun**: extracted `7fbd62c4`(06-17 05:52、日次 refresh 23,260 files 中、削除は 2 件のみ)= 上流(Bodhi)でのピンポイント撤回
 - **判定**: **upstream-driven (a)**(正当な撤回。A-3 で入ったものが抜けただけ)
 - **対応**: promote — main `sha256:1c66a9df131e16709cf758c2c3cca8ddc4a982a13354d560b6913a05ccacb24a`、nightly `sha256:585a4d1da2edc955b1b613ac2d55474eebe48a926ea3af96dfa6f58b6a4bd4f7`(06-17〜18)
@@ -229,7 +229,7 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 #### A-6. 2026-06-19 — fedora-api extractor の非決定性バグ(**唯一の extractor-driven コードバグ**、ガードが出荷を止めた成功事例 ②)
 
 - **Run**: DB [27801929985](https://github.com/vulsio/vuls-data-db/actions/runs/27801929985)(06-19 02:36。nightly 側 27804864132 も同様)
-- **FAIL**: D、fedora:45 **274.5% > 50%**(criterions 2066 → 7738、keys 89 → 92)。KB 0.0%
+- **FAIL**: DB、fedora:45 **274.5% > 50%**(criterions 2066 → 7738、keys 89 → 92)。KB 0.0%
 - **Anchors**: baseline `:0` = `sha256:1c66a9df…`(A-5 の復旧 digest)/ target = `sha256:808d7b35d51bea5b915a9ef12f43390b40079a4ace194b081a4b0cfd2c4b1860`
 - **Smoking gun**: raw の変更は 266 files なのに extracted は 23,163 files(87 倍)。fedora:45 サンプル 60 件中 **59 件が raw blob バイト同一なのに extracted だけ変化**。具体例: `FEDORA-2026-54c7ad647e` の package `bind` の architectures 配列が baseline `["aarch64","i686","ppc64le","s390x","src","x86_64"]` → target `["src","x86_64","aarch64","i686","ppc64le","s390x"]` — **ソート済みだった集合が未ソートの回転列に**。レポートの "Added Root IDs" のうち 2 件はファイルとして実在しない(順序依存グルーピングのアーティファクト)
 - **根本原因**: vuls-data-update の fedora-api extractor が `*dataTypes.Data`(ポインタ)を `util.Write` に渡していたため、type switch の `case dataTypes.Data:` にマッチせず `Sort()` が実行されない(api.go:115)。出力順序が非決定になり、構造比較が大規模ドリフトとして検出
@@ -239,7 +239,7 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 #### A-7. 2026-06-23 — Amazon Linux 10日分バッチ
 
 - **Run**: DB [28014227227](https://github.com/vulsio/vuls-data-db/actions/runs/28014227227)(06-23 08:51)
-- **FAIL**: M+O — **amazon_2023 2080→2233(+153, 7.4%)**、**amazon_2_extra_kernel 1299→1367(+68, 5.2%)**、閾値 5%
+- **FAIL**: Dn+Do — **amazon_2023 2080→2233(+153, 7.4%)**、**amazon_2_extra_kernel 1299→1367(+68, 5.2%)**、閾値 5%
 - **Anchors**: baseline `:0` = `sha256:e43a2e5b…`(06-23 02:28、先行成功 run 27996707991 の自動 promote)/ target = `sha256:d2155fc061105ad241adeb67d86f22bfcbc081097c0ae5818feca38058194892`。builder 両者 `vuls …20260622074355-fab747f7e5ef`
 - **Smoking gun**: amazon raw 単一コミット `cd2dc392`(06-23 02:04、185 files / +25,037 行)。新規 **ALAS2023-2026-1882**(kernel, Important, Issued 2026-06-22)の CVE 群(CVE-2023-53989, CVE-2025-39961, CVE-2026-23255, CVE-2026-23272, CVE-2026-23399, CVE-2026-23442, CVE-2026-31407 ほか)が Added IDs と一致。extra_kernel 分は `ALAS2KERNEL-5.15-2026-107`(CVE-2026-43079 等)
 - **判定**: **upstream-driven (a)**(Amazon の advisory 公開が約 10 日ぶりでバッチが大きくなった)
@@ -247,7 +247,7 @@ FAIL 中は promote が止まり baseline が動かないため、**同じ差分
 
 #### A-8. 2026-06-11 〜 06-24 — nightly cpe 変動系列と CPE match quality 分類(意図的な extractor 変更)
 
-nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発生した(いずれも nightly のみ): 06-11 25.3%、06-14 40.1%、06-17 **122.7%**、06-19〜21 18.6%、06-24 18.0%(付録 02b/02c)。個別 triage 記録が残るのは 06-24 分:
+nightly 系では 6 月中旬から cpe ecosystem の DB-FAIL が断続的に発生した(いずれも nightly のみ): 06-11 25.3%、06-14 40.1%、06-17 **122.7%**、06-19〜21 18.6%、06-24 18.0%(付録 02b/02c)。個別 triage 記録が残るのは 06-24 分:
 
 - **Run**: DB(Nightly) [28125012733](https://github.com/vulsio/vuls-data-db/actions/runs/28125012733)(06-24 19:43)。amazon(A-7 とバイト一致)+ **cpe 18.0% > 10%**(KB 0%)— cpe に 16,228 root ID 追加(CVE-1999-0661 など歴史的 CVE を含む全年代)
 - **Anchors**: baseline `:nightly` = `sha256:ce51b61fe37dfe2a70e57b1261fa3e778d2d0550c3806e7857bc80bfc36641f3`(06-22 05:17 で停止していた)/ target = `sha256:f3aff0464ef146737070da1d477aa51a809e961ab0e2ce659070090489202257`。builder 差分(`98ac8e52`→`fab747f7`)は精査の上、無関係と確認
@@ -259,8 +259,8 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 
 - **Run**: ubuntu_2604 単独では 06-27 01:50 から、redhat が加わるのは 06-28 02:00 から。代表 DB [28332593350](https://github.com/vulsio/vuls-data-db/actions/runs/28332593350)(06-28 18:56)
 - **FAIL**(2 系統同時):
-  1. M+O: **ubuntu_2604 681→1044(+363, 53.3%)> override 50%** — ubuntu-cve-tracker raw に `resolute`(26.04)ブロックが **+25,009 行**。例: CVE-2026-52912 が needs-triage → needed/pending 7.0.0-28.28、新規 CVE-2025-60466
-  2. D: **redhat:5 21.9% / redhat:4 17.8% / redhat:6 13.5% / redhat:7 13.4% > 10%**(KB 0.0%)— Red Hat が 2026-06-27 に CSAF VEX を **SDEngine 4.6.12 → 5.2.6 で全再生成**。1 日スライスで 10,809 ファイルの version フリップ。例: CVE-2007-0044 の generator 変化、CVE-2007-3410 の RHEL4 product_id `4Desktop:/4ES:/4WS:HelixPlayer-…` 再構成
+  1. Dn+Do: **ubuntu_2604 681→1044(+363, 53.3%)> override 50%** — ubuntu-cve-tracker raw に `resolute`(26.04)ブロックが **+25,009 行**。例: CVE-2026-52912 が needs-triage → needed/pending 7.0.0-28.28、新規 CVE-2025-60466
+  2. DB: **redhat:5 21.9% / redhat:4 17.8% / redhat:6 13.5% / redhat:7 13.4% > 10%**(KB 0.0%)— Red Hat が 2026-06-27 に CSAF VEX を **SDEngine 4.6.12 → 5.2.6 で全再生成**。1 日スライスで 10,809 ファイルの version フリップ。例: CVE-2007-0044 の generator 変化、CVE-2007-3410 の RHEL4 product_id `4Desktop:/4ES:/4WS:HelixPlayer-…` 再構成
 - **Anchors**: baseline `:0` = `sha256:55f19f110777772a0c4d21d829be6277d291b8ba502b64c1f1fe2c81e47c1cad`(06-26 15:00 自動 promote)/ target = `sha256:a2e7a0cc1436f0babbda4776febee800590e401d4ea2df7e831f7132db1b88d6`
 - **判定**: いずれも **upstream-driven (a)**(VEX 再生成はツールチェーン更新に伴う無害な構造変化、検知内容は等価)
 - **対応**: promote(a2e7a0cc → :0、06-29 02:15)
@@ -278,7 +278,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-11. 2026-07-01 — SUSE OVAL 大規模再発行
 
 - **Run**: DB [28488390213](https://github.com/vulsio/vuls-data-db/actions/runs/28488390213)(07-01 02:01。nightly 側 28491908555 は sles12 + micro:6 のみ)
-- **FAIL**: M+O **opensuse_tumbleweed 10.9% / sles12 5.6% > 5%** + D **suse.linux.micro:6 15.6% > 10%**(KB 0.0%)。追加のみ・削除ほぼなし
+- **FAIL**: Dn+Do **opensuse_tumbleweed 10.9% / sles12 5.6% > 5%** + DB **suse.linux.micro:6 15.6% > 10%**(KB 0.0%)。追加のみ・削除ほぼなし
 - **Anchors**: baseline `:0` = `sha256:438644f027c1a844cf6a08340a21f7bf6307b9ff8808988ee1d6243239bb20c9`(06-30 20:35 自動 promote)/ target = `sha256:24f409251bf671871b5e6371f7ed1b334c59a7a90fb5ddd3abde06badde5734f`
 - **Smoking gun**: extracted suse-oval `8858b26e0 → fd1230336` で 12,488 files(Modified 12,240 / Added 247 / Deleted 1)。新 advisory **SUSE-SU-2026:22251-1** が raw OVAL に実在(`def:202634180` = CVE-2026-34180)し、既存 CVE への ecosystem 一括付与(sle12 +7,500、micro:6 +6,400、tumbleweed +6,400)
 - **判定**: **upstream-driven (a)**(SUSE の OVAL 再発行サイクル。ガード検証期の 44 日ベンチマークでも 2026-03-06→07 に同種イベントを観測済み)
@@ -287,7 +287,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-12. 2026-07-02 〜 07-03 — MSRC CVRF June 再消失(A-4 の再発。ガードが出荷を止めた成功事例 ③)
 
 - **Run**: 07-02 13:22 〜 07-03 19:19 の 8 run(windows_* ×13 max 53.6%)。代表 DB [28614789028](https://github.com/vulsio/vuls-data-db/actions/runs/28614789028)、[28593382639](https://github.com/vulsio/vuls-data-db/actions/runs/28593382639)
-- **FAIL**: M で windows 系 13 ターゲット **16〜53% の removed-only**
+- **FAIL**: Dn で windows 系 13 ターゲット **16〜53% の removed-only**
 - **Smoking gun**: raw microsoft-cvrf の `2026-Jun/` が **1273 → 0 → 1273 → 0 → 1278 とフラッピング**(07-01 14:17 `5a0dbb67` = 1273 → 07-02 02:01 `55abc741` = 0 → 07-02 13:26 復活 → 07-03 01:42 再消失 → 07-03 13:33 復活)。extracted `061ececb`(07-02 10:35)で 1,332 files / 227,724 行削除(CVE 1269+4 件)。代表削除例: CVE-2026-10881(June 2026 Security Updates / Chromium・Edge 系)
 - **Anchors**: baseline = `sha256:00668b7bed51f2f34b5daae6f2995855e271c78206099df23bbd5b81323a73fc` / target = `sha256:e2a24401f80537b1f6e155a8b6b7ec1fa72da8f5d29fb2a4bdd2713d04980039`
 - **判定**: **upstream-driven (b) 一時的データ障害の再発**
@@ -296,7 +296,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-13. 2026-07-04 〜 07-05 — MSRC "July 2026 Early Security Updates"(Edge 一括公開)
 
 - **Run**: 07-04 08:15 から両系統の全 run が連続 FAIL(12 run)。代表 DB [28751305350](https://github.com/vulsio/vuls-data-db/actions/runs/28751305350) + Nightly [28751886446](https://github.com/vulsio/vuls-data-db/actions/runs/28751886446)
-- **FAIL**: M のみ — **windows_11_21h2 25.6% / windows_11_22h2 24.9% / windows_10_20h2 20.6% > 閾値 10%**。全ターゲット一律 **+260 / Removed 0**。閾値 20% の 23h2/24h2/25h2 は 18.8–19.0% で僅差 PASS
+- **FAIL**: Dn のみ — **windows_11_21h2 25.6% / windows_11_22h2 24.9% / windows_10_20h2 20.6% > 閾値 10%**。全ターゲット一律 **+260 / Removed 0**。閾値 20% の 23h2/24h2/25h2 は 18.8–19.0% で僅差 PASS
 - **Smoking gun**: raw microsoft-cvrf `4ccde37a07`(2026-07-04T01:33Z)で `2026-Jul/` に 354 files / +56,252 行(新規 329 件、うち **260 件が Edge Chromium detection**)。代表: CVE-2026-13774 "Chromium: Use after free in Extensions"(published 07-02、`Microsoft Edge (Chromium-based) < 150.0.4078.48`、document_title "July 2026 Early Security Updates")
 - **Anchors**: main baseline `sha256:d59c1aea…` / target `sha256:be569c612fe128b59e30d44a0e5b4cf13b4d2a9553bf8228be1741a8db97eda6`。nightly baseline `sha256:311640f8…` / target `sha256:35147345437f010c0b9458066dace01629b00ddeb21d3a222b707368a8fd770c`
 - **判定**: **upstream-driven (a)**(Patch Tuesday 本体より早い月次 Edge 一括公開)
@@ -305,7 +305,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-14. 2026-07-07 — alma ピン解除による計画的 baseline リセット(P-4 の後日談)
 
 - **Run**: 07-07 06:53 Nightly [28847492830](https://github.com/vulsio/vuls-data-db/actions/runs/28847492830)、08:40 DB [28853199310](https://github.com/vulsio/vuls-data-db/actions/runs/28853199310)。PR #192(db-main.mk / db-nightly.mk の alma-errata ピン解除)マージ後の初回 run で、**計画された FAIL**
-- **FAIL**(5 行): M+O **alma_10 107.3%(259→343、+181/−97)**、**alma_9 13.7%(+151/−0)**、**alma_8 8.8%(+77/−0)** + D **alma:10 146.5%**、**alma:9 11.7%**。他 ecosystem は全 PASS(影響が alma に閉じている = ピン解除以外の混入なしの証拠)
+- **FAIL**(5 行): Dn+Do **alma_10 107.3%(259→343、+181/−97)**、**alma_9 13.7%(+151/−0)**、**alma_8 8.8%(+77/−0)** + DB **alma:10 146.5%**、**alma:9 11.7%**。他 ecosystem は全 PASS(影響が alma に閉じている = ピン解除以外の混入なしの証拠)
 - **Anchors**: target(main 候補)= `sha256:71f6d50efb792417393a8cde91e93fe79569cf320577090e095060d9077636ec` / baseline `:0` = `sha256:c6c3fed1…`(07-07 02:50)。alma-errata extracted anchor: `564e8bd`(05-21 ピン)→ `a6a277e6a0`(07-07 current)。nightly 候補 = `sha256:8ddd89aeb8be8bab91c40ba2367abf5fd0a845771502828066c3354ef12a6667`
 - **重要発見**: alma_10 の removed 97 件は baseline リセットの副産物ではなく、**上流 advisory の「骨抜き」の顕在化**。例: **ALSA-2026:2721**(kernel security update)がピン時点 73 criteria(`< 0:6.12.0-124.38.1.el10_1`)→ 現行 feed では kernel-doc / kernel-abi-stablelists の 2 criteria のみに縮退。生存 136 advisory 中 79 件(58%)がパッケージ数半減以下。feed / OSV / HTML の三者一致でこれが「上流の姿」と確認。CVE 例: CVE-2023-53034 の検知が消失。AlmaLinux Mantis #644 への追加証拠として記録
 - **判定**: **upstream-driven (c) 恒久的データ品質イベント**(の、計画的な取り込み)
@@ -317,7 +317,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-15. 2026-07-07 — Oracle UEK メガ advisory(単一 advisory に CVE 822 件)
 
 - **Run**: 07-07 13:58 から 4 run。代表 DB [28892820817](https://github.com/vulsio/vuls-data-db/actions/runs/28892820817) + Nightly [28894311083](https://github.com/vulsio/vuls-data-db/actions/runs/28894311083)
-- **FAIL**: M+O — **oracle_10 511→1190(+679, 132.9%)**、**oracle_9 4675→5317(+642, 13.7%)> 5%**。oracle_7 +6 / oracle_8 +1 は PASS
+- **FAIL**: Dn+Do — **oracle_10 511→1190(+679, 132.9%)**、**oracle_9 4675→5317(+642, 13.7%)> 5%**。oracle_7 +6 / oracle_8 +1 は PASS
 - **Smoking gun**: raw `3944dd9e`(07-05)→ `ae6253d7`(07-07)、406 files / +17,281 行の純追加。本体は **ELSA-2026-50372 Unbreakable Enterprise Kernel security update**(IMPORTANT、issued 2026-07-02、OL9/OL10、**CVE 822 件**を単一 advisory に同梱。例: CVE-2024-14027, CVE-2025-21709, CVE-2025-22116, CVE-2024-58096/58097)。ほか ELSA-2026-50373 / 50374 / 33481
 - **Anchors**: main baseline `:0` = `sha256:71f6d50efb…636ec`(07-07 10:46 手動 promote、A-14 の復旧 digest)/ target = `sha256:efd1f42996bbeeab2ca67ecc5b7bee399c377079341ec7cbc1cf8b76d3fbce74`。nightly baseline = `sha256:d5fc59a4d548162edc802ed4b0cd8081413fd5e0179f9d4c125447e7bcd7b665` / target = `sha256:f769596653f1fd3a848ba36a9673c5d57c2b3679daa68633ae7d8613d6f68f59`。builder 4 DB 全て同一(`…20260630120316-69ab575c2ebe`)
 - **判定**: **upstream-driven (a)**(UEK の定期大型カーネル advisory)
@@ -325,8 +325,8 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 
 #### A-16. 2026-07-08 〜 07-09 — VulnCheck NVD2 vcConfigurations 一斉ロールアウト(per-source ガード拡張の直接動機)
 
-- **Run**: 07-08 の DB [28968111472](https://github.com/vulsio/vuls-data-db/actions/runs/28968111472)(M+O: amazon_2_extra_kernel 6.3% / amazon_2023 5.4%。候補 `sha256:fac46aa3f42eb436d2aeb5c5b6895c6785529266e0e907511a521378a46f61ce` は 07-09 01:17 に :0 / :latest へ手動 promote)→ 07-09 01:24 の DB [28987458616](https://github.com/vulsio/vuls-data-db/actions/runs/28987458616) で cpe が FAIL。nightly 側は [28990615158](https://github.com/vulsio/vuls-data-db/actions/runs/28990615158)(amazon + cpe 29.0%)
-- **FAIL**(run 28987458616): D **cpe 28.9% > 10%**(KB 0.0%)。Added 587 / Removed 64 / **Changed 135,457** root IDs
+- **Run**: 07-08 の DB [28968111472](https://github.com/vulsio/vuls-data-db/actions/runs/28968111472)(Dn+Do: amazon_2_extra_kernel 6.3% / amazon_2023 5.4%。候補 `sha256:fac46aa3f42eb436d2aeb5c5b6895c6785529266e0e907511a521378a46f61ce` は 07-09 01:17 に :0 / :latest へ手動 promote)→ 07-09 01:24 の DB [28987458616](https://github.com/vulsio/vuls-data-db/actions/runs/28987458616) で cpe が FAIL。nightly 側は [28990615158](https://github.com/vulsio/vuls-data-db/actions/runs/28990615158)(amazon + cpe 29.0%)
+- **FAIL**(run 28987458616): DB **cpe 28.9% > 10%**(KB 0.0%)。Added 587 / Removed 64 / **Changed 135,457** root IDs
 - **Anchors**: baseline = `fac46aa3…` / target = `sha256:5343fc0beef13ffa26e7fe025d792f39bd2ec4d6c2eae04b19748bc8e733dd37`
 - **Smoking gun**: raw `vuls-data-raw-vulncheck-nist-nvd2` の単一コミット `0bab5f5`(07-08 13:24 UTC)で **145,672 files / +9,575,634 / −872,147 行**。VulnCheck が legacy CVE を含む全年代に生成 CPE 設定 `vcConfigurations` を一斉付与(例: CVE-1999-0001 に `matchCriteriaId: ""` の vcConfigurations 新規付与、CVE-2015-0198 はワイルドカード → 明示バージョン列挙 + `vcVulnerableCPEs`)。60,095 ファイルが detections ブロックを新規獲得。Removed 64 は jvn-feed-rss の JVNDB ID 振り直し(JVNDB-2026-0221xx)で別件
 - **判定**: **upstream-driven**(VulnCheck のデータ拡充ロールアウト)として promote(5343fc0b → :0、1c1ef17c → :nightly、07-09)
@@ -341,11 +341,11 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 
 07-11 01:15 の DB [29134285305](https://github.com/vulsio/vuls-data-db/actions/runs/29134285305) 以降、両系統の全 run が FAIL し続けた(promote は 07-09 を最後に停止)。FAIL 行は run 間で同一(= flaky ではなくデータ起因):
 
-- **D `ubuntu:25.10` 47.8%**(07-11 から一定)— ubuntu-cve-tracker 由来
-- **D `cpe` 12.0〜12.1%** — vulncheck 系の継続 churn
-- **M `windows_11_21h2` / `windows_11_22h2`** — 07-12 に 20.4% / 20.0%(+ windows_10_20h2 17.1%)で発生し、baseline 前進により 07-13 には 11.0% / 10.8% に減衰(それでも閾値 10% 超)。A-13 と同型の月次 Edge/MSRC churn
-- **M+O `opensuse_tumbleweed` 5.7〜6.0%**(**db-main のみ**)— `opensuse_tumbleweed=15` override が db-nightly にしかない非対称の顕在化
-- 07-14 01:07 の run 29297780197 では **D `ubuntu:14.04` 13.5%** も追加
+- **DB `ubuntu:25.10` 47.8%**(07-11 から一定)— ubuntu-cve-tracker 由来
+- **DB `cpe` 12.0〜12.1%** — vulncheck 系の継続 churn
+- **Dn `windows_11_21h2` / `windows_11_22h2`** — 07-12 に 20.4% / 20.0%(+ windows_10_20h2 17.1%)で発生し、baseline 前進により 07-13 には 11.0% / 10.8% に減衰(それでも閾値 10% 超)。A-13 と同型の月次 Edge/MSRC churn
+- **Dn+Do `opensuse_tumbleweed` 5.7〜6.0%**(**db-main のみ**)— `opensuse_tumbleweed=15` override が db-nightly にしかない非対称の顕在化
+- 07-14 01:07 の run 29297780197 では **DB `ubuntu:14.04` 13.5%** も追加
 - **07-14 07:40 の DB [29315353553](https://github.com/vulsio/vuls-data-db/actions/runs/29315353553) は PR #196(per-source 化)マージ後の初 run**: 新しい per-source レポートが新設 CPE fixture の初期通過を default 5% で判定し、`cpe_jvn/vulncheck-nist-nvd2` **305.9%**、`cpe_cisco/vulncheck-nist-nvd2` 66.7%、`cpe_nvd/vulncheck-nist-nvd2` 26.3%、`cpe_fortinet/vulncheck-nist-nvd2` 20.0% が一斉 FAIL(PR #196 が意図的に override をシードせず「実測してから設定する」方針を採った初期観測に相当)。候補 digest `sha256:32316e7f3c789544ef2061d842e216e93bbda763f9f7874f3a49b6298ee08ba1`
 - クラスタ内の非ガード失敗: run 29277164780(07-13 19:06)は runner の shutdown(exit 143)、run 29300917807(07-14 02:22)は Build DB の `failed to dotgit pull`(同日の Fetch All / Backup Daily 失敗と相関する上流/GHCR pull 側の部分障害)
 - **判定(暫定)**: ubuntu:25.10 / windows / tumbleweed / ubuntu:14.04 は upstream-driven の定常 churn + override 未整備(per-source 化直後の移行期)。cpe_* per-source 群は fixture 新設に伴う初期 churn の実測フェーズ
@@ -355,7 +355,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-18. 2026-07-15(進行中)— July Patch Tuesday(microsoft-msuc)+ NVD の PAN-OS CVE 一括 Analyzed 化
 
 - **Run**: DB [29398326912](https://github.com/vulsio/vuls-data-db/actions/runs/29398326912)(07-15 07:43、schedule)。det_master + db が FAIL、det_old は PASS(vuls0-old は cpe 系 scan-result を持たない)。後続 Nightly [29399593434](https://github.com/vulsio/vuls-data-db/actions/runs/29399593434)(08:06)も予想どおり同型 FAIL(det_master: cpe_paloalto 9.7% + db: microsoft-msuc KB 55.9%、候補 `14a1c1ed…`)。07-15 09:50〜10:00 に両候補を手動 promote(`3c9a3e3b…` → :0、`14a1c1ed…` → :nightly)して収束、以降の scheduled run は PASS に復帰した
-- **FAIL**: D **cpe_paloalto / nvd-feed-cve-v2 9.7% > 5.0%**(185 → 203、Added 18 / Removed 0)+ M **microsoft / microsoft-msuc KB 55.9% > 35.0%**(Added KB 11 / Changed KB 518)。`microsoft-wsusscn2` は 33.6% で僅差 PASS
+- **FAIL**: DB **cpe_paloalto / nvd-feed-cve-v2 9.7% > 5.0%**(185 → 203、Added 18 / Removed 0)+ Dn **microsoft / microsoft-msuc KB 55.9% > 35.0%**(Added KB 11 / Changed KB 518)。`microsoft-wsusscn2` は 33.6% で僅差 PASS
 - **Smoking gun(msuc)**: extracted `e4d179d..d7b60ad` で 530 files / +11,961 行。新 KB 11 件は 5099414/5099415/5099444/5099445/5099535/5099536/5099538/5099539/5099540/5101650/5102202 = "2026-07 Security Monthly Quality Rollup" / "Cumulative Security Update" 群(7/14 Patch Tuesday)。既存 KB `3148198.json` に新ロールアップ 5099415/5099444 への supersedes 追記 — この月次リップルで 518 KB が Changed。raw も `9173d56..bfcac98` で新規 29 update GUID(例: `051ffa01-…` = KB5099415 IE11 CSU for WS2012R2)
 - **Smoking gun(paloalto)**: raw nvd-feed-cve-v2 `7b56401..cde8d3e` で CVE-2026-0256 等 26 件の PAN CVE が `"vulnStatus": "Awaiting Analysis"`(configurations 0 件)→ `"Analyzed"`(lastModified 2026-07-14T16:39Z、`cpe:2.3:o:paloaltonetworks:pan-os:*` criteria 付与)。2026-05-13 公開の PAN 5月バッチを NVD が 7/14 に一括エンリッチしたもので、うち 18 件が cpe_paloalto scan-result にヒット
 - **Rule-out**: created_by 両 DB 一致(`vuls v0.0.1-alpha.0.20260714011358-2af27b6858b4`)。`pkg/{extract,fetch}/microsoft` は窓内 commit ゼロ。`pkg/extract/nvd` の 24eb1b6(vuls-data-update#874)は nvd 窓内だが、diff 確認の結果 `len(ds)==0` 時に Segments を省略するだけで Detections には触れず、+18 detections の原因たり得ない
@@ -366,7 +366,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-19. 2026-07-16 — July Patch Tuesday 第2波: microsoft-cvrf の月例 CVE 一括流入(A-18 の続報)
 
 - **Run**: DB(Nightly) [29466660712](https://github.com/vulsio/vuls-data-db/actions/runs/29466660712)(07-16 02:28、schedule)。det_master のみ FAIL(det_old は windows scan-result を持たない 42 ファイル構成のため PASS、db も PASS = msuc/wsusscn2 の KB 変動は A-18 の promote で baseline 側に取り込み済み)
-- **FAIL**: M `windows_server_2019` **23.2% > 10.0%**(1360 → 1676、Added 316 / Removed 0)、`windows_11_25h2` 21.6% / `windows_11_24h2` 21.5%(> 20.0%)、`windows_server_2016` 16.8% / `windows_server_2012` 15.3% / `windows_server_2012_r2` 15.2%(> 10.0%)。`windows_server_2022` 18.6%、`windows_server_2025` 16.7%、`windows_10_22h2` 9.8% など他 windows target は僅差 PASS(いずれも Removed 0 の純増)
+- **FAIL**: Dn `windows_server_2019` **23.2% > 10.0%**(1360 → 1676、Added 316 / Removed 0)、`windows_11_25h2` 21.6% / `windows_11_24h2` 21.5%(> 20.0%)、`windows_server_2016` 16.8% / `windows_server_2012` 15.3% / `windows_server_2012_r2` 15.2%(> 10.0%)。`windows_server_2022` 18.6%、`windows_server_2025` 16.7%、`windows_10_22h2` 9.8% など他 windows target は僅差 PASS(いずれも Removed 0 の純増)
 - **Anchors**: baseline `sha256:b68fcdc31082ae0122ca65b15841c77686d9c6613c97b6d121c074552ad945c5`(07-15 20:40 に run 29443320259 が promote した :nightly)/ target `sha256:fd0657e1b5a37e141a05c67dca937b5997380aaf0a4f7405a32a6bff0119d0a3`。`created_by` 両 DB 一致(`vuls v0.0.1-alpha.0.20260714011358-2af27b6858b4`)→ builder 除外
 - **Smoking gun**: microsoft-cvrf raw `fbd6515..4b3d286` のうち `9683fd13`(07-15 01:13Z)が `2026-Jul/` 配下に **572 ファイル新規追加(+442,195 行)** = July 2026 Security Updates(revision 245、2026-07-15T01:41)。extracted は `efc33ad`(07-14 03:21)→ `2b63690`(07-15 21:16)の単一 commit で**新規 CVE 589 / 変更 3,324 ファイル**。代表: `data/CVE/2026/CVE-2026-49164.json`(Windows Active Directory Domain Services RCE、Windows Server 2019 対象)が raw(`2026-Jul/2026/CVE-2026-49164.json`)・extracted とも新規ファイル
 - **Rule-out / 特記**: 窓内に extractor commit `e3709d2`(vuls-data-update#885「handle 2026-Jul products and placeholder FixedBuild」07-15 09:25)があるが、diff は SQL Server 2022 CU25 / 2025 CU6・VS 2026 18.7 の製品名リスト追加と CVE-2026-50480(WS2012/2012R2)の placeholder FixedBuild "1.000" 除去のみで、Added 316〜393 件(全て新規 July CVE ID の新規ファイル)の原因たり得ない。むしろ 2026-Jul 製品対応の enabling fix で、cvrf extraction が raw 到着(07-15 01:13)から 21:16 まで遅れた説明になる。この遅延により 07-15 の nightly(13:39 / 19:07)は July CVRF 未取り込みの extracted(`efc33ad`)のまま PASS し、07-16 02:28 の本 run が**最初の取り込み**となって月次バッチが一括ヒットした
@@ -376,7 +376,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-20. 2026-07-22 — VulnCheck NVD2: Cisco ASA CPE part 修正(A-16 検知退行の回復)+ 2026 kernel CVE への CPE 一括付与
 
 - **Run**: DB [29882532080](https://github.com/vulsio/vuls-data-db/actions/runs/29882532080)(07-22 01:14、schedule)。det_master のみ FAIL(det_old は cpe 系 scan-result を持たず PASS、db も PASS — `cpe / vulncheck-nist-nvd2` は Detection 1.2% / KB 0.0% で per-source 化後の希釈問題なく通過)
-- **FAIL**: M `cpe_cisco / vulncheck-nist-nvd2` **204.5% > 5.0%**(22 → 67、Added 45 / Removed 0)+ M `cpe_kernel / vulncheck-nist-nvd2` **18.4% > 5.0%**(1000 → 1184、Added 184 / Removed 0)
+- **FAIL**: Dn `cpe_cisco / vulncheck-nist-nvd2` **204.5% > 5.0%**(22 → 67、Added 45 / Removed 0)+ Dn `cpe_kernel / vulncheck-nist-nvd2` **18.4% > 5.0%**(1000 → 1184、Added 184 / Removed 0)
 - **Anchors**: baseline `sha256:b3f72f2167e617f781fd310c68cc6ddf5c6ee6f359975196f3ecdff5fbe3649b`(07-21 20:29 に run 29859526698 が promote した :0 / :latest)/ target `sha256:fce6955477585da6b7e40976c5c127ba7f387e7e606ae8e93c3a4a3b7504b81a`。`created_by` 両 DB 一致(`vuls v0.0.1-alpha.0.20260714011358-2af27b6858b4`)→ builder 除外。窓(extracted `3c63eeb` 07-21 07:29Z → `ead1929` 07-21 20:45Z)内に `pkg/{extract,fetch}/vulncheck` のコミットなし(vuls-data-update 全体でも rocky updateinfo fetcher の #890 1 件のみ)→ extractor 除外
 - **Smoking gun(cisco)**: raw `7e462d1..1f21242`(単一コミット、07-21 13:12Z、5,925 files / +744,008 行)で 48 ファイルの ASA 系 CVE が `cpe:2.3:o:cisco:adaptive_security_appliance_software` → `cpe:2.3:a:…` に part 修正(例: `2013/CVE-2013-5510.json`、`2012/CVE-2012-5010.json`、`2017/CVE-2017-6610.json`)。A-16(07-08 vcConfigurations ロールアウト)で 67 → 24 に退行していた cpe_cisco 検知が **67 に完全回復**(baseline 22 は退行後の値)。Added 45 件は全て 2012〜2017 年の ASA CVE
 - **Smoking gun(kernel)**: 同じ raw コミットで `2026/` 配下 **3,147 ファイル(+728,770 行)**に `cpe:2.3:o:linux:linux_kernel` の versionEndExcluding 付き criteria を一括付与(例: `2026/CVE-2026-63912.json` +1,660 行)。kernel CNA 発番で CPE 未整備だった 2026 年 CVE 群への VulnCheck 生成 CPE エンリッチで、cpe_kernel fixture に 184 件が新規ヒット。extracted `3c63eeb..ead1929`(4,295 files / +267,270 行)に忠実に伝播(`data/2013/CVE-2013-5510.json` で同じ o:→a: 差分を確認)
@@ -386,18 +386,18 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-21. 2026-07-26 — Cisco openVuln API: advisory↔version マッピングのサイレント再生成(productNames 大規模入れ替え)
 
 - **Run**: DB(Nightly) [30216168106](https://github.com/vulsio/vuls-data-db/actions/runs/30216168106)(07-26 19:06、schedule)
-- **FAIL**: M `cpe_kernel / vulncheck-nist-nvd2` **16.9% > 5.0%**(1149 → 1317、Added 181 / Removed 13 — A-20 の kernel CPE エンリッチ継続で既知)+ D `cpe / cisco-json` **10.9% > 10.0%**(KB 0.0%)
+- **FAIL**: Dn `cpe_kernel / vulncheck-nist-nvd2` **16.9% > 5.0%**(1149 → 1317、Added 181 / Removed 13 — A-20 の kernel CPE エンリッチ継続で既知)+ DB `cpe / cisco-json` **10.9% > 10.0%**(KB 0.0%)
 - **Anchors**: baseline `:nightly` = `sha256:374ad451f62c31e03407d8dcb62796fc6a8686774906a65718b83fe17a7badce`(07-23 の成功 nightly run 30037081591 が自動 promote)/ target = `sha256:39516634a7c1c5f4da2ede69d4d4906a429902ed2d2e74483ecdab65bc40a51c`(20:23:09 push。並走してキャンセルされた DB run 30215503643 の候補 `3c53dea4…` が 22 秒前に push されており GHCR 突合時に紛らわしい)。`created_by` 同一(`vuls v0.0.1-alpha.0.20260714011358-2af27b6858b4`)→ builder 除外。窓内に `pkg/{extract,fetch}/cisco` のコミットなし(main / nightly 両ブランチ)→ extractor 除外
 - **Smoking gun**: raw cisco-json `294641e8`(07-23 01:25Z)→ `5591d648`(07-25 12:55Z)の 4 コミットで 114 files / +1,570 −2,111 行。**93 advisory で productNames が計 2,022 件削除 / 1,481 件追加(純減 541)**。代表例 `2014/cisco-sa-20140326-sip.json` は productNames **149 → 36** — 削除は全て `15.3(3)JD/JDA/JF/JG/JH/JI/JK/JN/JP*` 系(**autonomous AP 用 IOS train**)。削除の族別内訳: Cisco IOS XE 1,044(ほぼ同数の 1,023 追加 = advisory 間の付け替え。例: `16.6.10` が smi2 から消え 20180926-cmp に追加)、Cisco IOS 918(AP train の削除が支配的、追加は 458)、WLC 8.x 60(sisf-dos の 1 advisory から全削除)。extracted `5595b926..7c3ad7d0` に忠実に伝播(同 advisory の criteria から `cpe:2.3:o:cisco:ios:15.3\(3\)jd12` 等が削除)→ cpe fixture の cisco-json 検知 85 advisory が変動
-- **上流イベントの性質**(深掘り調査): 影響 advisory の `lastUpdated` / `version` / `status` は**一切変わっていない** — 再公開ではなく、openVuln API がサーバ側で生成する advisory↔affected version マッピングの**サイレント再生成**。この日次 churn は 07-17 頃から継続(07-17: 110 files / 07-18: 72 / 07-19: 42、07-20〜22 は静穏、07-23 13:19Z 以降再開。毎日 12:45〜13:15Z 頃)。削除は flap ではなく持続的(07-26 HEAD `d3f1e04a` 時点で 2,022 件中 39 件しか復活せず)。API changelog・CiscoPSIRT/openVulnAPI issue にアナウンスなし。2014 年の IOS SIP advisory に 2020 年代の AP train が載っていた等の過剰マッピングの整理とみられ、データ品質改善の側面が強いが、AP/WLC 系 version を CPE スキャンしている利用者には検知消失になる
+- **上流イベントの性質**(深掘り調査): 影響 advisory の `lastUpdated` / `version` / `status` は**一切変わっていない** — 再公開ではなく、openVuln API がサーバ側で生成する advisory↔affected version マッピングの**サイレント再生成**。この日次 churn は 07-17 頃から継続(07-17: 110 files / 07-18: 72 / 07-19: 42、07-20〜22 は静穏、07-23 13:19Z 以降再開。毎日 12:45〜13:15Z 頃)。削除は flap ではなく持続的(07-26 HEADB `d3f1e04a` 時点で 2,022 件中 39 件しか復活せず)。API changelog・CiscoPSIRT/openVulnAPI issue にアナウンスなし。2014 年の IOS SIP advisory に 2020 年代の AP train が載っていた等の過剰マッピングの整理とみられ、データ品質改善の側面が強いが、AP/WLC 系 version を CPE スキャンしている利用者には検知消失になる
 - **判定**: **upstream-driven (a)**(4 日分の窓に日次 churn が蓄積して 10% 閾値を 0.9pt 超過。baseline が動けば 1 日分の窓に戻り通過見込み)
 - **対応**: 候補は上流データを忠実に反映しており promote 可(判断・実行は人間)。churn 継続中のため override(`db_change_rate_threshold_overrides` に `cpe=15` 等)は「promote 停滞で窓が伸びた時だけ再発する」性質を見極めてから
 
 #### A-22. 2026-07-28 — A-21 継続: promote 停滞 5 日で debian_12 も閾値超え(kernel CNA の CVE 一括発番が 2 ソースに同時伝播)
 
 - **Run**: DB(Nightly) [30391488230](https://github.com/vulsio/vuls-data-db/actions/runs/30391488230)(07-28 19:20、schedule)。det_master / det_old / db の 3 チェックすべて FAIL
-- **FAIL**: M `cpe_kernel / vulncheck-nist-nvd2` **17.3% > 5.0%**(1149 → 1322、Added 186 / Removed 13)+ M・O `debian_12 / debian-security-tracker-salsa` **5.2% > 5.0%**(4564 → 4797、Added 235 / Removed 2)+ D `cpe / cisco-json` **16.3% > 10.0%**(KB 0.0%。keys 1317 → 1317 で Added/Removed 0・**Changed 121**、criterions 1672 → 1672・matched 1536 = 内容の入れ替えのみ)
-- **Anchors**: baseline `:nightly` = `sha256:374ad451f62c31e03407d8dcb62796fc6a8686774906a65718b83fe17a7badce`(**A-21 と同一** — 07-23 の成功 nightly run 30037081591 の promote 以降 :nightly は 5 日間不動。07-24 02:32 の run 30061897399 が fedora:45 / fedora-api **269.6% > 50.0%**(D)で FAIL して以降、全 nightly run が連続 FAIL のストリーク中)/ target = `sha256:44fb64511c450a9feb3279dd4e77330dd1f849d1c49743bfec3b4c1959d227c0`(20:55:27 push、untagged)。`created_by` 同一(`vuls v0.0.1-alpha.0.20260714011358-2af27b6858b4`)→ builder 除外。窓(07-23 〜 07-28)内に `pkg/{extract,fetch}/{vulncheck,debian,cisco}` のコミットなし → extractor 除外
+- **FAIL**: Dn `cpe_kernel / vulncheck-nist-nvd2` **17.3% > 5.0%**(1149 → 1322、Added 186 / Removed 13)+ Dn・Do `debian_12 / debian-security-tracker-salsa` **5.2% > 5.0%**(4564 → 4797、Added 235 / Removed 2)+ DB `cpe / cisco-json` **16.3% > 10.0%**(KB 0.0%。keys 1317 → 1317 で Added/Removed 0・**Changed 121**、criterions 1672 → 1672・matched 1536 = 内容の入れ替えのみ)
+- **Anchors**: baseline `:nightly` = `sha256:374ad451f62c31e03407d8dcb62796fc6a8686774906a65718b83fe17a7badce`(**A-21 と同一** — 07-23 の成功 nightly run 30037081591 の promote 以降 :nightly は 5 日間不動。07-24 02:32 の run 30061897399 が fedora:45 / fedora-api **269.6% > 50.0%**(DB)で FAIL して以降、全 nightly run が連続 FAIL のストリーク中)/ target = `sha256:44fb64511c450a9feb3279dd4e77330dd1f849d1c49743bfec3b4c1959d227c0`(20:55:27 push、untagged)。`created_by` 同一(`vuls v0.0.1-alpha.0.20260714011358-2af27b6858b4`)→ builder 除外。窓(07-23 〜 07-28)内に `pkg/{extract,fetch}/{vulncheck,debian,cisco}` のコミットなし → extractor 除外
 - **Smoking gun(cpe_kernel / debian_12 — 同一上流イベント)**: Linux kernel CNA が 07-24 〜 07-25 に 2026 年 CVE を一括発番(CVE-2026-64187〜64317 ほか)。debian_12 の Added 235 件中 **213 件が CVE-2026-64xxx**
   - VulnCheck NVD2 側: raw `82864256..ea602cc1`(12,320 files / +652,808 −51,656)のうち当該バッチ系連番が 850 files。例 `2026/CVE-2026-64214.json`(published 2026-07-24T16:16Z、raw commit `73158baf33c` 07-25 01:23Z で追加)は `cpe:2.3:o:linux:linux_kernel` の versionEndExcluding 付き vcConfigurations(6.1.175 / 6.6.142 / 6.12.92 / 6.18.34 等)を発番直後から持ち、cpe_kernel fixture に直撃(A-20 で観測した VulnCheck 生成 CPE エンリッチが新規発番分にも即日適用される構造)
   - debian salsa 側: raw `c00c9b43..8a623766`(3,273 files / +46,750 −18,036)に同一 CVE 群が流入。同じ `CVE/2026/CVE-2026-64214.json` が raw commit `81750f6de62`(07-25 01:36Z)で追加され、`[bookworm] - linux 6.1.176-1`(fixed)の annotation で debian_12 検知に加算。extracted `b72a9134..c448abf4`(2,623 files / +226,386)へ忠実に伝播(`data/CVE/2026/CVE-2026-64214.json` は extracted commit `a2f241d75e` 07-25 で追加)
@@ -408,35 +408,35 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 #### A-23. 2026-07-31 〜 08-03 — Fortinet CSAF の製品 whitelist 追加 + 8 月初旬の windows 月次 churn
 
 - **Run**: DB [30617502603](https://github.com/vulsio/vuls-data-db/actions/runs/30617502603)(07-31 08:46)ほか、08-03 01:20 まで両系統で継続
-- **FAIL**: M `cpe_fortinet / fortinet-csaf` **8.1% > 5.0%**(37 → 40、Added 3)。08-01 12:45 の run 以降は M `windows_11_21h2 / microsoft-cvrf` **25.9% > 10.0%**(1484 → 1868、Added 384 / Removed 0)を筆頭に windows 系 6 target が同時 FAIL(21h2 25.9% / 22h2 25.4% / 10_20h2 22.2% / 11_23h2 20.6% / 10_21h1 11.5% / 10_22h2 10.6%、いずれも純増)
+- **FAIL**: Dn `cpe_fortinet / fortinet-csaf` **8.1% > 5.0%**(37 → 40、Added 3)。08-01 12:45 の run 以降は Dn `windows_11_21h2 / microsoft-cvrf` **25.9% > 10.0%**(1484 → 1868、Added 384 / Removed 0)を筆頭に windows 系 6 target が同時 FAIL(21h2 25.9% / 22h2 25.4% / 10_20h2 22.2% / 11_23h2 20.6% / 10_21h1 11.5% / 10_22h2 10.6%、いずれも純増)
 - **判定**: fortinet 側は **extractor-driven(意図的変更)** — 窓内に vuls-data-update `6217065`(07-31 03:34、#901 "fix(extract/fortinet): add FortiSIEMWindowsAgent to the product whitelist")があり、whitelist 追加により検知対象製品が増えた。windows 側は **upstream-driven (a)**(A-13 と同型の月初 Edge / MSRC churn。窓内に `pkg/{extract,fetch}/microsoft` のコミットなし)
 - **対応**: promote(判断・実行は人間)。windows 系は 05-13・06 月・07 月に続き 4 か月連続で月次イベントが 10〜25% を記録しており、A-19 で提案した server 系 override 20〜25 への引き上げは 8 月 grooming(#209)で再導出の対象となった
 
 #### A-24. 2026-08-06 — msuc seed の一括登録(**orchestration-driven の初事例**)
 
 - **Run**: DB [31083666812](https://github.com/vulsio/vuls-data-db/actions/runs/31083666812)(08-06 08:08、schedule)。候補 `sha256:b98e112f97dd703d…`
-- **FAIL**: D `microsoft / microsoft-msuc` **KB 55.9% ではなく KB 211.3% > 35.0%**(Detection 0.0%)
+- **FAIL**: DB `microsoft / microsoft-msuc` **KB 55.9% ではなく KB 211.3% > 35.0%**(Detection 0.0%)
 - **判定**: **orchestration-driven**。上流も抽出器も変わっておらず、原因は我々自身が取得対象の seed を拡張したこと。窓内の vuls-data-db コミットは #211(08-05 05:51、supersedes リストにしか現れない KB の backfill seed、+513 行)、#214(.NET Framework)、#215(SQL Server / servicing stack / Exchange)、#216(08-05 11:51、live catalog の Windows KB、+1,380 行)、#217(08-06 01:44、Office KB、+1,974 行)。最後の #217 マージの 6 時間後に発動しており、KB 集合の急拡大がそのまま KB Change Rate に出た
 - **意義**: 「上流でもコードでもなく、**何を取りに行くかの設定**が原因」というカテゴリが初めて顕在化した。これを機に triage 手順へ orchestration 除外ステップを追加(vuls-data-db #222、08-07)。ガードは自分たちの取得範囲拡張も検知するという当然の帰結だが、手順書がそれを想定していなかった
 
 #### A-25. 2026-08-06 〜 08-10 — Fortinet CVRF の履歴的アドバイザリへの検知補完(**extractor-driven の意図的変更**)
 
 - **Run**: DB(Nightly) [31085326818](https://github.com/vulsio/vuls-data-db/actions/runs/31085326818)(08-06 08:32)以降、08-10 18:37 まで継続(14 run / 106h)。候補 `sha256:762a64e61022fdad…`
-- **FAIL**: M `cpe_fortinet / fortinet-cvrf` **73.6% > 5.0%**(163 → 283、Added 120 / Removed 0)+ D `cpe / fortinet-cvrf` **135.5% > 10.0%**
+- **FAIL**: Dn `cpe_fortinet / fortinet-cvrf` **73.6% > 5.0%**(163 → 283、Added 120 / Removed 0)+ DB `cpe / fortinet-cvrf` **135.5% > 10.0%**
 - **Smoking gun**: vuls-data-update #892(`5daab53`、08-06 01:14 マージ)"feat(extract/fortinet/cvrf): supplement detection for historical advisories without product_statuses"。Fortinet は 2022 年以前の CVRF に `product_statuses` / `product_tree` を持たず、当該期間のアドバイザリは content-only で抽出されていた。この PR が埋め込みの補完テーブルを追加し、statuses 空の 465 件のうち **422 件が検知を獲得(693 product 行)**、検知を持つファイルが **643 → 1,065 件**に増加。マージの 7 時間後に初 FAIL
 - **判定**: **extractor-driven(意図的変更)**。A-8(CPE match quality 分類)と同型で、退行ではなく検知能力の向上。ガードは「意図した拡張であっても規模が大きければ人間に見せる」設計どおりに動作した
 
 #### A-26. 2026-08-10 〜 08-11 — microsoft-servicing データソースの新規追加(orchestration-driven)
 
 - **Run**: DB(Nightly) [31390913505](https://github.com/vulsio/vuls-data-db/actions/runs/31390913505)(08-10 13:02)ほか。候補 `sha256:1b54707505ebc143…`
-- **FAIL**: D `microsoft / microsoft-servicing` **KB 100.0% > 10.0%**(Detection 0.0%)
+- **FAIL**: DB `microsoft / microsoft-servicing` **KB 100.0% > 10.0%**(Detection 0.0%)
 - **判定**: **orchestration-driven**。vuls-data-db #219(`2f33d2e`、08-10 06:39)が `microsoft-servicing` ソースを新設(10 シャード / 201 seed)、依存する vuls-data-update #919(fetch)・#921(extract、`5351d5e` 08-10 06:39)と同時に有効化された。baseline 側に当該ソースが存在しないため変動率は定義上 100% になる
 - **意義**: 新規ソース追加は「baseline 不在 → 100%」で必ず発動する。A-24 と併せ、**自分たちのパイプライン拡張は 2 通りの経路(seed 拡張・ソース新設)でガードを発動させる**ことが確認できた。運用としては事前に想定できるイベントであり、閾値ではなく「拡張時は 1 回 promote する」で吸収するのが妥当
 
 #### A-27. 2026-08-13 〜 08-16 — fedora:46 の立ち上がり(**観測史上最大 3433.3%**)と 8 月中旬の複合 churn
 
 - **Run**: DB(Nightly) [31703167579](https://github.com/vulsio/vuls-data-db/actions/runs/31703167579)(08-13 13:05)ほか、08-16 18:25 まで継続。候補 `sha256:18f07c76d17c3e9e…`
-- **FAIL**: D `fedora:46 / fedora-api` が 08-13 00:49 の **66.7%** → 12:36 の **2020.0%** → 13:05 の **3433.3%** と 1 日で 2 桁上昇(いずれも > 10.0%)。同時に `fedora:45` 12.4〜12.6%。以降 08-15 に M `cpe_cisco / vulncheck-nist-nvd2` 30.0%(30 → 21、Removed 9 の純減)、08-16 に M・O `debian_12 / debian-security-tracker-salsa` 8.7% → 10.5%(5097 → 5631、Added 535)、`debian_10` 5.2〜6.3%、`debian_9` 5.2%
+- **FAIL**: DB `fedora:46 / fedora-api` が 08-13 00:49 の **66.7%** → 12:36 の **2020.0%** → 13:05 の **3433.3%** と 1 日で 2 桁上昇(いずれも > 10.0%)。同時に `fedora:45` 12.4〜12.6%。以降 08-15 に Dn `cpe_cisco / vulncheck-nist-nvd2` 30.0%(30 → 21、Removed 9 の純減)、08-16 に Dn・Do `debian_12 / debian-security-tracker-salsa` 8.7% → 10.5%(5097 → 5631、Added 535)、`debian_10` 5.2〜6.3%、`debian_9` 5.2%
 - **判定**: **upstream-driven (a)** + **threshold-only(構造要因)**。fedora:46 は新リリースの立ち上がりで baseline が極小(数十件規模)のため、上流が advisory を投入するたびに変動率が桁で跳ねる。P-2 期の新ディストリ立ち上がり(ubuntu:26.04 等)と同型で、データとしては正常。debian は kernel CVE の継続流入(A-22 と同系)、cisco は A-21 の productNames 再生成 churn の継続
 - **意義**: **小 baseline 問題の極端例**。3433.3% という値は「異常の大きさ」ではなく「分母の小ささ」を測っている。新リリース検知を追加した直後は per-target override かガード対象からの一時除外が要る、という運用則を再確認した
 
@@ -450,7 +450,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 - failed run: **476**、うち **"Run diff guard" ステップでの失敗 420**
 - 420 の内訳: **threshold trip 418** + ガード内インフラ障害 2(07-08 の baseline fetch `invalid descriptor size` ×2)
 - **有意な発動回数(fail sequence 数): 104**(DB 52 + DB(Nightly) 52) — promote 介入まで連続する FAIL を 1 つと数えたもの(隣接間隔 ≤9h で連結。中央値 2〜3 run / 最長 19 run、持続時間は中央値 11h / p90 48h / 最長 108h、単発で終息 29)。さらに main / nightly を束ね、sequence 内の source の出入りまで分解したイベントの正準単位が **69 source-episode**(§5.6)、triage 記録に基づく事例カタログとしては **約 41 イベント**(§4)
-- FAIL したチェックの組合せ分布(M=detection master / O=detection old / D=diff db): **M のみ 133、D のみ 100、M+O+D 85、M+O 53、M+D 47、infra 2**
+- FAIL したチェックの組合せ分布(Dn=detection master / Do=detection old / DB=diff db): **Dn のみ 133、DB のみ 100、Dn+Do+DB 85、Dn+Do 53、Dn+DB 47、infra 2**
 - 週末(土日 UTC)の FAIL run は 209/418 = **50%** — 上流ではなく promote が平日日中に限られることの反映(§5.6)
 - **手動 promote: 101 run / 92 unique digest(2026-04-27 〜 08-17)。92 digest 全てがガード FAIL run の候補 digest と一致** — この repo の手動 promote は 100% 「ガード FAIL をオペレータがレポート確認の上で override した」操作である。actor は shino(71)および MaineK00n(30)
 - 前半窓(〜07-14T07:40Z)単独の値は 674 run(DB 343 + Nightly 331)/ 295 ガード失敗 / 1,040 FAIL 行 / 66 sequence / 50 episode / promote 59 digest であった。後半窓(07-14 〜 08-16)で 269 run(DB 134 + Nightly 135)・125 ガード失敗・425 FAIL 行・19 episode・promote 33 digest が加わっている(674 + 269 = 943)
@@ -519,7 +519,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 
 **source 帰属の方法**: ガードレポートに source 列があるのは per-source 化(#196)後の 07-14 の 1 run のみで、それ以前の全行は **target 名 → source の静的マッピング**(`stats.py` の `src_of()`)による帰属である。その確度は 3 段階ある — ① ubuntu / debian / suse / rocky / alma / oracle / amazon / fedora の 8 家族は db-main.mk で **detection source が家族あたり 1 つしか有効でない**ため決定的。② redhat 系(redhat-cve / redhat-vex-v1-rhel の 2 source 有効)と windows_* detection(microsoft-* 4 source 有効)は名前だけでは曖昧だが、該当 episode は triage で source を個別確認済み(redhat → vex: A-9/A-10、windows → cvrf: A-1/A-4/A-12/A-13)。③ `microsoft` ecosystem の KB 系(triage 記録のない 4/24 の 134.3% 等)は msuc / wsusscn2 の可能性が残り、厳密には「microsoft-*」。`cpe` は多 source 集約のため汎用ラベルとした — ecosystem 単位で source を特定できないこと自体が A-16 の教訓であり #196 の動機。
 
-episode がイベント数の正準。「main 関与」= DB(main)側が FAIL した episode 数(M のみ + 両 wf)。**表は main 関与 episode 数の降順**(同数は episodes 総数 → FAIL 行数で決着)。sequence 側は「相乗り」の観察に使う — 「関与 seq」= その source の FAIL 行を含む sequence 数(main/nightly 別々に数える)、「発火時」= sequence の最初の run から FAIL していた(= 発火主因側だった)sequence 数。
+episode がイベント数の正準。「main 関与」= DB(main)側が FAIL した episode 数(Dn のみ + 両 wf)。**表は main 関与 episode 数の降順**(同数は episodes 総数 → FAIL 行数で決着)。sequence 側は「相乗り」の観察に使う — 「関与 seq」= その source の FAIL 行を含む sequence 数(main/nightly 別々に数える)、「発火時」= sequence の最初の run から FAIL していた(= 発火主因側だった)sequence 数。
 
 | source | **main 関与 ep** | episodes(両wf同時) | FAIL 行 | episode 持続 med/max | 関与 seq(うち発火時) | max rate |
 |---|---:|---:|---:|---:|---:|---:|
@@ -544,7 +544,7 @@ episode 粒度で見たときの要点:
 - **episode 頻度の首位は microsoft(10)、次いで ubuntu-cve-tracker / cpe 系(各 7)** — 月次サイクル・新ディストリ triage・フィード churn という発火様式の違いがそのまま頻度に出る
 - **持続時間の source 別中央値**: rocky 44h / debian 42h / amazon 35h / oracle 35h vs microsoft 24h / cpe 15h / ubuntu 12h / suse 7h — 前者ほど「override も promote もされずに粘った」発動
 - sequence 側の補足: microsoft は関与 21 seq 中 7 つが途中参加で相乗り率最大 — 月次 churn が常時くすぶっており、別イベントで止まっている sequence に窓を跨いで合流する。ubuntu(17/18)と rocky(10/10)はほぼ常に発火主因側
-- **両 workflow 同時発火は 50 episode 中 37** — main/nightly が同じ上流データを共有する以上ほぼ必然。N のみの 10 件は nightly 先行変更(6 月の cpe 系列 ×5)や `:nightly` baseline の停滞・KB 差分(microsoft ×4)、M のみの 3 件は override 非対称(tumbleweed)と per-source 化初回 run 等の系統差
+- **両 workflow 同時発火は 50 episode 中 37** — main/nightly が同じ上流データを共有する以上ほぼ必然。N のみの 10 件は nightly 先行変更(6 月の cpe 系列 ×5)や `:nightly` baseline の停滞・KB 差分(microsoft ×4)、Dn のみの 3 件は override 非対称(tumbleweed)と per-source 化初回 run 等の系統差
 - **max rate 上位は alma 428.3% / cpe_jvn 305.9% / fedora:45 274.5%** — 上流の再キュレーション・一括ロールアウト・マスアップデートという「構造イベント」は桁が違い、日常 churn(5〜20%)と明確に分離できる。閾値ガードの成立根拠がここにある
 
 #### (2) 時系列特性
