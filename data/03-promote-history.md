@@ -104,6 +104,6 @@ Cross-check finding: **all 92 of 92 unique promoted digests are candidate digest
 | 2026-08-14T09:02:38Z | 31786424691 | success | e34cb220dcd13c7df071fe8437e12da7571d953aef6ad2e7b6ba08d55077dc0e -> :0 | MaineK00n |
 | 2026-08-14T09:02:54Z | 31786442042 | success | e34cb220dcd13c7df071fe8437e12da7571d953aef6ad2e7b6ba08d55077dc0e -> :latest | MaineK00n |
 | 2026-08-14T09:03:02Z | 31786449903 | success | 445252cf0add1833b8e8c7fc58ebcc4ffef1a2f49158d44eda8d4ec1d2c2bea8 -> :nightly | MaineK00n |
-| 2026-08-17T00:51:40Z | 31983239345 | - | 16d817cf33a5d5a0f5eda66886938b8fcb89cffad4c181f79171b18b6a83dcac -> :0 | MaineK00n |
-| 2026-08-17T00:51:42Z | 31983240875 | - | 16d817cf33a5d5a0f5eda66886938b8fcb89cffad4c181f79171b18b6a83dcac -> :latest | MaineK00n |
-| 2026-08-17T00:51:44Z | 31983242445 | - | 205533cf124b8127e9cb9e852b1627cd5e587542c23c144eb57202c6bb681e23 -> :nightly | MaineK00n |
+| 2026-08-17T00:51:40Z | 31983239345 | success | 16d817cf33a5d5a0f5eda66886938b8fcb89cffad4c181f79171b18b6a83dcac -> :0 | MaineK00n |
+| 2026-08-17T00:51:42Z | 31983240875 | success | 16d817cf33a5d5a0f5eda66886938b8fcb89cffad4c181f79171b18b6a83dcac -> :latest | MaineK00n |
+| 2026-08-17T00:51:44Z | 31983242445 | success | 205533cf124b8127e9cb9e852b1627cd5e587542c23c144eb57202c6bb681e23 -> :nightly | MaineK00n |
