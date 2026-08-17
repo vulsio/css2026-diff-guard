@@ -103,7 +103,7 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
   \node[hist] (raw)  at (0,-0.95) {raw(Git履歴)};
   \node[hist] (ext)  at (0,-1.9)  {extracted(Git履歴)};
   \node[hist] (cand) at (0,-2.85) {候補DB(digestのみでpush)};
-  \node[b, fill=orange!20] (g) at (0,-3.8) {公開前検査(M / O / D)};
+  \node[b, fill=orange!20] (g) at (0,-3.8) {公開前検査(DN / DO / DB)};
   \node[b]    (pub)  at (-1.7,-4.9) {GHCRタグ公開};
   \node[hist] (hold) at (1.8,-4.9)  {保留(タグなしdigest)};
   \draw[->] (up) -- (raw)   node[midway,left,lbl] {fetch};
@@ -180,15 +180,15 @@ DB単体でもスキャナ単体でも正常であり，組み合わせの非互
 \subsection{3つのチェック}
 \label{sec:checks}
 
-公開CIの圧縮後・公開前に，次の3チェックを実行する(以下M / O / Dと略記)．
+公開CIの圧縮後・公開前に，次の3チェックを実行する(検知結果差分の2つをDN(新スキャナ)とDO(旧スキャナ)，DB構造差分をDBと略記する)．
 
 \begin{itemize}
-\item \textbf{M: 検知結果差分(スキャナ最新版)}．
+\item \textbf{DN: 検知結果差分(スキャナ最新版)}．
 baselineとtargetの両DBに対して同一のスキャン結果fixture群(実機スキャン由来，数十ファイル)でスキャナを実際に実行し，ファイル単位で検知CVE集合を比較する．
 変動率は(追加数+削除数)/baseline検知数で定義する．
-\item \textbf{O: 検知結果差分(固定した旧バージョンのスキャナ)}．
+\item \textbf{DO: 検知結果差分(固定した旧バージョンのスキャナ)}．
 過去バージョンとの組でのみ現れる非互換退行(インシデント2型)を捕捉する．
-\item \textbf{D: DB構造差分}．
+\item \textbf{DB: DB構造差分}．
 BoltDBを直接開き，ecosystem(後にソース単位へ細分化)ごとに検知条件木をleaf Criterionレベルまで平坦化して構造比較する．
 スキャン結果もスキャナも不要でDBのみで完結する．
 比較粒度をバイト列ではなくCriterionにしたのは，JSONキー順などの無害な変更での偽陽性を避けつつ，分母(全体で約330万Criterion)を大きく取り正常変動を小さなdriftとして吸収するためである．
@@ -298,11 +298,11 @@ FAIL中はpromoteがあるまでbaselineが動かず，同じ差分で6時間お
 検査は候補を破棄させ，上流回復後の再実行のみで復旧した．
 raw履歴上，当月ファイル数は1273 $\rightarrow$ 0 $\rightarrow$ 1273 $\rightarrow$ 0 $\rightarrow$ 1278とフラッピングしており，単発の取得失敗ではなく上流配信自体の不安定であった(フラップの各時点がコミットとして残っているため，この認定自体が履歴管理の産物である)．
 \item \textbf{抽出器の非決定性バグ}:
-rawの変更は266ファイルなのにextractedは23,163ファイル動くという異常をDチェックが274.5\%のdriftとして検出した．
+rawの変更は266ファイルなのにextractedは23,163ファイル動くという異常をDBチェックが274.5\%のdriftとして検出した．
 原因は抽出器が型の取り違えでソート処理をスキップし出力順序が非決定になっていたことで，修正PRに帰結した．
 期間中唯一の「上流のせいではないコード起因の異常」の捕捉である．
 \item \textbf{(限定的)VulnCheck一斉ロールアウト}:
-単一コミットで145,672ファイル，+957万行という生成CPE設定の一斉付与をDチェックが検出した．
+単一コミットで145,672ファイル，+957万行という生成CPE設定の一斉付与をDBチェックが検出した．
 ただし当時のecosystem一括の変動率では「cpe 28.9\%」としか言えず，候補はpromoteされた．
 事後のソース単位の再分析で，当該ソース単独では189.6\%の変動であり，かつ実検知が60から75\%消失する退行を含んでいたことが判明した．
 この教訓がソース単位への細分化(\ref{sec:threshold}節)の直接の動機である．
