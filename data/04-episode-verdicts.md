@@ -3,13 +3,16 @@
 stats-output.txt の `## source-episodes` の 69 行(順序同一)に、事例カタログ(§4)の判定を対応付けたもの。
 論文 表1 の episode 単位集計の根拠。証拠水準: **直接** = 原因コミット/PR/raw diff まで特定、
 **除外** = builder/extractor/取得設定のコミット走査による消去法(raw smoking gun 未確認)、
-**系列** = A-8 nightly 系列への帰属(個別 triage 無し)、**事後分類** = Phase 1〜2 期の run 表からの遡及分類。
+**系列** = A-8 開発版系列への帰属(個別 triage 無し。工程は未確定)、**事後分類** = Phase 1〜2 期の run 表からの遡及分類。
 
-集計: 上流(a) 55 / 上流(b) 2 / 上流(c) 2 / 抽出器(バグ) 1 / 抽出器(意図的) 7(直接3+系列4)/ 取得設定 2 = 69
+集計: 上流(a) 55 / 上流(b) 2 / 上流(c) 2 / 抽出器(バグ) 1 / 抽出器(意図的) 3 / 自前(系列推定，工程未確定) 4 / 取得設定 2 = 69
+
+複数原因を含む episode は、公開可否を左右した原因を代表判定とした。優先順位は
+一時障害・恒久的品質イベント > コード/設定変更 > 正当な上流変更(例: #41 は A-13(a) を含むが (b)、#58 は上流 churn を含むが抽出器)。
 
 | # | onset (UTC) | source 族 | wf | max% | 判定 | 根拠 | 証拠 |
 |---|---|---|---|---|---|---|---|
-| 1 | 2026-04-24 13:21 | microsoft-cvrf | N | 134.3 | 上流(a) | P-1 microsoft KB 初発動 | 事後分類 |
+| 1 | 2026-04-24 13:21 | microsoft-cvrf | N | 134.3 | 上流(a) | P-1 microsoft KB 初発動(source は msuc/wsusscn2 の可能性が残る = microsoft-*) | 事後分類 |
 | 2 | 2026-04-25 01:09 | ubuntu-cve-tracker | M+N | 19.8 | 上流(a) | P-1 ubuntu:26.04 初期triage | 事後分類 |
 | 3 | 2026-04-25 18:31 | debian-security-tracker | M+N | 6.0 | 上流(a) | P-1 debian_13 | 事後分類 |
 | 4 | 2026-04-30 19:01 | ubuntu-cve-tracker | M+N | 38.8 | 上流(a) | P-2 | 事後分類 |
@@ -34,16 +37,16 @@ stats-output.txt の `## source-episodes` の 69 行(順序同一)に、事例�
 | 23 | 2026-06-04 19:49 | rocky-errata | M+N | 11.6 | 上流(a) | P-5 rocky_10 減衰再発 | 事後分類 |
 | 24 | 2026-06-06 18:58 | microsoft-cvrf | M+N | 76.3 | 上流(a) | P-5 windows 大変動 | 事後分類 |
 | 25 | 2026-06-10 20:27 | microsoft-cvrf | N | 14.2 | 上流(a) | A-1 June Patch Tuesday(純増) | 直接 |
-| 26 | 2026-06-11 20:19 | cpe(nvd/vulncheck/jvn...) | N | 25.3 | 抽出器(意図的) | A-8系列 nightly先行CPE変更(個別triage無し) | 系列 |
+| 26 | 2026-06-11 20:19 | cpe(nvd/vulncheck/jvn...) | N | 25.3 | 自前(工程未確定) | A-8系列 開発版先行のCPE関連変更(候補: vuls-data-update #827/#841=06-10，#850=06-18，vuls2側変更。個別triage無し) | 系列 |
 | 27 | 2026-06-12 09:48 | microsoft-cvrf | M | 26.8 | 上流(a) | A-1続き windows_server_2008_r2 | 直接 |
 | 28 | 2026-06-13 08:41 | rocky-errata | M+N | 10.7 | 上流(a) | A-2 rocky_10 新規errataバッチ | 直接 |
-| 29 | 2026-06-14 03:57 | cpe(nvd/vulncheck/jvn...) | N | 40.1 | 抽出器(意図的) | A-8系列 nightly先行CPE変更(個別triage無し) | 系列 |
+| 29 | 2026-06-14 03:57 | cpe(nvd/vulncheck/jvn...) | N | 40.1 | 自前(工程未確定) | A-8系列 開発版先行のCPE関連変更(候補: vuls-data-update #827/#841=06-10，#850=06-18，vuls2側変更。個別triage無し) | 系列 |
 | 30 | 2026-06-15 11:36 | fedora-api | M+N | 268.8 | 上流(a) | A-3 FEDORA-2026-54c7ad647e マスアップデート | 直接 |
 | 31 | 2026-06-16 10:46 | microsoft-cvrf | M+N | 46.3 | 上流(b) | A-4 CVRF 2026-Jun全消失(raw 723→0) | 直接 |
-| 32 | 2026-06-17 04:00 | cpe(nvd/vulncheck/jvn...) | N | 122.7 | 抽出器(意図的) | A-8系列 nightly先行CPE変更(個別triage無し) | 系列 |
+| 32 | 2026-06-17 04:00 | cpe(nvd/vulncheck/jvn...) | N | 122.7 | 自前(工程未確定) | A-8系列 開発版先行のCPE関連変更(候補: vuls-data-update #827/#841=06-10，#850=06-18，vuls2側変更。個別triage無し) | 系列 |
 | 33 | 2026-06-17 10:19 | fedora-api | M+N | 72.5 | 上流(a) | A-5 マスアップデート撤回(Bodhi) | 直接 |
 | 34 | 2026-06-19 02:36 | fedora-api | M+N | 274.5 | 抽出器(バグ) | A-6 ソート欠落による非決定出力(修正PR) | 直接 |
-| 35 | 2026-06-19 10:23 | cpe(nvd/vulncheck/jvn...) | N | 18.6 | 抽出器(意図的) | A-8系列 nightly先行CPE変更(個別triage無し) | 系列 |
+| 35 | 2026-06-19 10:23 | cpe(nvd/vulncheck/jvn...) | N | 18.6 | 自前(工程未確定) | A-8系列 開発版先行のCPE関連変更(候補: vuls-data-update #827/#841=06-10，#850=06-18，vuls2側変更。個別triage無し) | 系列 |
 | 36 | 2026-06-23 08:51 | amazon | M+N | 7.4 | 上流(a) | A-7 Amazon 10日分バッチ | 直接 |
 | 37 | 2026-06-24 03:29 | cpe(nvd/vulncheck/jvn...) | N | 18.0 | 抽出器(意図的) | A-8 CPE match quality分類 #850 | 直接 |
 | 38 | 2026-06-27 01:50 | ubuntu-cve-tracker | M+N | 53.3 | 上流(a) | A-9 ubuntu 26.04 triage進行 | 直接 |
