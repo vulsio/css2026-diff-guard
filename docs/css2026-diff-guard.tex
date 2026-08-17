@@ -135,7 +135,7 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
 
 vuls.dbの生成は3工程からなる\cite{nakaoka2025,vuls-data-update,vuls-data-db}．
 fetch工程は一次情報源から取得したデータを原形をほぼ保ったvuls-data-raw形式で，extract工程はそれを共通スキーマのvuls-data-extracted形式で，それぞれGit管理下に置く．
-db build工程はextractedデータからBoltDB形式のvuls.dbを構築し，コンテナレジストリ(GHCR)にタグおよびdigestで公開する．
+db build工程はextractedデータからBoltDB形式のvuls.dbを構築し，コンテナレジストリ(GitHub Container Registry，以下GHCR)にタグおよびdigestで公開する．
 以下本稿では，extract工程の変換コードを\textbf{抽出器}，db build工程の構築コードを\textbf{ビルダ}と呼ぶ．
 この構成により，(1)任意時点の上流データの状態をコミット単位で遡れる，(2)DBをdigestで固定して検知結果を再現できる，という2つの性質が得られている．
 本稿の測定はこの2性質の直接の応用である．
