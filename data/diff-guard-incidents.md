@@ -115,7 +115,7 @@ diff-guard-triage skill(`vuls-data-db/.claude/skills/diff-guard-triage/SKILL.md`
 
 ガード投入の**翌日から**発動が始まり、初の手動 promote(4/27)まで 20 run が連続 FAIL した。3 つの独立した上流イベントが重なっている:
 
-1. **microsoft KB 134.3%**(DB、nightly のみ): 初発動 run は DBB(Nightly) [24891731249](https://github.com/vulsio/vuls-data-db/actions/runs/24891731249)(04-24 13:21)。`microsoft` ecosystem の KB Change Rate 134.3%(Detection 0.0%)。旧い `:nightly` baseline に対する Windows KB データの大規模更新
+1. **microsoft KB 134.3%**(DB、nightly のみ): 初発動 run は DB(Nightly) [24891731249](https://github.com/vulsio/vuls-data-db/actions/runs/24891731249)(04-24 13:21)。`microsoft` ecosystem の KB Change Rate 134.3%(Detection 0.0%)。旧い `:nightly` baseline に対する Windows KB データの大規模更新
 2. **ubuntu:26.04 19.8%**(DB、main は 04-25 01:09 の [24918908102](https://github.com/vulsio/vuls-data-db/actions/runs/24918908102) から): Ubuntu 26.04 リリース直後の ubuntu-cve-tracker 大量 triage による構造 churn(Changed Root **18,871 件**)
 3. **debian_13 6.0%**(Dn、04-25 18:31 以降): Debian trixie への新規 CVE 一括流入(2119 → 2246、Added 127 / Removed 0、CVE-2026-31536〜31580 等の連番)。当時のガードは最初の FAIL で停止する実装だったため、Dn(debian_13)が FAIL すると DB(ubuntu:26.04)は記録に現れなくなる — 04-27 のローカル全チェック再現(`vuls-data-db/local-diff-guard.lo/20260427-vuls-nightly-db-2796a350-vs-0/`、候補 `2796a350…`)で両方が FAIL することを確認している
 - **判定**: いずれも **upstream-driven (a)**(新ディストリ立ち上がり期の bulk churn + ベンダー月次データ)
