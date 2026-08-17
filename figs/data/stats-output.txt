@@ -1,0 +1,473 @@
+# parsed: 418 guard-trip runs, 1465 FAIL rows
+
+## per-target: runs / events / max-rate / active-span
+target                                    src                          runs events     max%
+cpe                                       cpe(nvd/vulncheck/jvn...)     114     14    135.5
+rocky_10                                  rocky-errata                   96      3     34.4
+windows_11_21h2                           microsoft-cvrf                 71      7     76.3
+windows_11_22h2                           microsoft-cvrf                 71      7     72.1
+windows_10_20h2                           microsoft-cvrf                 59      6     50.2
+debian_13                                 debian-security-tracker        52      3     14.1
+windows_11_23h2                           microsoft-cvrf                 42      6     49.9
+windows_10_22h2                           microsoft-cvrf                 42      6     22.5
+cpe_fortinet                              cpe(nvd/vulncheck/jvn...)      42      5     73.6
+cpe_cisco                                 cpe(nvd/vulncheck/jvn...)      40      5    204.5
+windows_10_21h1                           microsoft-cvrf                 40      5     19.0
+amazon_2_extra_kernel                     amazon                         36      4     12.4
+fedora:45                                 fedora-api                     35      6    274.5
+ubuntu_2604                               ubuntu-cve-tracker             35      4     53.3
+windows_11_25h2                           microsoft-cvrf                 33      6     49.9
+windows_11_24h2                           microsoft-cvrf                 33      6     49.5
+debian_12                                 debian-security-tracker        31      4     10.5
+windows_server_2022                       microsoft-cvrf                 30      5     49.8
+windows_server_2025                       microsoft-cvrf                 30      5     33.7
+windows_server_2022_sql_server_2019       microsoft-cvrf                 30      5     31.8
+opensuse_tumbleweed                       suse-oval                      29      3     10.9
+microsoft                                 microsoft-cvrf                 28      6    211.3
+windows_10_21h2                           microsoft-cvrf                 28      4     18.4
+oracle_8                                  oracle-linux                   28      1      7.0
+windows_10_21h2_old                       microsoft-cvrf                 25      3     16.2
+amazon_2023                               amazon                         25      3      7.4
+ubuntu:25.10                              ubuntu-cve-tracker             23      1     47.8
+alma_10                                   alma-errata                    22      2    428.3
+suse.linux.enterprise:16                  suse-oval                      21      1    212.9
+ubuntu:snap                               ubuntu-cve-tracker             16      1     21.7
+rocky:10                                  rocky-errata                   16      1     14.1
+debian_10                                 debian-security-tracker        16      1      6.3
+opensuse_leap_16_kernel-default-base      suse-oval                      15      4    100.0
+opensuse_leap_16                          suse-oval                      15      4    100.0
+cpe_kernel                                cpe(nvd/vulncheck/jvn...)      15      2     18.4
+cpe_nvd                                   cpe(nvd/vulncheck/jvn...)      13      3     26.3
+alma:10                                   alma-errata                    12      2    264.0
+ubuntu:26.04                              ubuntu-cve-tracker             10      2     19.8
+fedora:46                                 fedora-api                      8      1   3433.3
+oracle_10                                 oracle-linux                    8      1    132.9
+redhat:5                                  redhat-vex                      8      1     21.9
+redhat:7                                  redhat-vex                      8      1     14.0
+oracle_9                                  oracle-linux                    8      1     13.7
+debian_9                                  debian-security-tracker         8      1      5.2
+opensuse.leap:16.0                        suse-oval                       7      3     36.9
+windows_server_2012_r2                    microsoft-cvrf                  7      3     15.2
+cpe_jvn                                   cpe(nvd/vulncheck/jvn...)       7      2    305.9
+redhat:4                                  redhat-vex                      7      1     17.8
+redhat:6                                  redhat-vex                      7      1     14.0
+alma_9                                    alma-errata                     6      1     13.7
+alma_8                                    alma-errata                     6      1      8.8
+rhel_10                                   redhat-vex                      6      1      7.9
+windows_server_2019                       microsoft-cvrf                  5      2     23.5
+windows_server_2016                       microsoft-cvrf                  5      2     17.1
+windows_server_2012                       microsoft-cvrf                  5      2     15.3
+ubuntu:16.04                              ubuntu-cve-tracker              4      1     39.5
+sles12                                    suse-oval                       4      1      5.6
+ubuntu_2404                               ubuntu-cve-tracker              4      1      5.5
+rocky_9                                   rocky-errata                    4      1      5.4
+ubuntu:14.04                              ubuntu-cve-tracker              3      1     13.5
+alma:9                                    alma-errata                     3      1     11.7
+windows_server_2008_r2                    microsoft-cvrf                  2      1     26.8
+suse.linux.micro:6                        suse-oval                       2      1     15.6
+redhat:9                                  redhat-vex                      2      1     10.3
+cpe_paloalto                              cpe(nvd/vulncheck/jvn...)       2      1      9.7
+
+## per-source: runs(rows) / target-events / distinct targets / max-rate
+source                          rows  events  targets     max%
+microsoft-cvrf                   586      87       19    211.3
+cpe(nvd/vulncheck/jvn...)        233      32        7    305.9
+suse-oval                         93      17        7    212.9
+ubuntu-cve-tracker                95      11        7     53.3
+debian-security-tracker          107       9        4     14.1
+amazon                            61       7        2     12.4
+fedora-api                        43       7        2   3433.3
+alma-errata                       49       7        5    428.3
+redhat-vex                        38       6        6     21.9
+rocky-errata                     116       5        3     34.4
+oracle-linux                      44       3        3    132.9
+
+## run-level: guard-trip runs by weekday (streak-amplified; UTC)
+Mon:  50 #########################
+Tue:  33 ################
+Wed:  51 #########################
+Thu:  41 ####################
+Fri:  34 #################
+Sat:  96 ################################################
+Sun: 113 ########################################################
+
+## event-onset: target-event onsets by weekday (UTC)
+Mon:   8 ########
+Tue:  44 ############################################
+Wed:  35 ###################################
+Thu:  34 ##################################
+Fri:  16 ################
+Sat:  37 #####################################
+Sun:  17 #################
+(n=191 target-events; 週あたり期待値 ~27.3)
+
+## event-onset by day-of-month bucket
+01-10: 92
+11-20: 69
+21-31: 30
+
+## microsoft-cvrf target-event onsets vs Patch Tuesday (days after nearest PT)
+PT-12d: 1
+PT-10d: 1
+PT-7d: 1
+PT-5d: 1
+PT-3d: 1
+PT-2d: 1
+PT-1d: 1
+PT+1d: 3
+PT+2d: 1
+PT+3d: 1
+PT+6d: 1
+PT+7d: 1
+PT+10d: 1
+(onset dates: 2026-04-24, 2026-05-13, 2026-05-18, 2026-06-02, 2026-06-06, 2026-06-10, 2026-06-12, 2026-06-16, 2026-07-02, 2026-07-12, 2026-07-15, 2026-07-16, 2026-08-01, 2026-08-06, 2026-08-10 )
+
+## independent-ish sample size: 191 target-events on 64 distinct onset dates over the window
+
+## cluster-level (source x onset-window<=2d) — 独立イベント近似
+total clusters: 69
+  2026-04-24 Fri  microsoft-cvrf               targets=1
+  2026-04-25 Sat  ubuntu-cve-tracker           targets=1
+  2026-04-25 Sat  debian-security-tracker      targets=1
+  2026-04-30 Thu  ubuntu-cve-tracker           targets=1
+  2026-05-02 Sat  debian-security-tracker      targets=1
+  2026-05-05 Tue  suse-oval                    targets=1
+  2026-05-06 Wed  debian-security-tracker      targets=1
+  2026-05-08 Fri  ubuntu-cve-tracker           targets=2
+  2026-05-09 Sat  debian-security-tracker      targets=1
+  2026-05-10 Sun  amazon                       targets=1
+  2026-05-10 Sun  suse-oval                    targets=2
+  2026-05-13 Wed  oracle-linux                 targets=1
+  2026-05-13 Wed  microsoft-cvrf               targets=1
+  2026-05-16 Sat  amazon                       targets=1
+  2026-05-18 Mon  fedora-api                   targets=1
+  2026-05-18 Mon  microsoft-cvrf               targets=1
+  2026-05-20 Wed  ubuntu-cve-tracker           targets=3
+  2026-05-23 Sat  ubuntu-cve-tracker           targets=1
+  2026-05-27 Wed  alma-errata                  targets=2
+  2026-05-28 Thu  rocky-errata                 targets=3
+  2026-05-29 Fri  suse-oval                    targets=3
+  2026-06-02 Tue  microsoft-cvrf               targets=12
+  2026-06-04 Thu  rocky-errata                 targets=1
+  2026-06-06 Sat  microsoft-cvrf               targets=13
+  2026-06-10 Wed  microsoft-cvrf               targets=15
+  2026-06-11 Thu  cpe(nvd/vulncheck/jvn...)    targets=1
+  2026-06-13 Sat  rocky-errata                 targets=1
+  2026-06-14 Sun  cpe(nvd/vulncheck/jvn...)    targets=1
+  2026-06-15 Mon  fedora-api                   targets=3
+  2026-06-16 Tue  microsoft-cvrf               targets=13
+  2026-06-17 Wed  cpe(nvd/vulncheck/jvn...)    targets=1
+  2026-06-19 Fri  cpe(nvd/vulncheck/jvn...)    targets=1
+  2026-06-23 Tue  amazon                       targets=2
+  2026-06-24 Wed  cpe(nvd/vulncheck/jvn...)    targets=1
+  2026-06-27 Sat  ubuntu-cve-tracker           targets=1
+  2026-06-28 Sun  redhat-vex                   targets=5
+  2026-07-01 Wed  suse-oval                    targets=3
+  2026-07-02 Thu  microsoft-cvrf               targets=13
+  2026-07-07 Tue  alma-errata                  targets=5
+  2026-07-07 Tue  oracle-linux                 targets=2
+  2026-07-08 Wed  amazon                       targets=2
+  2026-07-09 Thu  cpe(nvd/vulncheck/jvn...)    targets=2
+  2026-07-11 Sat  ubuntu-cve-tracker           targets=1
+  2026-07-11 Sat  suse-oval                    targets=1
+  2026-07-12 Sun  microsoft-cvrf               targets=3
+  2026-07-14 Tue  ubuntu-cve-tracker           targets=1
+  2026-07-14 Tue  cpe(nvd/vulncheck/jvn...)    targets=5
+  2026-07-15 Wed  microsoft-cvrf               targets=7
+  2026-07-18 Sat  suse-oval                    targets=1
+  2026-07-18 Sat  cpe(nvd/vulncheck/jvn...)    targets=1
+  2026-07-20 Mon  debian-security-tracker      targets=1
+  2026-07-22 Wed  cpe(nvd/vulncheck/jvn...)    targets=2
+  2026-07-22 Wed  redhat-vex                   targets=1
+  2026-07-24 Fri  fedora-api                   targets=1
+  2026-07-25 Sat  cpe(nvd/vulncheck/jvn...)    targets=2
+  2026-07-28 Tue  debian-security-tracker      targets=1
+  2026-07-31 Fri  cpe(nvd/vulncheck/jvn...)    targets=2
+  2026-08-01 Sat  microsoft-cvrf               targets=6
+  2026-08-04 Tue  suse-oval                    targets=3
+  2026-08-05 Wed  amazon                       targets=1
+  2026-08-06 Thu  microsoft-cvrf               targets=1
+  2026-08-06 Thu  cpe(nvd/vulncheck/jvn...)    targets=3
+  2026-08-10 Mon  microsoft-cvrf               targets=1
+  2026-08-10 Mon  cpe(nvd/vulncheck/jvn...)    targets=2
+  2026-08-13 Thu  fedora-api                   targets=2
+  2026-08-13 Thu  cpe(nvd/vulncheck/jvn...)    targets=5
+  2026-08-14 Fri  suse-oval                    targets=3
+  2026-08-15 Sat  cpe(nvd/vulncheck/jvn...)    targets=3
+  2026-08-16 Sun  debian-security-tracker      targets=3
+
+cluster onsets by weekday:
+Mon:   6 ######
+Tue:  10 ##########
+Wed:  14 ##############
+Thu:  10 ##########
+Fri:   7 #######
+Sat:  16 ################
+Sun:   6 ######
+cluster onsets by day-of-month:
+01-10: 24
+11-20: 27
+21-31: 18
+clusters per source: {'cpe(nvd/vulncheck/jvn...)': 15, 'microsoft-cvrf': 13, 'ubuntu-cve-tracker': 8, 'suse-oval': 8, 'debian-security-tracker': 7, 'amazon': 5, 'fedora-api': 4, 'rocky-errata': 3, 'oracle-linux': 2, 'alma-errata': 2, 'redhat-vex': 2}
+
+## fail sequences per workflow (gap<=9h)
+DB: runs=189 sequences=52 median_len=2 longest=9 (04-25 01:09..04-27 01:19)
+DB(Nightly): runs=229 sequences=52 median_len=3 longest=19 (05-02 07:41..05-06 19:43)
+total sequences: 104
+
+## sequence table (66 expected)
+wf	onset(UTC)	end	runs	dur_h	onset_sources	all_sources	n_targets
+DB(Nightly)	2026-04-24 13:21	04-27 02:40	11	61	microsoft-cvrf	debian-security-tracker,microsoft-cvrf,ubuntu-cve-tracker	3
+DB	2026-04-25 01:09	04-27 01:19	9	48	ubuntu-cve-tracker	debian-security-tracker,ubuntu-cve-tracker	2
+DB	2026-04-30 19:01	05-01 01:30	2	6	ubuntu-cve-tracker	ubuntu-cve-tracker	1
+DB(Nightly)	2026-04-30 19:18	04-30 19:18	1	0	ubuntu-cve-tracker	ubuntu-cve-tracker	1
+DB	2026-05-02 07:14	05-03 01:24	4	18	debian-security-tracker	debian-security-tracker	1
+DB(Nightly)	2026-05-02 07:41	05-06 19:43	19	108	debian-security-tracker	debian-security-tracker,suse-oval	3
+DB	2026-05-06 19:14	05-07 01:26	2	6	debian-security-tracker	debian-security-tracker	2
+DB	2026-05-08 01:29	05-08 01:29	1	0	ubuntu-cve-tracker	ubuntu-cve-tracker	2
+DB(Nightly)	2026-05-08 02:49	05-08 02:49	1	0	ubuntu-cve-tracker	ubuntu-cve-tracker	2
+DB	2026-05-09 07:27	05-11 01:46	8	42	debian-security-tracker	amazon,debian-security-tracker,suse-oval	4
+DB(Nightly)	2026-05-09 07:54	05-10 19:01	7	35	debian-security-tracker	amazon,debian-security-tracker,suse-oval	4
+DB	2026-05-13 08:27	05-14 19:23	7	35	oracle-linux	oracle-linux	1
+DB(Nightly)	2026-05-13 08:42	05-14 19:43	7	35	microsoft-cvrf,oracle-linux	microsoft-cvrf,oracle-linux	2
+DB	2026-05-16 07:43	05-17 12:45	6	29	amazon	amazon	1
+DB(Nightly)	2026-05-16 08:02	05-18 19:42	11	60	amazon	amazon,fedora-api,microsoft-cvrf	3
+DB	2026-05-18 19:18	05-18 19:18	1	0	fedora-api	fedora-api	1
+DB	2026-05-20 08:47	05-20 19:57	3	11	ubuntu-cve-tracker	ubuntu-cve-tracker	3
+DB(Nightly)	2026-05-20 20:12	05-20 20:12	1	0	ubuntu-cve-tracker	ubuntu-cve-tracker	3
+DB	2026-05-23 07:59	05-25 01:58	8	42	ubuntu-cve-tracker	ubuntu-cve-tracker	1
+DB(Nightly)	2026-05-23 08:16	05-25 03:41	8	43	ubuntu-cve-tracker	ubuntu-cve-tracker	1
+DB	2026-05-27 08:53	05-28 04:00	5	19	alma-errata	alma-errata	2
+DB(Nightly)	2026-05-27 09:41	05-28 04:01	4	18	alma-errata	alma-errata	2
+DB	2026-05-28 19:59	05-28 19:59	1	0	rocky-errata	rocky-errata	1
+DB(Nightly)	2026-05-28 20:20	05-28 20:20	1	0	rocky-errata	rocky-errata	1
+DB	2026-05-29 08:58	05-29 08:58	1	0	suse-oval	suse-oval	3
+DB(Nightly)	2026-05-29 09:51	05-29 09:51	1	0	suse-oval	suse-oval	3
+DB	2026-05-30 08:11	06-01 02:07	8	42	rocky-errata	rocky-errata	2
+DB(Nightly)	2026-05-30 08:25	06-01 03:56	8	44	rocky-errata	rocky-errata	2
+DB(Nightly)	2026-06-02 03:52	06-02 10:20	2	6	microsoft-cvrf	microsoft-cvrf	12
+DB	2026-06-02 09:54	06-02 09:54	1	0	microsoft-cvrf	microsoft-cvrf	12
+DB	2026-06-04 19:49	06-05 01:58	2	6	rocky-errata	rocky-errata	1
+DB(Nightly)	2026-06-04 20:03	06-05 03:38	2	8	rocky-errata	rocky-errata	1
+DB	2026-06-06 01:50	06-08 02:08	9	48	rocky-errata	microsoft-cvrf,rocky-errata	14
+DB(Nightly)	2026-06-06 03:22	06-07 19:19	8	40	rocky-errata	microsoft-cvrf,rocky-errata	14
+DB(Nightly)	2026-06-10 20:27	06-11 03:52	2	7	microsoft-cvrf	microsoft-cvrf	13
+DB(Nightly)	2026-06-11 20:19	06-11 20:19	1	0	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...)	1
+DB	2026-06-12 09:48	06-12 14:25	2	5	microsoft-cvrf	microsoft-cvrf	2
+DB	2026-06-13 08:41	06-14 19:01	7	34	rocky-errata	rocky-errata	1
+DB(Nightly)	2026-06-14 03:57	06-14 19:24	4	15	cpe(nvd/vulncheck/jvn...),rocky-errata	cpe(nvd/vulncheck/jvn...),rocky-errata	2
+DB	2026-06-15 11:36	06-16 20:32	7	33	fedora-api	fedora-api,microsoft-cvrf	14
+DB(Nightly)	2026-06-15 12:09	06-17 20:09	10	56	fedora-api	cpe(nvd/vulncheck/jvn...),fedora-api,microsoft-cvrf	15
+DB	2026-06-17 10:19	06-17 19:52	3	10	fedora-api	fedora-api	1
+DB	2026-06-19 02:36	06-19 02:36	1	0	fedora-api	fedora-api	1
+DB(Nightly)	2026-06-19 04:11	06-21 19:27	12	63	fedora-api	cpe(nvd/vulncheck/jvn...),fedora-api	2
+DB	2026-06-23 08:51	06-23 08:51	1	0	amazon	amazon	2
+DB(Nightly)	2026-06-24 03:29	06-24 19:43	4	16	amazon,cpe(nvd/vulncheck/jvn...)	amazon,cpe(nvd/vulncheck/jvn...)	3
+DB	2026-06-27 01:50	06-29 02:01	9	48	ubuntu-cve-tracker	redhat-vex,ubuntu-cve-tracker	5
+DB(Nightly)	2026-06-29 10:55	06-29 19:55	3	9	redhat-vex,ubuntu-cve-tracker	redhat-vex,ubuntu-cve-tracker	6
+DB	2026-07-01 02:01	07-01 02:01	1	0	suse-oval	suse-oval	3
+DB(Nightly)	2026-07-01 03:42	07-01 03:42	1	0	suse-oval	suse-oval	2
+DB	2026-07-02 13:22	07-02 19:03	2	6	microsoft-cvrf	microsoft-cvrf	13
+DB(Nightly)	2026-07-02 13:56	07-02 19:21	2	5	microsoft-cvrf	microsoft-cvrf	13
+DB	2026-07-03 13:25	07-03 18:55	2	5	microsoft-cvrf	microsoft-cvrf	13
+DB(Nightly)	2026-07-03 14:00	07-03 19:19	2	5	microsoft-cvrf	microsoft-cvrf	13
+DB	2026-07-04 08:15	07-05 18:53	7	35	microsoft-cvrf	microsoft-cvrf	3
+DB(Nightly)	2026-07-04 08:34	07-05 19:15	7	35	microsoft-cvrf	microsoft-cvrf	3
+DB(Nightly)	2026-07-07 06:53	07-07 19:52	3	13	alma-errata	alma-errata,oracle-linux	7
+DB	2026-07-07 08:40	07-07 19:27	4	11	alma-errata	alma-errata,oracle-linux	7
+DB	2026-07-08 13:19	07-09 01:24	3	12	amazon	amazon,cpe(nvd/vulncheck/jvn...)	3
+DB(Nightly)	2026-07-09 02:51	07-09 02:51	1	0	amazon,cpe(nvd/vulncheck/jvn...)	amazon,cpe(nvd/vulncheck/jvn...)	3
+DB	2026-07-11 01:15	07-11 01:15	1	0	cpe(nvd/vulncheck/jvn...),ubuntu-cve-tracker	cpe(nvd/vulncheck/jvn...),ubuntu-cve-tracker	2
+DB(Nightly)	2026-07-11 02:31	07-11 13:15	3	11	cpe(nvd/vulncheck/jvn...),ubuntu-cve-tracker	cpe(nvd/vulncheck/jvn...),ubuntu-cve-tracker	2
+DB	2026-07-11 12:43	07-13 13:52	9	49	suse-oval,ubuntu-cve-tracker	cpe(nvd/vulncheck/jvn...),microsoft-cvrf,suse-oval,ubuntu-cve-tracker	6
+DB(Nightly)	2026-07-12 02:37	07-12 13:15	3	11	cpe(nvd/vulncheck/jvn...),ubuntu-cve-tracker	cpe(nvd/vulncheck/jvn...),microsoft-cvrf,ubuntu-cve-tracker	5
+DB(Nightly)	2026-07-13 02:39	07-13 19:20	4	17	cpe(nvd/vulncheck/jvn...),microsoft-cvrf,ubuntu-cve-tracker	cpe(nvd/vulncheck/jvn...),microsoft-cvrf,ubuntu-cve-tracker	4
+DB	2026-07-14 01:07	07-14 07:40	2	7	cpe(nvd/vulncheck/jvn...),microsoft-cvrf,suse-oval,ubuntu-cve-tracker	cpe(nvd/vulncheck/jvn...),microsoft-cvrf,suse-oval,ubuntu-cve-tracker	10
+DB(Nightly)	2026-07-14 08:00	07-14 08:00	1	0	cpe(nvd/vulncheck/jvn...),microsoft-cvrf,ubuntu-cve-tracker	cpe(nvd/vulncheck/jvn...),microsoft-cvrf,ubuntu-cve-tracker	9
+DB	2026-07-15 07:43	07-15 07:43	1	0	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	2
+DB(Nightly)	2026-07-15 08:06	07-15 08:06	1	0	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	2
+DB(Nightly)	2026-07-16 02:28	07-16 02:28	1	0	microsoft-cvrf	microsoft-cvrf	6
+DB	2026-07-16 13:08	07-16 18:50	2	6	microsoft-cvrf	microsoft-cvrf	6
+DB	2026-07-18 01:09	07-19 07:51	6	31	cpe(nvd/vulncheck/jvn...),suse-oval	cpe(nvd/vulncheck/jvn...),suse-oval	2
+DB(Nightly)	2026-07-18 02:21	07-18 02:21	1	0	cpe(nvd/vulncheck/jvn...),suse-oval	cpe(nvd/vulncheck/jvn...),suse-oval	2
+DB(Nightly)	2026-07-18 13:10	07-19 08:13	4	19	cpe(nvd/vulncheck/jvn...),suse-oval	cpe(nvd/vulncheck/jvn...),suse-oval	2
+DB	2026-07-19 18:43	07-20 19:18	5	25	cpe(nvd/vulncheck/jvn...),suse-oval	cpe(nvd/vulncheck/jvn...),debian-security-tracker,suse-oval	3
+DB(Nightly)	2026-07-19 19:02	07-20 19:41	5	25	cpe(nvd/vulncheck/jvn...),suse-oval	cpe(nvd/vulncheck/jvn...),debian-security-tracker,suse-oval	3
+DB	2026-07-22 01:14	07-22 18:51	4	18	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...),redhat-vex	3
+DB(Nightly)	2026-07-22 02:30	07-22 19:15	4	17	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...),redhat-vex	3
+DB(Nightly)	2026-07-24 02:32	07-25 08:03	6	30	fedora-api	fedora-api	1
+DB	2026-07-24 08:00	07-25 07:44	5	24	fedora-api	fedora-api	1
+DB(Nightly)	2026-07-25 19:04	07-28 19:20	13	72	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...),debian-security-tracker	3
+DB	2026-07-26 08:00	07-26 12:48	2	5	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...)	1
+DB(Nightly)	2026-07-31 08:46	08-02 19:06	11	58	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	8
+DB	2026-08-01 12:45	08-02 12:48	5	24	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	8
+DB	2026-08-03 01:20	08-03 01:20	1	0	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	8
+DB	2026-08-04 19:13	08-05 01:13	2	6	suse-oval	suse-oval	3
+DB(Nightly)	2026-08-04 19:34	08-04 19:34	1	0	suse-oval	suse-oval	3
+DB	2026-08-05 13:27	08-05 19:06	2	6	amazon	amazon	1
+DB(Nightly)	2026-08-05 19:26	08-05 19:26	1	0	amazon	amazon	1
+DB	2026-08-06 08:08	08-06 08:08	1	0	microsoft-cvrf	microsoft-cvrf	1
+DB(Nightly)	2026-08-06 08:32	08-06 14:03	2	6	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	3
+DB	2026-08-06 22:30	08-07 06:54	2	8	microsoft-cvrf	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	2
+DB(Nightly)	2026-08-06 23:55	08-06 23:55	1	0	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	3
+DB(Nightly)	2026-08-07 18:53	08-09 01:36	6	31	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...)	1
+DB(Nightly)	2026-08-09 12:45	08-09 18:36	2	6	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...)	1
+DB	2026-08-10 12:36	08-10 18:37	2	6	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	cpe(nvd/vulncheck/jvn...),microsoft-cvrf	3
+DB(Nightly)	2026-08-10 13:02	08-11 01:37	3	13	microsoft-cvrf	microsoft-cvrf	1
+DB	2026-08-13 00:49	08-13 00:49	1	0	cpe(nvd/vulncheck/jvn...),fedora-api	cpe(nvd/vulncheck/jvn...),fedora-api	6
+DB(Nightly)	2026-08-13 01:50	08-14 01:47	5	24	cpe(nvd/vulncheck/jvn...),fedora-api	cpe(nvd/vulncheck/jvn...),fedora-api,suse-oval	10
+DB	2026-08-13 12:36	08-14 00:48	3	12	cpe(nvd/vulncheck/jvn...),fedora-api	cpe(nvd/vulncheck/jvn...),fedora-api,suse-oval	8
+DB(Nightly)	2026-08-15 01:07	08-15 01:07	1	0	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...)	2
+DB	2026-08-15 06:14	08-15 12:10	2	6	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...)	2
+DB(Nightly)	2026-08-15 12:32	08-16 18:25	6	30	cpe(nvd/vulncheck/jvn...)	cpe(nvd/vulncheck/jvn...),debian-security-tracker	6
+DB	2026-08-16 00:27	08-16 18:08	4	18	cpe(nvd/vulncheck/jvn...),debian-security-tracker	cpe(nvd/vulncheck/jvn...),debian-security-tracker	6
+
+## per-source at sequence granularity
+source                         seqs at-onset  len med/max  dur_h med/max
+cpe(nvd/vulncheck/jvn...)        41       36      3/13          12/72   
+microsoft-cvrf                   35       27      2/11           7/61   
+ubuntu-cve-tracker               19       18      3/11          11/61   
+suse-oval                        18       13      4/19          19/108  
+debian-security-tracker          12        6      7/19          35/108  
+fedora-api                       12       11      5/12          24/63   
+amazon                           10        8      4/11          16/60   
+rocky-errata                     10       10      7/9           34/48   
+oracle-linux                      4        2      7/7           35/35   
+alma-errata                       4        4      4/5           18/19   
+redhat-vex                        4        1      4/9           18/48   
+
+## sequence onsets by weekday / day-of-month (n=104)
+Mon:   8 ########
+Tue:   9 #########
+Wed:  19 ###################
+Thu:  19 ###################
+Fri:  14 ##############
+Sat:  28 ############################
+Sun:   7 #######
+01-10: 40
+11-20: 39
+21-31: 25
+
+## sequence length / duration distribution
+runs per seq: min 1 / med 3 / p90 9 / max 19
+first-fail..last-fail hours: med 11 / p90 48 / max 108
+single-run sequences: 29/104
+
+## source-episodes (main/nightly merged, gap<=24h)
+total source-episodes: 69
+onset(UTC)	end	source	runs	dur_h	wf	n_tgt	max%
+2026-04-24 13:21	04-25 13:01	microsoft-cvrf	5	24	N	1	134.3
+2026-04-25 01:09	04-25 13:01	ubuntu-cve-tracker	6	12	M+N	1	19.8
+2026-04-25 18:31	04-27 02:40	debian-security-tracker	12	32	M+N	1	6.0
+2026-04-30 19:01	05-01 01:30	ubuntu-cve-tracker	3	6	M+N	1	38.8
+2026-05-02 07:14	05-07 01:26	debian-security-tracker	25	114	M+N	2	14.1
+2026-05-05 19:16	05-06 19:43	suse-oval	5	24	N	1	7.1
+2026-05-08 01:29	05-08 02:49	ubuntu-cve-tracker	2	1	M+N	2	14.5
+2026-05-09 07:27	05-11 01:46	debian-security-tracker	15	42	M+N	1	5.9
+2026-05-10 01:28	05-11 01:46	amazon	9	24	M+N	1	7.0
+2026-05-10 18:40	05-11 01:46	suse-oval	3	7	M+N	2	100.0
+2026-05-13 08:27	05-14 19:43	oracle-linux	14	35	M+N	1	7.0
+2026-05-13 08:42	05-14 19:43	microsoft-cvrf	7	35	N	1	18.3
+2026-05-16 07:43	05-18 03:34	amazon	14	44	M+N	1	12.4
+2026-05-18 10:00	05-18 19:42	fedora-api	4	10	M+N	1	39.3
+2026-05-18 19:42	05-18 19:42	microsoft-cvrf	1	0	N	1	28.2
+2026-05-20 08:47	05-20 20:12	ubuntu-cve-tracker	4	11	M+N	3	39.5
+2026-05-23 07:59	05-25 03:41	ubuntu-cve-tracker	16	44	M+N	1	21.7
+2026-05-27 08:53	05-28 04:01	alma-errata	9	19	M+N	2	428.3
+2026-05-28 19:59	05-28 20:20	rocky-errata	2	0	M+N	1	5.4
+2026-05-29 08:58	05-29 09:51	suse-oval	2	1	M+N	3	13.6
+2026-05-30 08:11	06-01 03:56	rocky-errata	16	44	M+N	2	34.4
+2026-06-02 03:52	06-02 10:20	microsoft-cvrf	3	6	M+N	12	44.8
+2026-06-04 19:49	06-08 02:08	rocky-errata	21	78	M+N	1	11.6
+2026-06-06 18:58	06-08 02:08	microsoft-cvrf	11	31	M+N	13	76.3
+2026-06-10 20:27	06-11 03:52	microsoft-cvrf	2	7	N	13	14.2
+2026-06-11 20:19	06-11 20:19	cpe(nvd/vulncheck/jvn...)	1	0	N	1	25.3
+2026-06-12 09:48	06-12 14:25	microsoft-cvrf	2	5	M	2	26.8
+2026-06-13 08:41	06-14 19:24	rocky-errata	11	35	M+N	1	10.7
+2026-06-14 03:57	06-14 19:24	cpe(nvd/vulncheck/jvn...)	4	15	N	1	40.1
+2026-06-15 11:36	06-16 03:59	fedora-api	7	16	M+N	1	268.8
+2026-06-16 10:46	06-16 20:48	microsoft-cvrf	6	10	M+N	13	46.3
+2026-06-17 04:00	06-17 04:00	cpe(nvd/vulncheck/jvn...)	1	0	N	1	122.7
+2026-06-17 10:19	06-17 20:09	fedora-api	6	10	M+N	1	72.5
+2026-06-19 02:36	06-19 04:11	fedora-api	2	2	M+N	1	274.5
+2026-06-19 10:23	06-21 19:27	cpe(nvd/vulncheck/jvn...)	11	57	N	1	18.6
+2026-06-23 08:51	06-24 19:43	amazon	5	35	M+N	2	7.4
+2026-06-24 03:29	06-24 19:43	cpe(nvd/vulncheck/jvn...)	4	16	N	1	18.0
+2026-06-27 01:50	06-29 19:55	ubuntu-cve-tracker	12	66	M+N	1	53.3
+2026-06-28 02:00	06-29 19:55	redhat-vex	8	42	M+N	5	21.9
+2026-07-01 02:01	07-01 03:42	suse-oval	2	2	M+N	3	15.6
+2026-07-02 13:22	07-05 19:15	microsoft-cvrf	22	78	M+N	13	53.6
+2026-07-07 06:53	07-07 08:59	alma-errata	3	2	M+N	5	146.5
+2026-07-07 13:58	07-07 19:52	oracle-linux	4	6	M+N	2	132.9
+2026-07-08 13:19	07-09 02:51	amazon	3	14	M+N	2	6.3
+2026-07-09 01:24	07-09 02:51	cpe(nvd/vulncheck/jvn...)	2	1	M+N	1	29.0
+2026-07-11 01:15	07-14 08:00	ubuntu-cve-tracker	23	79	M+N	2	47.8
+2026-07-11 01:15	07-15 08:06	cpe(nvd/vulncheck/jvn...)	23	103	M+N	6	305.9
+2026-07-11 12:43	07-14 07:40	suse-oval	11	67	M	1	6.0
+2026-07-12 07:51	07-16 18:50	microsoft-cvrf	20	107	M+N	10	55.9
+2026-07-18 01:09	07-20 19:41	suse-oval	21	67	M+N	1	212.9
+2026-07-18 01:09	07-20 19:41	cpe(nvd/vulncheck/jvn...)	21	67	M+N	1	15.2
+2026-07-20 13:39	07-20 19:41	debian-security-tracker	4	6	M+N	1	5.8
+2026-07-22 01:14	07-22 19:15	cpe(nvd/vulncheck/jvn...)	8	18	M+N	2	204.5
+2026-07-22 18:51	07-22 19:15	redhat-vex	2	0	M+N	1	10.3
+2026-07-24 02:32	07-25 08:03	fedora-api	11	30	M+N	1	273.2
+2026-07-25 19:04	07-28 19:20	cpe(nvd/vulncheck/jvn...)	15	72	M+N	2	17.3
+2026-07-28 14:02	07-28 19:20	debian-security-tracker	2	5	N	1	5.2
+2026-07-31 08:46	08-03 01:20	cpe(nvd/vulncheck/jvn...)	17	65	M+N	2	10.6
+2026-08-01 12:45	08-03 01:20	microsoft-cvrf	12	37	M+N	6	25.9
+2026-08-04 19:13	08-05 01:13	suse-oval	3	6	M+N	3	16.1
+2026-08-05 13:27	08-05 19:26	amazon	3	6	M+N	1	5.1
+2026-08-06 08:08	08-06 23:55	microsoft-cvrf	5	16	M+N	1	211.3
+2026-08-06 08:32	08-10 18:37	cpe(nvd/vulncheck/jvn...)	14	106	M+N	3	135.5
+2026-08-10 12:36	08-11 01:37	microsoft-cvrf	5	13	M+N	1	100.0
+2026-08-13 00:49	08-14 00:48	fedora-api	8	24	M+N	2	3433.3
+2026-08-13 00:49	08-14 00:48	cpe(nvd/vulncheck/jvn...)	8	24	M+N	5	81.7
+2026-08-14 00:48	08-14 01:47	suse-oval	2	1	M+N	3	37.9
+2026-08-15 01:07	08-16 18:25	cpe(nvd/vulncheck/jvn...)	13	41	M+N	3	30.0
+2026-08-16 00:27	08-16 18:25	debian-security-tracker	8	18	M+N	3	10.5
+
+## per-source at episode granularity
+source                         episodes main-inv both-wf  dur_h med/max  tgts med/max     max%
+cpe(nvd/vulncheck/jvn...)            14        9       9       41/106         2/6        305.9
+microsoft-cvrf                       13        9       8       16/107         6/13       211.3
+suse-oval                             8        7       6        7/67          3/3        212.9
+ubuntu-cve-tracker                    7        7       7       12/79          1/3         53.3
+fedora-api                            6        6       6       16/30          1/2       3433.3
+debian-security-tracker               6        5       5       32/114         1/3         14.1
+amazon                                5        5       5       24/44          1/2         12.4
+rocky-errata                          4        4       4       44/78          1/2         34.4
+oracle-linux                          2        2       2       35/35          2/2        132.9
+alma-errata                           2        2       2       19/19          5/5        428.3
+redhat-vex                            2        2       2       42/42          5/5         21.9
+
+## episode onsets by weekday / day-of-month (n=69)
+Mon:   5 #####
+Tue:   8 ########
+Wed:  13 #############
+Thu:  10 ##########
+Fri:   9 #########
+Sat:  18 ##################
+Sun:   6 ######
+01-10: 22
+11-20: 28
+21-31: 19
+
+## explicit-source breakdown (per-source 化後の窓のみ)
+explicit source                   rows  targets      max%
+vulncheck-nist-nvd2                110        6     305.9
+microsoft-cvrf                      94       12      25.9
+debian-security-tracker-salsa       52        3      10.5
+suse-oval                           48        5     212.9
+cisco-json                          42        1      16.3
+fedora-api                          24        2    3433.3
+fortinet-csaf                       17        1       8.1
+microsoft-msuc                      12        1     211.3
+fortinet-cvrf                       10        2     135.5
+amazon                               6        1       5.1
+jvn-feed-rss                         5        1      33.3
+paloalto-json                        5        1      25.3
+ubuntu-cve-tracker                   4        2      47.8
+microsoft-servicing                  3        1     100.0
+nvd-feed-cve-v2                      2        1       9.7
+redhat-vex                           2        1      10.3
+(rows with explicit source: 436)

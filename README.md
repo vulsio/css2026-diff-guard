@@ -5,7 +5,7 @@ CSS 2026 OWS トラック投稿論文「脆弱性情報アップストリーム�
 - **原稿の正本**: [docs/css2026-diff-guard.tex](docs/css2026-diff-guard.tex)(本文は単一ファイル)+ [docs/refs.bib](docs/refs.bib)
 - **ビルド**: `cd docs && make build`(Docker の paperist/alpine-texlive-ja + latexmk。css2026-data の構成を移植)。ビルド済み [docs/css2026-diff-guard.pdf](docs/css2026-diff-guard.pdf) は共有用にコミットする(ソース変更時は再ビルドして一緒にコミット)
 - **図**: 図 1 は TeX 内 TikZ。図 2〜4 は [figs/](figs/) の matplotlib スクリプトで `docs/figures/*.pdf` を生成(データスナップショット同梱)。`cd figs && python3 fig{2,3,4}_*.py`
-- 2026-07-29 時点で 8 ページ(参考文献が 8 ページ目前半で終了 = 本文+文献の上限 8 ページ内。研究倫理は制限外)
+- 2026-08-17 時点で 8 ページ(参考文献が 8 ページ目前半で終了 = 本文+文献の上限 8 ページ内。研究倫理は制限外)
 - 元資料(maintainer ローカル workspace。この repo には含まれない): diff-guard 発動事例集 `docs/diff-guard-incidents.md`、設計・検証 `diff-guard.md`、昨年論文 vulsio/css2025-vuls2
 
 ## 締切(CSS 2026)
@@ -17,7 +17,7 @@ CSS 2026 OWS トラック投稿論文「脆弱性情報アップストリーム�
 ## TODO
 
 - [ ] タイトル確定 — 和文・英文セットで(現状は仮。代案は下記「執筆メモ」)
-- [ ] 観測期間を投稿時点まで延長するか決める — 現本文は 82 日 / 671 run / 50 episode(〜07-14)固定。延長するなら maintainer workspace で `stats.py` を `guard-failures.tsv` に再実行して全数値を更新し、figs/data/ のスナップショットも差し替えて図を再生成
+- [x] 観測期間を 116 日(2026-04-23〜08-17)へ延長済み。945 run / 69 episode / 1,465 FAIL 行 / promote 92 digest。再延長する場合は maintainer workspace で CI を再収集 → `stats.py` 再実行 → figs/data/ 差し替え → 図再生成
 - [ ] triage の AI 委任を本文に明記するか検討 — 実運用では帰属手順を skill 化した AI エージェントが一次調査を実施し人間がレビュー。書くなら §4 の手順書共有のくだり + §6.6 の役割分担と接続(概要には入れない = 決定済み)
 - [ ] 発動事例の全数データの公開方法を決める(付録 5 ページ枠 or 公開リポジトリ参照)
 - [ ] 細部の書誌修正: wunder24 の巻号表記(number 欠落で「Vol. 5 , .」と出る)。分量超過時の削減候補: nguyen13, wunder24

@@ -22,8 +22,8 @@
 
 %% 本文が和文の場合，タイトル・著者名・著者所属・概要は，和文・英文共に必須．
 
-\title{脆弱性情報アップストリームの不安定性の実測: \\ 履歴管理基盤上の公開前検査による82日間の全数運用調査}
-\etitle{Measuring Upstream Instability of Vulnerability Information: An 82-Day Exhaustive Study of Pre-Publication Inspection on a History-Managed Database Pipeline}
+\title{脆弱性情報アップストリームの不安定性の実測: \\ 履歴管理基盤上の公開前検査による116日間の全数運用調査}
+\etitle{Measuring Upstream Instability of Vulnerability Information: A 116-Day Exhaustive Study of Pre-Publication Inspection on a History-Managed Database Pipeline}
 
 \affiliate{FUTURE}{フューチャー株式会社\\
 Future Corporation}
@@ -36,7 +36,7 @@ Future Corporation}
 脆弱性データベースは多数の上流データソースを集約して構築されるが，上流は必ずしも安定せず，データの消失や公開済みアドバイザリの遡及的な書き換えが現実に起きている．
 本研究では，この不安定性を定量観測するため，OSS脆弱性スキャナVulsのDB公開CIに公開前検査を実装した．
 検査は公開候補と直前の公開版を，検知結果と検知条件構造の2観点で比較し，変動率が閾値を超えた場合は公開を保留して人間の確認に委ねる．
-82日間の本番運用の全数調査では50件の独立イベントで検査が発動し，全工程を履歴管理する既報の基盤を用いて，その全てについて原因が上流データの変化か，変換やDB構築といった自前の処理かを切り分けて特定できた．
+116日間の本番運用の全数調査では69件の独立イベントで検査が発動し，全工程を履歴管理する既報の基盤を用いて，その全てについて原因が上流データの変化か，変換やDB構築や取得設定といった自前の処理かを切り分けて特定できた．
 日常変動と構造的イベントは変動率で桁が分離しており，閾値による単純な判定が実用になること，また欠損DBの公開を3回阻止したことを示す．
 \end{abstract}
 
@@ -48,7 +48,7 @@ Future Corporation}
 Vulnerability databases are built by aggregating many upstream data sources, but these upstreams are not always stable: data disappears, and published advisories are retroactively rewritten.
 To quantify this instability, we implemented a pre-publication inspection in the CI pipeline that builds and publishes the database of Vuls, an open-source vulnerability scanner.
 The inspection compares each publication candidate with the previously published version in terms of detection results and detection-criteria structure, and when the change rate exceeds a threshold, it withholds publication pending human review.
-In an exhaustive study covering 82 days of production operation, the inspection fired on 50 independent events, and our previously reported infrastructure, which keeps every pipeline stage under version control, allowed us to attribute every event to either upstream data changes or our own processing such as data transformation and database construction.
+In an exhaustive study covering 116 days of production operation, the inspection fired on 69 independent events, and our previously reported infrastructure, which keeps every pipeline stage under version control, allowed us to attribute every event to either upstream data changes or our own processing such as data transformation, database construction and fetch configuration.
 We show that everyday fluctuation and structural events are separated by an order of magnitude in change rate, making this simple threshold-based inspection practical, and that the inspection blocked the publication of defective databases three times.
 \end{eabstract}
 
@@ -75,17 +75,17 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
 公開直前の候補DBを，現に公開されている直前版(baseline)と自動比較し，変動率が閾値を超えたら公開を保留して人間に見せる．
 我々はこれを\textbf{公開前検査}(diff guard)と呼ぶ．
 導入の直接の動機は，上流の破損データとパイプライン変更の複合，およびDBとスキャナのバージョン非互換によって「壊れたDB」を公開してしまった2件のインシデント(\ref{sec:incidents}節)であり，検査は第一義には安全ネットである．
-しかし82日間の本番運用で得られた発動記録の全数調査は，副産物として，脆弱性情報の上流がいかに大きく，頻繁に，時に黙って動くかの縦断観測データとなった．
+しかし116日間の本番運用で得られた発動記録の全数調査は，副産物として，脆弱性情報の上流がいかに大きく，頻繁に，時に黙って動くかの縦断観測データとなった．
 
 本稿の貢献は次の3点である．
 
 \begin{enumerate}
 \item \textbf{上流不安定性の実測}(\ref{sec:results}節，\ref{sec:discussion}節):
-82日間・671 runの全数調査により，上流フィードの不安定性を50件の独立イベントとして分類・定量化した．
+116日間・945 runの全数調査により，上流フィードの不安定性を69件の独立イベントとして分類・定量化した．
 観測されたイベントは，可用性の不安定(月次データの消失とフラッピング)，完全性の危うさ(遡及的な再キュレーションやアナウンスのないサーバ側再編)，スケールの分布(日常変動と構造的イベントの桁分離)の3群に整理できる．
 これらの上流は他の脆弱性ツール(Trivy，Grype，OSV系等)も共有しており，知見はエコシステム横断で再利用可能である．
 \item \textbf{原因帰属の方法論}(\ref{sec:method}節):
-発動の原因をビルダ，抽出器，上流の順に容疑を除外して確定する切り分け手順を定義し，全イベントに適用した．
+発動の原因をビルダ，抽出器，取得設定，上流の順に容疑を除外して確定する切り分け手順を定義し，全イベントに適用した．
 各ステップは履歴管理基盤\cite{nakaoka2025}の対応する工程の履歴(DBメタデータ，抽出器のコミット履歴，rawデータのGit差分)に依拠しており，全工程の履歴管理が帰属の成立条件であることを示す．
 \item \textbf{公開前検査の設計と運用機構}(\ref{sec:design}節):
 検知結果差分とDB構造差分の2観点による検査本体に加え，監査証跡付き手動override(promote)，対象別閾値の統計的導出と定期的な再導出(grooming)という，検査を運用し続けるための機構を設計・実装した．
@@ -220,9 +220,9 @@ override値は失敗履歴の統計から「観測ピーク+ヘッドルーム�
 \label{sec:method}
 
 \textbf{全数調査}:
-本番導入(2026-04-23)から07-14までの82日間，2系統(安定版 / nightly)の全671 runを対象に，runログ，PR，promote履歴をGitHub APIで全数収集した．
+本番導入(2026-04-23)から08-17までの116日間，2系統(安定版 / nightly)の全945 runを対象に，runログ，PR，promote履歴をGitHub APIで全数収集した．
 FAIL中はpromoteがあるまでbaselineが動かず，同じ差分で6時間おきのcronが再FAILし続けるため，run数は重複を含む．
-そこで連続FAILを1つに潰したfail sequence(66件)，さらに2系統を束ねソース単位の出現時系列で分解したsource-episode(\textbf{50件})を独立イベントの単位として定義した．
+そこで連続FAILを1つに潰したfail sequence(104件)，さらに2系統を束ねソース単位の出現時系列で分解したsource-episode(\textbf{69件})を独立イベントの単位として定義した．
 
 \textbf{原因帰属}:
 各イベントについて，次の順で容疑を除外して原因を確定する．
@@ -230,6 +230,7 @@ FAIL中はpromoteがあるまでbaselineが動かず，同じ差分で6時間お
 \begin{enumerate}
 \item \textbf{ビルダ除外}: baselineとtargetの両DBのメタデータに記録されたビルダのバージョンを比較する．一致すればDB構築コードは無罪．
 \item \textbf{抽出器除外}: 対象期間の抽出器リポジトリのコミット履歴を走査する．当該ソースのfetch / extractコードに変更がなければ変換コードは無罪．
+\item \textbf{取得設定除外}: 同期間のvuls-data-db(取得設定を持つリポジトリ)のコミットを走査する．取得対象のseedリストや新規データソースの追加がなければ取得設定は無罪．
 \item \textbf{上流確定}: rawデータのGit履歴から対象期間のコミットを特定し，差分の中に変動と件数・IDが一致する変更実体(smoking gun．例えば新規アドバイザリファイル群やディレクトリの消失)を突き止める．
 \end{enumerate}
 
@@ -237,7 +238,7 @@ FAIL中はpromoteがあるまでbaselineが動かず，同じ差分で6時間お
 ビルダ除外はDBメタデータ，抽出器除外はコードのコミット履歴，上流確定はrawおよびextractedデータのGit履歴である．
 全工程が履歴化されていなければ，例えば「上流の一時障害なので候補を破棄すべき」と「正当な変更なのでpromoteしてよい」の区別(\ref{sec:prevented}節)は当て推量になる．
 逆に言えば，履歴管理は本測定の成立条件であり，前稿の基盤の実証でもある．
-実際，全50イベントで帰属は完了し，「原因不明」は残らなかった．
+実際，全69イベントで帰属は完了し，「原因不明」は残らなかった．
 また帰属手順は再現可能なtriage手順書として整備し，チームで共有している．
 
 \section{運用結果}
@@ -246,8 +247,8 @@ FAIL中はpromoteがあるまでbaselineが動かず，同じ差分で6時間お
 \subsection{規模と原因分布}
 \label{sec:scale}
 
-671 run中，失敗は339 run．うち295 runが検査のステップで失敗した(閾値超過293+検査内インフラ障害2)．
-独立イベントは50 source-episode，事例カタログとしては約21イベント(複数ソースの同時多発を1事例に束ねた粒度)である．
+945 run中，失敗は476 run．うち420 runが検査のステップで失敗した(閾値超過418+検査内インフラ障害2)．
+独立イベントは69 source-episode，事例カタログとしては約41イベント(複数ソースの同時多発を1事例に束ねた粒度)である．
 原因の分布を表\ref{tab:attribution}に示す．
 
 \begin{table}[tb]
@@ -259,20 +260,28 @@ FAIL中はpromoteがあるまでbaselineが動かず，同じ差分で6時間お
 \hline
 判定 & 件数 & 代表例 \\
 \hline
-上流由来(a)正当な変更 & 約15/21 & 月次パッチ等 \\
+上流由来(a)正当な変更 & 約31/41 & 月次パッチ等 \\
 上流由来(b)一時的障害(\textbf{公開阻止}) & 2 & CVRF消失$\times$2 \\
 上流由来(c)恒久的品質イベント & 2 & errata再編 \\
 抽出器由来・コードバグ(\textbf{公開阻止}) & 1 & 非決定的出力 \\
-抽出器由来・意図的変更 & 1 & CPE分類導入 \\
-ビルダ由来 & 0 & (2件精査，無罪) \\
+抽出器由来・意図的変更 & 3 & 検知の補完・拡張 \\
+取得設定由来(orchestration) & 2 & seed追加，新ソース \\
+ビルダ由来 & 0 & (精査したが無罪) \\
 \hline
 \end{tabular}
 \end{table}
 
+観測期間の後半では，前半に存在しなかった2つの原因カテゴリが現れた．
+ひとつは\textbf{取得設定由来}である．
+我々自身が取得対象のseedリストを拡張した直後(2026-08-05から08-06のKB seed登録)にmicrosoft/microsoft-msucが211.3\%で発動し，新規データソースを追加した直後(08-10)にはmicrosoft/microsoft-servicingがbaseline不在のため100.0\%で発動した．
+上流もコードも変わっておらず，「何を取りに行くか」の設定変更が原因である．
+もうひとつは\textbf{抽出器由来の意図的変更}の再来で，2012年から2022年の履歴的アドバイザリに検知を補完する抽出器変更(検知を持つファイルが643件から1,065件に増加)のマージ直後に，cpe\_fortinet/fortinet-cvrfが135.5\%で発動した．
+いずれも上流の異常ではなく我々の変更であり，帰属手順にvuls-data-db側のコミット走査(\ref{sec:method}章の手順3)を加えることで初めて分離できた．
+
 \begin{figure*}[tb]
 \centering
 \includegraphics[width=\textwidth]{./figures/fig3-timeline.pdf}
-\caption{82日間の発動タイムライン(source-episode 50件)．横棒は各episodeの持続期間(FAIL初出から終端まで)，点線はoverride導入時点(seed: 初期シード，snap: ubuntu:snap，windows: windows系detection，rocky: rocky\_10，per-source: ソース単位化)．per-source化後のcpe\_*系はcpe行に含めた．}
+\caption{116日間の発動タイムライン(source-episode 69件)．横棒は各episodeの持続期間(FAIL初出から終端まで)，点線はoverride導入時点(seed: 初期シード，snap: ubuntu:snap，windows: windows系detection，rocky: rocky\_10，per-source: ソース単位化，grooming: 2026-08のoverride再導出)．per-source化後のcpe\_*系はcpe行に含めた．}
 \label{fig:timeline}
 \end{figure*}
 
@@ -303,7 +312,7 @@ rawの変更は266ファイルなのにextractedは23,163ファイル動くと�
 発動の大半は正当な上流変更であり，これを「誤報」と見るかは設計思想による．
 本検査は安全ネットであり，822 CVEを単一アドバイザリに同梱するカーネル更新や，約600パッケージを束ねた単一アドバイザリ(5,312検知条件)のマス更新は，正当であっても公開前に人間が一目見るに値する．
 一方，反復性が確立した既知の変動はoverrideで恒久緩和する．
-82日間の手動promoteは59 unique digestあり，その\textbf{100\%が検査FAIL runの候補digestと一致}した．
+116日間の手動promoteは92 unique digestあり，その\textbf{100\%が検査FAIL runの候補digestと一致}した．
 すなわち，検査，人間によるレポート確認，監査証跡付きoverrideというループが例外なく回っていたことを示す．
 
 \section{考察: 観測された上流の危うさ}
@@ -339,7 +348,7 @@ VulnCheckの全年代CVEへの生成CPE一括付与(\ref{sec:prevented}節)は�
 \subsection{正当でも桁違いに動く(スケール)}
 \label{sec:scaledist}
 
-観測された最大変動率は428.3\%(AlmaLinux再キュレーション)，305.9\%(CPE系)，274.5\%(抽出器バグ)に達する一方，日常変動は5から20\%帯に収まり，両者は概ね桁で分離する．
+観測された最大変動率は3433.3\%(新規リリースfedora:46)，428.3\%(AlmaLinux再キュレーション)，305.9\%(CPE系)に達する一方，日常変動は5から20\%帯に収まり，両者は概ね桁で分離する．
 これは導入前ベンチマーク(\ref{sec:benchmark}節)の観測が本番でも維持されたことを意味し，単純な閾値検査が実用になる理由である．
 ただし分離が崩れる構造要因が2つある．
 (1)baselineが小さい対象は1バッチの正当な追加で容易に100\%を超える．
@@ -349,7 +358,7 @@ VulnCheckの全年代CVEへの生成CPE一括付与(\ref{sec:prevented}節)は�
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\linewidth]{./figures/fig4-histogram.pdf}
-\caption{全FAIL行(1,040行)の変動率分布(対数軸)．破線は既定閾値(detection 5\% / db 10\%)．日常変動の本体に対し，100\%超の構造イベント群が裾として分離する．FAIL中はcron再実行により同一イベントの行が繰り返し計上される点に注意．}
+\caption{全FAIL行(1,465行)の変動率分布(対数軸)．破線は既定閾値(detection 5\% / db 10\%)．日常変動の本体に対し，100\%超の構造イベント群が裾として分離する．FAIL中はcron再実行により同一イベントの行が繰り返し計上される点に注意．}
 \label{fig:histogram}
 \end{figure}
 
@@ -362,13 +371,16 @@ VulnCheckの全年代CVEへの生成CPE一括付与(\ref{sec:prevented}節)は�
 (3)ecosystem一括の変動率は大ソースが小ソースの異常を希釈した(ソース単位への細分化で対処)．
 (4)overrideの系統間非対称が片系統だけの慢性FAILを生んだ(groomingで両系統を同時に見ることで対処)．
 検査は一度作って終わりではなく，発動事例からのフィードバックで分解能と運用を継続的に改良する対象である．
+なお(3)のソース単位化の効果は後半の観測窓で実測できた．
+レポートがソース名を持つため，前半では「cpe」と一括りだった変動が，vulncheck-nist-nvd2(110行)，cisco-json(42行)，fortinet-csaf(17行)，fortinet-cvrf(10行)，paloalto-json(5行)，jvn-feed-rss(5行)のように分解され，target名からソースを推定する必要がなくなった．
+\ref{sec:prevented}章で述べた「分解能不足で判定を誤りかけた」事例と同型の希釈は，後半の窓では観測されていない．
 
 \subsection{運用コストの実態}
 \label{sec:opscost}
 
-run単位のFAILの52\%は土日に発生しているが，これは上流ではなく人間側の信号である．
+run単位のFAILの50\%は土日に発生しているが，これは上流ではなく人間側の信号である．
 promoteが平日日中にしか行われないため，金曜夕方以降のイベントが週末じゅう再FAILし続ける(週末滞留)．
-fail sequenceの持続時間(中央値11h / p90 48h)は検査の検出性能ではなくオペレータの応答時間の分布を測っており，通知や承認フローの自動化余地を見積もる直接の根拠となる．
+fail sequenceの持続時間(中央値10h / p90 48h)は検査の検出性能ではなくオペレータの応答時間の分布を測っており，通知や承認フローの自動化余地を見積もる直接の根拠となる．
 
 \subsection{開発プロセスに対する最終ガードレールとしての価値}
 \label{sec:guardrail}
@@ -415,7 +427,7 @@ SLSA\cite{slsa}，in-toto\cite{torres19}，reproducible builds\cite{lamb22}，Si
 \section{おわりに}
 \label{sec:conclusion}
 
-脆弱性DBの公開CIに公開前検査を実装し，82日間・671 runの全数調査を通じて，脆弱性情報の上流ソースの不安定性を50件の独立イベントとして定量観測した．
+脆弱性DBの公開CIに公開前検査を実装し，116日間・945 runの全数調査を通じて，脆弱性情報の上流ソースの不安定性を69件の独立イベントとして定量観測した．
 上流は消え，戻り，遡及的に書き換わり，アナウンスなく再編される．
 しかもその大半は正当な変更である．
 得られた知見は次の通りである．
@@ -426,7 +438,8 @@ SLSA\cite{slsa}，in-toto\cite{torres19}，reproducible builds\cite{lamb22}，Si
 本稿は同稿が課題として挙げた「差分の論理的な提示」「パイプラインの堅牢化」への，運用を伴う一つの回答でもある．
 (3)FAIL時の復旧は「人間によるレポート確認+監査証跡付きoverride」として設計すべきで，本運用では全overrideがこのループに乗った．
 (4)上流の恒久的劣化には，取り込みのピン留めと代替ソース整備という出口が要る．
-(5)生成物を出力レベルで検証する検査は，上流だけでなく自らの開発プロセスに対する最終防衛線としても機能し，テストとレビューをすり抜ける意味的バグの捕捉や，破壊的変更の影響範囲の定量確認に実際に寄与した．
+(5)観測を116日へ延長した後半では，上流でもコードでもなく「何を取りに行くか」の設定変更を原因とするイベントが現れ，帰属手順に取得設定の走査を加える必要が生じた．運用が続く限り原因カテゴリは増え，帰属手順もそれに追随して更新すべきものである．
+(6)生成物を出力レベルで検証する検査は，上流だけでなく自らの開発プロセスに対する最終防衛線としても機能し，テストとレビューをすり抜ける意味的バグの捕捉や，破壊的変更の影響範囲の定量確認に実際に寄与した．
 コード生成にAIが入り込む開発形態において，この価値は今後増すと考える．
 
 今後の課題として，fetch段階での欠損検出(月次ドキュメント丸ごと消失時にコミットしない等)，通知や承認フローの改善による週末滞留の解消，観測の長期蓄積による時系列特性(月次サイクル等)の統計的確立，および同一上流を消費する他エコシステムとの観測の突合が挙げられる．

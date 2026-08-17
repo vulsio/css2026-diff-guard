@@ -33,11 +33,12 @@ ROW_OF = {src: LABELS.index(lab) for src, lab in ROWS}
 
 # override 導入(PR マージ日, UTC)。ラベルは同一高さに揃え、水平寄せで衝突回避
 OVERRIDES = [
-    ("2026-05-21", "seed", "center"),        # PR #152/#153 初期シード
-    ("2026-05-25", "snap", "center"),        # PR #156 ubuntu:snap
+    ("2026-05-21", "seed", "right"),        # PR #152/#153 初期シード
+    ("2026-05-25", "snap", "left"),        # PR #156 ubuntu:snap
     ("2026-06-11", "windows", "right"),      # PR #167 windows detection 27件
     ("2026-06-15", "rocky", "left"),         # PR #169 rocky_10
     ("2026-07-14", "per-source", "right"),   # PR #196 per-source 化
+    ("2026-08-04", "grooming", "left"),      # PR #209 2026-08 grooming で override 再導出
 ]
 
 episodes = []
@@ -50,7 +51,7 @@ with open("data/episodes.tsv") as f:
         onset = datetime.strptime(parts[0], "%Y-%m-%d %H:%M")
         end = datetime.strptime(f"2026-{parts[1]}", "%Y-%m-%d %H:%M")
         episodes.append((onset, end, parts[2]))
-assert len(episodes) == 50, len(episodes)
+assert len(episodes) == 69, len(episodes)
 
 setup()
 fig, ax = plt.subplots(figsize=(6.7, 2.1))
@@ -72,10 +73,10 @@ for d, label, ha in OVERRIDES:
 ax.set_yticks(range(len(LABELS)))
 ax.set_yticklabels(LABELS)
 ax.set_ylim(len(LABELS) - 0.4, -1.15)  # 上から並べ、override ラベル分の余白
-ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=0))
+ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=0, interval=2))
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
 ax.set_xlim(mdates.date2num(datetime(2026, 4, 23)),
-            mdates.date2num(datetime(2026, 7, 15)))
+            mdates.date2num(datetime(2026, 8, 18)))
 ax.grid(axis="y", visible=False)
 
 fig.tight_layout(pad=0.3)

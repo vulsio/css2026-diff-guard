@@ -19,9 +19,6 @@ with open("data/guard-failures.tsv") as f:
         run_id, wf, created, event, kind, checks, fail_rows, digest = row[:8]
         if kind != "guard-trip":
             continue
-        # 本文の観測窓(2026-04-23..07-14)に限定。tsv には以降の事例も追記されている
-        if created[:10] > "2026-07-14":
-            continue
         for ent in fail_rows.split(";;"):
             ent = ent.strip()
             if not ent:
@@ -41,13 +38,13 @@ with open("data/guard-failures.tsv") as f:
             rates.append(rate)
 
 print(f"parsed {len(rates)} FAIL rows")
-assert len(rates) == 1040, len(rates)
+assert len(rates) == 1465, len(rates)
 
 setup()
 fig, ax = plt.subplots(figsize=(3.3, 1.9))
 
 vals = np.array([max(r, 0.1) for r in rates])
-bins = np.logspace(np.log10(1), np.log10(500), 36)
+bins = np.logspace(np.log10(1), np.log10(4000), 40)
 ax.hist(vals, bins=bins, color=BLUE, linewidth=0)
 
 for thr, lab in [(5, "5%"), (10, "10%")]:
@@ -56,8 +53,8 @@ for thr, lab in [(5, "5%"), (10, "10%")]:
             fontsize=6.5, color="#555555")
 
 ax.set_xscale("log")
-ax.set_xticks([1, 5, 10, 100, 500])
-ax.set_xticklabels(["1", "5", "10", "100", "500"])
+ax.set_xticks([1, 5, 10, 100, 1000])
+ax.set_xticklabels(["1", "5", "10", "100", "1000"])
 ax.set_xlabel("change rate of FAIL rows (%)")
 ax.set_ylabel("rows")
 ax.grid(axis="x", visible=False)
