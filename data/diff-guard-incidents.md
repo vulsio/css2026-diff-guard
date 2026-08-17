@@ -458,6 +458,8 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 
 ### 5.2 判定の分布(発動イベント単位)
 
+**注**: 本節は事例カタログ(§4)単位の分布。69 source-episode 単位の帰属と証拠水準は [`04-episode-verdicts.md`](04-episode-verdicts.md) を正とする(episode 単位では 上流59 / 自前10 = 55+2+2 / 1+7+2)。
+
 | 判定 | 件数 | 事例 |
 |---|---|---|
 | upstream-driven (a) 正当な上流変更 | 31+ | P-1, P-2(大半), P-3, P-5, A-1〜A-3, A-5, A-7, A-9〜A-11, A-13, A-15〜A-17, A-20〜A-23, A-27 ほか |

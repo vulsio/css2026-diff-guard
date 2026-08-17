@@ -11,6 +11,7 @@
 | `03-promote-history.md` | promote-digest.yml 全 101 run / 92 unique digest(全て FAIL 候補と一致) |
 | `guard-failures.tsv` | 機械可読版(run_id, workflow, created_at, event, kind, failed_checks, fail_rows, digest)。guard-trip 418 + guard-infra 2 + 参考の build/other-fail 12 |
 | `log-extracts/` | 各 run のログ抜粋(FAIL 行・集約 rc 行) |
+| `04-episode-verdicts.md` | 69 source-episode → 原因帰属の対応表(論文 表1 の episode 単位集計の根拠。証拠水準付き) |
 | `stats.py` | 集計スクリプト。`python3 stats.py > stats-output.txt` で再生成 |
 | `stats-output.txt` | 集計結果(sequence / episode / per-source / 時系列 / 明示ソース内訳) |
 
