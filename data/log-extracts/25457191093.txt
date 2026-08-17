@@ -1,0 +1,7 @@
+[] **Result**: **FAIL** (Change Rate Threshold: 5.0%)
+### SECTION DET_MASTER
+[DET_MASTER] | debian_13 | 2273 | 2587 | 317 | 3 | 14.1% | **FAIL** |
+[DET_MASTER] | debian_12 | 3147 | 3414 | 272 | 5 | 8.8% | **FAIL** |
+[DET_MASTER] | opensuse_tumbleweed | 239 | 256 | 17 | 0 | 7.1% | **FAIL** |
+[DET_MASTER] failed to exec vuls: diff failed: change rate exceeded threshold (5.0%)
+[DET_MASTER] ##[error]Process completed with exit code 1.

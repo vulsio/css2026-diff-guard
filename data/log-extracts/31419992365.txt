@@ -1,0 +1,13 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | cpe_fortinet | fortinet-cvrf | 163 | 283 | 120 | 0 | 73.6% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_fortinet | jvn-feed-rss | 9 | 6 | 0 | 3 | 33.3% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_fortinet | vulncheck-nist-nvd2 | 6 | 5 | 0 | 1 | 16.7% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: **FAIL**
+[DB] | cpe | fortinet-cvrf | 135.5% | 0.0% | 10.0% | **FAIL** |
+[DB] | microsoft | microsoft-msuc | 0.0% | 37.8% | 35.0% | **FAIL** |
+diff guard failed: detection(master)=1 detection(old)=0 db=1
+##[error]Process completed with exit code 1.

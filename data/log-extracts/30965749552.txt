@@ -1,0 +1,13 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | opensuse_leap_16 | suse-oval | 2163 | 2480 | 319 | 2 | 14.8% | 5.0% | **FAIL** |
+[DET_MASTER] | opensuse_leap_16_kernel-default-base | suse-oval | 2045 | 2332 | 289 | 2 | 14.2% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: **FAIL**
+[DET_OLD] | opensuse_leap_16 | suse-oval | 2163 | 2480 | 319 | 2 | 14.8% | 5.0% | **FAIL** |
+[DET_OLD] | opensuse_leap_16_kernel-default-base | suse-oval | 2045 | 2332 | 289 | 2 | 14.2% | 5.0% | **FAIL** |
+### SECTION DB
+[DB] **Result**: **FAIL**
+[DB] | opensuse.leap:16.0 | suse-oval | 16.1% | 0.0% | 10.0% | **FAIL** |
+diff guard failed: detection(master)=1 detection(old)=1 db=1
+##[error]Process completed with exit code 1.

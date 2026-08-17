@@ -1,0 +1,2 @@
+[] failed to exec vuls: failed to perform "Push" on destination: invalid descriptor size
+[] ##[error]Process completed with exit code 1.

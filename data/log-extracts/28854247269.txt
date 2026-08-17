@@ -1,0 +1,22 @@
+[] **Result**: **FAIL**
+### SECTION DET_MASTER
+[DET_MASTER] | alma_10 | 259 | 343 | 181 | 97 | 107.3% | 5.0% | **FAIL** |
+[DET_MASTER] | alma_9 | 1103 | 1254 | 151 | 0 | 13.7% | 5.0% | **FAIL** |
+[DET_MASTER] | alma_8 | 871 | 948 | 77 | 0 | 8.8% | 5.0% | **FAIL** |
+[DET_MASTER] failed to exec vuls: diff failed: change rate exceeded the applicable threshold for at least one scan-result file; see report for details
+[DET_MASTER] **Result**: **FAIL**
+### SECTION DET_OLD
+[DET_OLD] | alma_10 | 259 | 343 | 181 | 97 | 107.3% | 5.0% | **FAIL** |
+[DET_OLD] | alma_9 | 1103 | 1254 | 151 | 0 | 13.7% | 5.0% | **FAIL** |
+[DET_OLD] | alma_8 | 871 | 948 | 77 | 0 | 8.8% | 5.0% | **FAIL** |
+[DET_OLD] failed to exec vuls: diff failed: change rate exceeded the applicable threshold for at least one scan-result file; see report for details
+[DET_OLD] **Result**: **FAIL**
+### SECTION DB
+[DB] | alma:10 | 146.5% | 0.0% | 10.0% | **FAIL** |
+[DB] | alma:9 | 11.7% | 0.0% | 10.0% | **FAIL** |
+### SECTION DB
+### SECTION DB
+[DB] failed to exec vuls: diff failed: detection and/or KB change rate exceeded the applicable threshold for at least one ecosystem; see report for details
+[36;1m    echo "diff guard failed: detection(master)=${rc_master_disp} detection(old)=${rc_old_disp} db=${rc_db_disp}" >&2[0m
+diff guard failed: detection(master)=1 detection(old)=1 db=1
+[DB] ##[error]Process completed with exit code 1.

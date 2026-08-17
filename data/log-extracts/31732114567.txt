@@ -1,0 +1,13 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | cpe_fortinet | vulncheck-nist-nvd2 | 4 | 6 | 2 | 0 | 50.0% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_cisco | vulncheck-nist-nvd2 | 36 | 30 | 0 | 6 | 16.7% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: **FAIL**
+[DB] | fedora:46 | fedora-api | 2020.0% | 0.0% | 10.0% | **FAIL** |
+[DB] | cpe | paloalto-json | 25.3% | 0.0% | 10.0% | **FAIL** |
+[DB] | fedora:45 | fedora-api | 12.4% | 0.0% | 10.0% | **FAIL** |
+diff guard failed: detection(master)=1 detection(old)=0 db=1
+##[error]Process completed with exit code 1.

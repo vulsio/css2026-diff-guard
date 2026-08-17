@@ -4,9 +4,9 @@ CSS 2026 OWS トラック投稿論文「脆弱性情報の上流は安定して�
 
 - **原稿の正本**: [docs/css2026-diff-guard.tex](docs/css2026-diff-guard.tex)(本文は単一ファイル)+ [docs/refs.bib](docs/refs.bib)
 - **ビルド**: `cd docs && make build`(Docker の paperist/alpine-texlive-ja + latexmk。css2026-data の構成を移植)。ビルド済み [docs/css2026-diff-guard.pdf](docs/css2026-diff-guard.pdf) は共有用にコミットする(ソース変更時は再ビルドして一緒にコミット)
-- **図**: 図 1 は TeX 内 TikZ。図 2〜4 は [figs/](figs/) の matplotlib スクリプトで `docs/figures/*.pdf` を生成(データスナップショット同梱)。`cd figs && python3 fig{2,3,4}_*.py`
+- **図**: 図 1 は TeX 内 TikZ。図 2〜4 は [figs/](figs/) の matplotlib スクリプトで `docs/figures/*.pdf` を生成(データは [data/](data/) を参照)。`cd figs && python3 fig{2,3,4}_*.py`
 - 2026-08-17 時点で 9 ページ。本文+参考文献は 8 ページ目で終了(上限 8 ページ内)、9 ページ目は研究倫理のみ = ページ数制限の対象外
-- 元資料(maintainer ローカル workspace。この repo には含まれない): diff-guard 発動事例集 `docs/diff-guard-incidents.md`、設計・検証 `diff-guard.md`、昨年論文 vulsio/css2025-vuls2
+- **データ**: 発動事例の確定データセット(事例カタログ・run 表・TSV・ログ抜粋・集計スクリプト)は [data/](data/) に収録(2026-08-17 確定)。設計・検証ドキュメント `diff-guard.md` と昨年論文 vulsio/css2025-vuls2 は maintainer ローカル参照
 
 ## 締切(CSS 2026)
 
@@ -17,7 +17,7 @@ CSS 2026 OWS トラック投稿論文「脆弱性情報の上流は安定して�
 ## TODO
 
 - [x] タイトル確定(主張先行型): 和「脆弱性情報の上流は安定していない: 公開前検査による 116 日間の全数観測」/ 英「Vulnerability Feeds Are Not Stable: A 116-Day Exhaustive Observation via Pre-Publication Inspection」。投稿システム側のタイトル・アブストラクトも最新版へ更新済み(2026-08-17)
-- [x] 観測期間を 116 日(2026-04-23〜08-17)へ延長済み。945 run / 69 episode / 1,465 FAIL 行 / promote 92 digest。再延長する場合は maintainer workspace で CI を再収集 → `stats.py` 再実行 → figs/data/ 差し替え → 図再生成
+- [x] 観測期間を 116 日(2026-04-23〜08-17)へ延長済み。945 run / 69 episode / 1,465 FAIL 行 / promote 92 digest。データは data/ に確定(再延長手順は data/README.md)
 - [x] triage の AI 委任を本文に明記(§4 の手順書共有 + §6.6 の役割分担。概要には入れない)
 - [x] 発動事例の全数データ: 本文では公開に言及しない(private repo のため、締切までに確実にできない約束はしない)
 - [x] wunder24 の書誌: 号・頁が一次情報で確認できなかったため誌名と年のみに整理(volume を削除)

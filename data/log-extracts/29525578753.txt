@@ -1,0 +1,14 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | windows_server_2019 | microsoft-cvrf | 1360 | 1680 | 320 | 0 | 23.5% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_11_25h2 | microsoft-cvrf | 1775 | 2162 | 387 | 0 | 21.8% | 20.0% | **FAIL** |
+[DET_MASTER] | windows_11_24h2 | microsoft-cvrf | 1782 | 2169 | 387 | 0 | 21.7% | 20.0% | **FAIL** |
+[DET_MASTER] | windows_server_2016 | microsoft-cvrf | 1506 | 1763 | 257 | 0 | 17.1% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_server_2012 | microsoft-cvrf | 1144 | 1319 | 175 | 0 | 15.3% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_server_2012_r2 | microsoft-cvrf | 1221 | 1407 | 186 | 0 | 15.2% | 10.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: PASS
+diff guard failed: detection(master)=1 detection(old)=0 db=0
+##[error]Process completed with exit code 1.

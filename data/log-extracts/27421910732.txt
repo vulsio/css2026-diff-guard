@@ -1,0 +1,12 @@
+[] **Result**: **FAIL**
+### SECTION DET_MASTER
+[DET_MASTER] | windows_server_2008_r2 | 2524 | 3201 | 677 | 0 | 26.8% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_server_2012_r2 | 1241 | 1366 | 125 | 0 | 10.1% | 10.0% | **FAIL** |
+[DET_MASTER] failed to exec vuls: diff failed: change rate exceeded the applicable threshold for at least one scan-result file; see report for details
+### SECTION DET_OLD
+### SECTION DB
+### SECTION DB
+### SECTION DB
+[36;1m    echo "diff guard failed: detection(master)=${rc_master_disp} detection(old)=${rc_old_disp} db=${rc_db_disp}" >&2[0m
+diff guard failed: detection(master)=1 detection(old)=0 db=0
+[DB] ##[error]Process completed with exit code 1.

@@ -1,0 +1,9 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | cpe_fortinet | fortinet-csaf | 37 | 40 | 3 | 0 | 8.1% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: PASS
+diff guard failed: detection(master)=1 detection(old)=0 db=0
+##[error]Process completed with exit code 1.

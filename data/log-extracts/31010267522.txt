@@ -1,0 +1,10 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | amazon_2_extra_kernel | amazon | 1582 | 1662 | 80 | 0 | 5.1% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: **FAIL**
+[DET_OLD] | amazon_2_extra_kernel | amazon | 1582 | 1662 | 80 | 0 | 5.1% | 5.0% | **FAIL** |
+### SECTION DB
+[DB] **Result**: PASS
+diff guard failed: detection(master)=1 detection(old)=1 db=0
+##[error]Process completed with exit code 1.

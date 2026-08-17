@@ -1,0 +1,10 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | cpe_cisco | vulncheck-nist-nvd2 | 67 | 22 | 0 | 45 | 67.2% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: **FAIL**
+[DB] | redhat:9 | redhat-vex | 10.3% | 0.0% | 10.0% | **FAIL** |
+diff guard failed: detection(master)=1 detection(old)=0 db=1
+##[error]Process completed with exit code 1.

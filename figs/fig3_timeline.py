@@ -41,13 +41,18 @@ OVERRIDES = [
     ("2026-08-04", "grooming", "left"),      # PR #209 2026-08 grooming で override 再導出
 ]
 
+# data/stats-output.txt の "## source-episodes" 節から episode 表を読む
+import re
 episodes = []
-with open("data/episodes.tsv") as f:
-    header = f.readline()
-    for line in f:
-        parts = line.rstrip("\n").split("\t")
-        if len(parts) < 8:
-            continue
+in_sec = False
+for line in open("../data/stats-output.txt"):
+    if line.startswith("## source-episodes"):
+        in_sec = True
+        continue
+    if in_sec and line.startswith("## "):
+        break
+    parts = line.rstrip("\n").split("\t")
+    if in_sec and len(parts) == 8 and re.match(r"2026-\d\d-\d\d \d\d:\d\d", parts[0]):
         onset = datetime.strptime(parts[0], "%Y-%m-%d %H:%M")
         end = datetime.strptime(f"2026-{parts[1]}", "%Y-%m-%d %H:%M")
         episodes.append((onset, end, parts[2]))

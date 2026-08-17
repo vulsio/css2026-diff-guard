@@ -1,0 +1,17 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | cpe_jvn | vulncheck-nist-nvd2 | 17 | 69 | 52 | 0 | 305.9% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_cisco | vulncheck-nist-nvd2 | 24 | 22 | 7 | 9 | 66.7% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_nvd | vulncheck-nist-nvd2 | 19 | 24 | 5 | 0 | 26.3% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_fortinet | vulncheck-nist-nvd2 | 5 | 6 | 1 | 0 | 20.0% | 5.0% | **FAIL** |
+[DET_MASTER] | windows_11_21h2 | microsoft-cvrf | 1278 | 1419 | 141 | 0 | 11.0% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_11_22h2 | microsoft-cvrf | 1304 | 1445 | 141 | 0 | 10.8% | 10.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: **FAIL**
+[DB] | ubuntu:25.10 | ubuntu-cve-tracker | 47.8% | 0.0% | 10.0% | **FAIL** |
+[DB] | cpe | vulncheck-nist-nvd2 | 37.0% | 0.0% | 10.0% | **FAIL** |
+[DB] | ubuntu:14.04 | ubuntu-cve-tracker | 13.5% | 0.0% | 10.0% | **FAIL** |
+diff guard failed: detection(master)=1 detection(old)=0 db=1
+##[error]Process completed with exit code 1.

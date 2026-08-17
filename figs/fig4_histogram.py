@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """図4: 全 FAIL 行(1,040行)の変動率ヒストグラム(対数軸).
 
-データ: data/guard-failures.tsv。パースは stats.py と同一ロジック
+データ: ../data/guard-failures.tsv。パースは stats.py と同一ロジック
 (行ごとに rate 抽出、DB 行は detection/KB の max)。
 """
 import csv
@@ -12,7 +12,7 @@ from style import setup, BLUE, GRAY
 import matplotlib.pyplot as plt
 
 rates = []
-with open("data/guard-failures.tsv") as f:
+with open("../data/guard-failures.tsv") as f:
     rd = csv.reader(f, delimiter="\t")
     next(rd)
     for row in rd:

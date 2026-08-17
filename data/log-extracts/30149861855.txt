@@ -1,0 +1,9 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: PASS
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: **FAIL**
+[DB] | fedora:45 | fedora-api | 273.2% | 0.0% | 50.0% | **FAIL** |
+diff guard failed: detection(master)=0 detection(old)=0 db=1
+##[error]Process completed with exit code 1.

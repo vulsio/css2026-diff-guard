@@ -1,0 +1,10 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | cpe_paloalto | nvd-feed-cve-v2 | 185 | 203 | 18 | 0 | 9.7% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: **FAIL**
+[DB] | microsoft | microsoft-msuc | 0.0% | 55.9% | 35.0% | **FAIL** |
+diff guard failed: detection(master)=1 detection(old)=0 db=1
+##[error]Process completed with exit code 1.

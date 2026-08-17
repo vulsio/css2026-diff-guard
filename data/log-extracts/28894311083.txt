@@ -1,0 +1,16 @@
+[] **Result**: **FAIL**
+### SECTION DET_MASTER
+[DET_MASTER] | oracle_10 | 511 | 1190 | 679 | 0 | 132.9% | 5.0% | **FAIL** |
+[DET_MASTER] | oracle_9 | 4675 | 5317 | 642 | 0 | 13.7% | 5.0% | **FAIL** |
+[DET_MASTER] failed to exec vuls: diff failed: change rate exceeded the applicable threshold for at least one scan-result file; see report for details
+[DET_MASTER] **Result**: **FAIL**
+### SECTION DET_OLD
+[DET_OLD] | oracle_10 | 511 | 1190 | 679 | 0 | 132.9% | 5.0% | **FAIL** |
+[DET_OLD] | oracle_9 | 4675 | 5317 | 642 | 0 | 13.7% | 5.0% | **FAIL** |
+[DET_OLD] failed to exec vuls: diff failed: change rate exceeded the applicable threshold for at least one scan-result file; see report for details
+### SECTION DB
+### SECTION DB
+### SECTION DB
+[36;1m    echo "diff guard failed: detection(master)=${rc_master_disp} detection(old)=${rc_old_disp} db=${rc_db_disp}" >&2[0m
+diff guard failed: detection(master)=1 detection(old)=1 db=0
+[DB] ##[error]Process completed with exit code 1.

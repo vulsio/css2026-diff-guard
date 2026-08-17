@@ -1,0 +1,17 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | cpe_cisco | vulncheck-nist-nvd2 | 30 | 21 | 0 | 9 | 30.0% | 5.0% | **FAIL** |
+[DET_MASTER] | debian_12 | debian-security-tracker-salsa | 5097 | 5631 | 535 | 1 | 10.5% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_nvd | vulncheck-nist-nvd2 | 21 | 23 | 2 | 0 | 9.5% | 5.0% | **FAIL** |
+[DET_MASTER] | debian_10 | debian-security-tracker-salsa | 13642 | 14489 | 851 | 4 | 6.3% | 5.0% | **FAIL** |
+[DET_MASTER] | debian_9 | debian-security-tracker-salsa | 16350 | 17194 | 848 | 4 | 5.2% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: **FAIL**
+[DET_OLD] | debian_12 | debian-security-tracker-salsa | 5097 | 5631 | 535 | 1 | 10.5% | 5.0% | **FAIL** |
+[DET_OLD] | debian_10 | debian-security-tracker-salsa | 13642 | 14489 | 851 | 4 | 6.3% | 5.0% | **FAIL** |
+[DET_OLD] | debian_9 | debian-security-tracker-salsa | 16350 | 17194 | 848 | 4 | 5.2% | 5.0% | **FAIL** |
+### SECTION DB
+[DB] **Result**: **FAIL**
+[DB] | cpe | vulncheck-nist-nvd2 | 11.8% | 0.0% | 10.0% | **FAIL** |
+diff guard failed: detection(master)=1 detection(old)=1 db=1
+##[error]Process completed with exit code 1.

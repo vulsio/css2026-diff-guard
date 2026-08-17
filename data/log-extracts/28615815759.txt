@@ -1,0 +1,23 @@
+[] **Result**: **FAIL**
+### SECTION DET_MASTER
+[DET_MASTER] | windows_11_21h2 | 1017 | 472 | 0 | 545 | 53.6% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_11_22h2 | 1043 | 497 | 0 | 546 | 52.3% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_11_25h2 | 1373 | 722 | 0 | 651 | 47.4% | 20.0% | **FAIL** |
+[DET_MASTER] | windows_server_2022 | 1373 | 723 | 0 | 650 | 47.3% | 20.0% | **FAIL** |
+[DET_MASTER] | windows_11_24h2 | 1380 | 729 | 0 | 651 | 47.2% | 20.0% | **FAIL** |
+[DET_MASTER] | windows_11_23h2 | 1368 | 723 | 0 | 645 | 47.1% | 20.0% | **FAIL** |
+[DET_MASTER] | windows_10_20h2 | 1262 | 717 | 0 | 545 | 43.2% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_server_2025 | 1945 | 1290 | 0 | 655 | 33.7% | 20.0% | **FAIL** |
+[DET_MASTER] | windows_server_2022_sql_server_2019 | 2045 | 1395 | 0 | 650 | 31.8% | 20.0% | **FAIL** |
+[DET_MASTER] | windows_10_22h2 | 2835 | 2198 | 0 | 637 | 22.5% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_10_21h1 | 2865 | 2320 | 0 | 545 | 19.0% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_10_21h2 | 3459 | 2822 | 0 | 637 | 18.4% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_10_21h2_old | 3969 | 3327 | 0 | 642 | 16.2% | 10.0% | **FAIL** |
+[DET_MASTER] failed to exec vuls: diff failed: change rate exceeded the applicable threshold for at least one scan-result file; see report for details
+### SECTION DET_OLD
+### SECTION DB
+### SECTION DB
+### SECTION DB
+[36;1m    echo "diff guard failed: detection(master)=${rc_master_disp} detection(old)=${rc_old_disp} db=${rc_db_disp}" >&2[0m
+diff guard failed: detection(master)=1 detection(old)=0 db=0
+[DB] ##[error]Process completed with exit code 1.

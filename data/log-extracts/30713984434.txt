@@ -1,0 +1,15 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | windows_11_21h2 | microsoft-cvrf | 1484 | 1868 | 384 | 0 | 25.9% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_11_22h2 | microsoft-cvrf | 1510 | 1894 | 384 | 0 | 25.4% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_10_20h2 | microsoft-cvrf | 1729 | 2113 | 384 | 0 | 22.2% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_11_23h2 | microsoft-cvrf | 1868 | 2252 | 384 | 0 | 20.6% | 20.0% | **FAIL** |
+[DET_MASTER] | windows_10_21h1 | microsoft-cvrf | 3332 | 3716 | 384 | 0 | 11.5% | 10.0% | **FAIL** |
+[DET_MASTER] | windows_10_22h2 | microsoft-cvrf | 3630 | 4014 | 384 | 0 | 10.6% | 10.0% | **FAIL** |
+[DET_MASTER] | cpe_fortinet | fortinet-csaf | 37 | 40 | 3 | 0 | 8.1% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: PASS
+diff guard failed: detection(master)=1 detection(old)=0 db=0
+##[error]Process completed with exit code 1.

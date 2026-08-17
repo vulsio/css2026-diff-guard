@@ -1,0 +1,23 @@
+[] **Result**: **FAIL**
+[] | cpe_jvn | vulncheck-nist-nvd2 | 17 | 69 | 52 | 0 | 305.9% | 5.0% | **FAIL** |
+[] | cpe_cisco | vulncheck-nist-nvd2 | 24 | 22 | 7 | 9 | 66.7% | 5.0% | **FAIL** |
+[] | cpe_nvd | vulncheck-nist-nvd2 | 19 | 24 | 5 | 0 | 26.3% | 5.0% | **FAIL** |
+[] | cpe_fortinet | vulncheck-nist-nvd2 | 5 | 6 | 1 | 0 | 20.0% | 5.0% | **FAIL** |
+[] | windows_11_21h2 | microsoft-cvrf | 1278 | 1419 | 141 | 0 | 11.0% | 10.0% | **FAIL** |
+[] | windows_11_22h2 | microsoft-cvrf | 1304 | 1445 | 141 | 0 | 10.8% | 10.0% | **FAIL** |
+[] | opensuse_tumbleweed | suse-oval | 317 | 336 | 19 | 0 | 6.0% | 5.0% | **FAIL** |
+[] failed to exec vuls: diff failed: change rate exceeded the applicable threshold for at least one (scan-result file, data source) pair; see report for details
+[] failed to exec vuls: diff failed: change rate exceeded the applicable threshold for at least one (scan-result file, data source) pair; see report for details
+[] **Result**: **FAIL**
+[] | opensuse_tumbleweed | suse-oval | 317 | 336 | 19 | 0 | 6.0% | 5.0% | **FAIL** |
+[] **Result**: **FAIL**
+### SECTION DB
+[DB] | ubuntu:25.10 | ubuntu-cve-tracker | 47.8% | 0.0% | 10.0% | **FAIL** |
+[DB] | cpe | vulncheck-nist-nvd2 | 37.0% | 0.0% | 10.0% | **FAIL** |
+[DB] | ubuntu:14.04 | ubuntu-cve-tracker | 13.5% | 0.0% | 10.0% | **FAIL** |
+### SECTION DB
+### SECTION DB
+[DB] failed to exec vuls: diff failed: detection and/or KB change rate exceeded the applicable threshold for at least one (ecosystem, source) pair; see report for details
+[36;1m    echo "diff guard failed: detection(master)=${rc_master_disp} detection(old)=${rc_old_disp} db=${rc_db_disp}" >&2[0m
+diff guard failed: detection(master)=1 detection(old)=1 db=1
+[DB] ##[error]Process completed with exit code 1.

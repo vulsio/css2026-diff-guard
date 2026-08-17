@@ -1,0 +1,11 @@
+### SECTION DET_MASTER
+### SECTION DET_OLD
+[DET_OLD] **Result**: **FAIL**
+### SECTION DB
+[DB] | cpe | 28.9% | 0.0% | 10.0% | **FAIL** |
+### SECTION DB
+### SECTION DB
+[DB] failed to exec vuls: diff failed: detection and/or KB change rate exceeded the applicable threshold for at least one ecosystem; see report for details
+[36;1m    echo "diff guard failed: detection(master)=${rc_master_disp} detection(old)=${rc_old_disp} db=${rc_db_disp}" >&2[0m
+diff guard failed: detection(master)=0 detection(old)=0 db=1
+[DB] ##[error]Process completed with exit code 1.

@@ -1,0 +1,14 @@
+### SECTION DET_MASTER
+[DET_MASTER] **Result**: **FAIL**
+[DET_MASTER] | cpe_jvn | vulncheck-nist-nvd2 | 71 | 25 | 6 | 52 | 81.7% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_cisco | vulncheck-nist-nvd2 | 34 | 36 | 9 | 7 | 47.1% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_fortinet | vulncheck-nist-nvd2 | 5 | 4 | 0 | 1 | 20.0% | 5.0% | **FAIL** |
+[DET_MASTER] | cpe_nvd | vulncheck-nist-nvd2 | 26 | 21 | 0 | 5 | 19.2% | 5.0% | **FAIL** |
+### SECTION DET_OLD
+[DET_OLD] **Result**: PASS
+### SECTION DB
+[DB] **Result**: **FAIL**
+[DB] | fedora:46 | fedora-api | 66.7% | 0.0% | 10.0% | **FAIL** |
+[DB] | cpe | vulncheck-nist-nvd2 | 50.3% | 0.0% | 10.0% | **FAIL** |
+diff guard failed: detection(master)=1 detection(old)=0 db=1
+##[error]Process completed with exit code 1.

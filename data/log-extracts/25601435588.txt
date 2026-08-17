@@ -1,0 +1,10 @@
+[] failed to exec vuls: diff failed: change rate exceeded threshold (5.0%)
+[] **Result**: **FAIL** (Change Rate Threshold: 5.0%)
+### SECTION DET_MASTER
+[DET_MASTER] | debian_13 | 2579 | 2730 | 151 | 0 | 5.9% | **FAIL** |
+### SECTION DET_OLD
+### SECTION DB
+### SECTION DB
+[36;1m    echo "diff guard failed: detection(master)=${rc_master_disp} detection(old)=${rc_old_disp} db=${rc_db_disp}" >&2[0m
+diff guard failed: detection(master)=1 detection(old)=0 db=0
+[DB] ##[error]Process completed with exit code 1.
