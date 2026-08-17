@@ -6,7 +6,7 @@
 
 **全数調査の範囲**: 期間内の DB(db-main.yml)343 run + DB(Nightly)(db-nightly.yml)331 run = 674 run をすべて分類した(うち 6 run はガード導入コミット(nightly 04-23 10:05Z / main 04-24 03:45Z)より前で検査ステップ自体が無い)。failed 339 run のうち **295 run が "Run diff guard" ステップで失敗**(threshold trip 293 + ガード内インフラ障害 2)。全 295 run の failing target・変動率・候補 digest は付録([`diff-guard-incidents-data/`](diff-guard-incidents-data/))に完全収録。
 
-なお FAIL は promote 介入があるまで 6 時間おきの cron で**コケ続ける**ため、run 数は発動の重複カウントを含む。連続 FAIL を 1 つに潰した **fail sequence 数は 104**(DB 52 + DB(Nightly) 52。同一 workflow 内で隣接 FAIL の間隔 ≤9h を同一 sequence と判定 — 間に PASS が挟まると間隔は 12h 以上になるため分離される)。sequence 長は中央値 2〜3 run、最長 19 run(DB(Nightly) 05-02〜05-06 の debian_13 ストリーク)。ただし sequence は main / nightly を束ねられず、1 つの sequence に別イベントが相乗りもするため、**独立イベントの正準単位は source-episode = 69 件**(source ごとに main/nightly を束ねた FAIL 出現時系列を作り、24h 以上途切れたら別エピソードと数える。§5.6)。
+なお FAIL は promote 介入があるまで 6 時間おきの cron で**コケ続ける**ため、run 数は発動の重複カウントを含む。連続 FAIL を 1 つに潰した **fail sequence 数は 104**(DB 52 + DB(Nightly) 52。同一 workflow 内で隣接 FAIL の間隔 ≤9h を同一 sequence と判定 — 間に PASS が挟まると間隔は 12h 以上になるため分離される)。sequence 長は中央値 2〜3 run、最長 19 run(DB(Nightly) 05-02〜05-06 の debian_13 ストリーク)。ただし sequence は main / nightly を束ねられず、1 つの sequence に別イベントが相乗りもするため、**イベントの正準単位は source-episode = 69 件**(24h 集約規則であり、上流イベントの独立性の保証ではない)(source ごとに main/nightly を束ねた FAIL 出現時系列を作り、24h 以上途切れたら別エピソードと数える。§5.6)。
 
 **情報源**:
 - vulsio/vuls-data-db の全 run ログ・PR 本文・コミット履歴・promote-digest 履歴(GitHub API による全数収集、2026-07-14 実施)
@@ -449,7 +449,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 - 総 run 数: **943**(DB 477 + DB(Nightly) 466、6 時間おき cron)。窓は 2026-04-23T00:00Z 〜 08-17T00:00Z(= 08-16 まで)の 116 日間。08-17 00:25 の DB run 31981986529(ガード FAIL)は窓外
 - failed run: **476**、うち **"Run diff guard" ステップでの失敗 420**
 - 420 の内訳: **threshold trip 418** + ガード内インフラ障害 2(07-08 の baseline fetch `invalid descriptor size` ×2)
-- **有意な発動回数(fail sequence 数): 104**(DB 52 + DB(Nightly) 52) — promote 介入まで連続する FAIL を 1 つと数えたもの(隣接間隔 ≤9h で連結。中央値 2〜3 run / 最長 19 run、持続時間は中央値 11h / p90 48h / 最長 108h、単発で終息 29)。さらに main / nightly を束ね、sequence 内の source の出入りまで分解した独立イベントの正準単位が **69 source-episode**(§5.6)、triage 記録に基づく事例カタログとしては **約 41 イベント**(§4)
+- **有意な発動回数(fail sequence 数): 104**(DB 52 + DB(Nightly) 52) — promote 介入まで連続する FAIL を 1 つと数えたもの(隣接間隔 ≤9h で連結。中央値 2〜3 run / 最長 19 run、持続時間は中央値 11h / p90 48h / 最長 108h、単発で終息 29)。さらに main / nightly を束ね、sequence 内の source の出入りまで分解したイベントの正準単位が **69 source-episode**(§5.6)、triage 記録に基づく事例カタログとしては **約 41 イベント**(§4)
 - FAIL したチェックの組合せ分布(M=detection master / O=detection old / D=diff db): **M のみ 133、D のみ 100、M+O+D 85、M+O 53、M+D 47、infra 2**
 - 週末(土日 UTC)の FAIL run は 209/418 = **50%** — 上流ではなく promote が平日日中に限られることの反映(§5.6)
 - **手動 promote: 101 run / 92 unique digest(2026-04-27 〜 08-17)。92 digest 全てがガード FAIL run の候補 digest と一致** — この repo の手動 promote は 100% 「ガード FAIL をオペレータがレポート確認の上で override した」操作である。actor は shino(71)および MaineK00n(30)
@@ -510,7 +510,7 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 
 - **run 行**: FAIL レポートの 1 行(ストリークで増幅される)
 - **fail sequence**: 同一 workflow 内で promote 介入まで連続した FAIL の塊(**104 件** = DB 52 + Nightly 52。§冒頭参照)。main / nightly の対発火は 2 件と数えてしまい、1 sequence に別イベントが相乗りもする
-- **source-episode(正準の独立イベント単位)**: source ごとに main / nightly を束ねた FAIL 出現時系列を作り、出現が 24h 以上途切れたら別エピソードとする(**69 件** / 116 日)。sequence の弱点を両方解消する — 対発火は 1 件に束ねられ、sequence 内での source の途中参入・再燃は別エピソードに分解される(例: 初発動ストリーク P-1 は microsoft / ubuntu / debian の 3 エピソードに、A-17 の複合クラスタは 5 エピソードに分解される)
+- **source-episode(イベントの正準単位)**: source ごとに main / nightly を束ねた FAIL 出現時系列を作り、出現が 24h 以上途切れたら別エピソードとする(**69 件** / 116 日)。sequence の弱点を両方解消する — 対発火は 1 件に束ねられ、sequence 内での source の途中参入・再燃は別エピソードに分解される(例: 初発動ストリーク P-1 は microsoft / ubuntu / debian の 3 エピソードに、A-17 の複合クラスタは 5 エピソードに分解される)
 - (補助)**target-event**: 同一ターゲット単位で同様に数えたもの(**191 件**。windows_* のような multi-target 同時発火で膨らむ)
 
 **注記(2026-08-17 更新)**: 本節の per-source 表と曜日・月内分布の詳細分析は前半窓(〜07-14、50 episode)時点の記述である。後半窓を含む全期間(69 episode)の再集計は `stats-output.txt` に反映済みで、episode 首位は cpe 系 14(うち後半 7 — per-source 化で分解能が上がった効果を含む)、microsoft-cvrf 13、suse-oval 8。傾向(microsoft の月次集中、週末滞留、上位 max% の桁分離)は全期間でも変わらない。後半窓では新たに orchestration-driven(A-24, A-26)と extractor 意図的変更(A-23, A-25)が加わった。
