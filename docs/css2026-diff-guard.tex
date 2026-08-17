@@ -118,12 +118,12 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
   \node[note] (n1) at (3.35,-0.95) {上流確定};
   \node[note] (n2) at (3.35,-1.9)  {抽出器除外};
   \node[note] (n3) at (3.35,-2.85) {ビルダ除外};
-  \node[note, align=center] at (3.35,-0.2) {原因帰属(\ref{sec:method}章)\\が参照};
+  \node[note, align=center] at (3.35,-0.2) {原因帰属(\ref{sec:method}節)\\が参照};
   \draw[densely dotted] (raw.east)  -- (n1.west);
   \draw[densely dotted] (ext.east)  -- (n2.west);
   \draw[densely dotted] (cand.east) -- (n3.west);
 \end{tikzpicture}
-\caption{脆弱性DB公開パイプラインと公開前検査．全工程がGit履歴管理\cite{nakaoka2025}され，原因帰属(\ref{sec:method}章)は各工程の履歴を参照する．}
+\caption{脆弱性DB公開パイプラインと公開前検査．全工程がGit履歴管理\cite{nakaoka2025}され，原因帰属(\ref{sec:method}節)は各工程の履歴を参照する．}
 \label{fig:arch}
 \end{figure}
 
@@ -242,7 +242,7 @@ FAIL中はpromoteがあるまでbaselineが動かず，同じ差分で6時間お
 ただし証拠の水準は一様ではない．
 前半の観測窓と，後半窓で非上流と判定したイベント(取得設定由来2件と抽出器由来2件)については，原因となったコミットやPRの差分を直接の証拠として特定している．
 後半窓で上流由来と判定したイベントは，ビルダ，抽出器，取得設定の3者をコミット履歴の走査で除外した上での帰属であり，raw差分のsmoking gunまで確認したのは代表事例に限られる．
-また帰属手順は再現可能なtriage手順書として整備してチームで共有しており，AIエージェント用のスキルとしても記述している．実運用では一次調査をAIエージェントが実施し，人間がその報告を検証した上でpromoteの可否を判断する(\ref{sec:promote}章)．
+また帰属手順は再現可能なtriage手順書として整備してチームで共有しており，AIエージェント用のスキルとしても記述している．実運用では一次調査をAIエージェントが実施し，人間がその報告を検証した上でpromoteの可否を判断する(\ref{sec:promote}節)．
 
 \section{運用結果}
 \label{sec:results}
@@ -279,7 +279,7 @@ FAIL中はpromoteがあるまでbaselineが動かず，同じ差分で6時間お
 我々自身が取得対象のseedリストを拡張した直後(2026-08-05から08-06のKB seed登録)にmicrosoft/microsoft-msucが211.3\%で発動し，新規データソースを追加した直後(08-10)にはmicrosoft/microsoft-servicingがbaseline不在のため100.0\%で発動した．
 上流もコードも変わっておらず，「何を取りに行くか」の設定変更が原因である．
 もうひとつは\textbf{抽出器由来の意図的変更}の再来で，2012年から2022年の履歴的アドバイザリに検知を補完する抽出器変更(検知を持つファイルが643件から1,065件に増加)のマージ直後に，cpe\_fortinet/fortinet-cvrfが135.5\%で発動した．
-いずれも上流の異常ではなく我々の変更であり，帰属手順にvuls-data-db側のコミット走査(\ref{sec:method}章の手順3)を加えることで初めて分離できた．
+いずれも上流の異常ではなく我々の変更であり，帰属手順にvuls-data-db側のコミット走査(\ref{sec:method}節の手順3)を加えることで初めて分離できた．
 
 \begin{figure*}[tb]
 \centering
@@ -376,7 +376,7 @@ VulnCheckの全年代CVEへの生成CPE一括付与(\ref{sec:prevented}節)は�
 検査は一度作って終わりではなく，発動事例からのフィードバックで分解能と運用を継続的に改良する対象である．
 なお(3)のソース単位化の効果は後半の観測窓で実測できた．
 レポートがソース名を持つため，前半では「cpe」と一括りだった変動が，vulncheck-nist-nvd2(110行)，cisco-json(42行)，fortinet-csaf(17行)，fortinet-cvrf(10行)，paloalto-json(5行)，jvn-feed-rss(5行)のように分解され，target名からソースを推定する必要がなくなった．
-\ref{sec:prevented}章で述べた「分解能不足で判定を誤りかけた」事例と同型の希釈は，後半の窓では観測されていない．
+\ref{sec:prevented}節で述べた「分解能不足で判定を誤りかけた」事例と同型の希釈は，後半の窓では観測されていない．
 
 \subsection{運用コストの実態}
 \label{sec:opscost}

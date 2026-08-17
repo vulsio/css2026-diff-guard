@@ -16,7 +16,7 @@ CSS 2026 OWS トラック投稿論文「脆弱性情報の上流は安定して�
 
 ## TODO
 
-- [x] タイトル確定(主張先行型): 和「脆弱性情報の上流は安定していない: 公開前検査による 116 日間の全数観測」/ 英「Vulnerability Feeds Are Not Stable: A 116-Day Exhaustive Observation via Pre-Publication Inspection」。アブスト登録時のタイトルから変更したため、投稿システム側の更新可否を要確認
+- [x] タイトル確定(主張先行型): 和「脆弱性情報の上流は安定していない: 公開前検査による 116 日間の全数観測」/ 英「Vulnerability Feeds Are Not Stable: A 116-Day Exhaustive Observation via Pre-Publication Inspection」。投稿システム側のタイトル・アブストラクトも最新版へ更新済み(2026-08-17)
 - [x] 観測期間を 116 日(2026-04-23〜08-17)へ延長済み。945 run / 69 episode / 1,465 FAIL 行 / promote 92 digest。再延長する場合は maintainer workspace で CI を再収集 → `stats.py` 再実行 → figs/data/ 差し替え → 図再生成
 - [x] triage の AI 委任を本文に明記(§4 の手順書共有 + §6.6 の役割分担。概要には入れない)
 - [x] 発動事例の全数データ: 本文では公開に言及しない(private repo のため、締切までに確実にできない約束はしない)
