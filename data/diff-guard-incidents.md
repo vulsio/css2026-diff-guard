@@ -4,7 +4,7 @@
 
 **記録期間**: ガード本番導入 (2026-04-23) 〜 2026-07-14(本ドキュメント作成日)
 
-**全数調査の範囲**: 期間内の DB(db-main.yml)339 run + DB(Nightly)(db-nightly.yml)332 run = 671 run をすべて分類した。failed 339 run のうち **295 run が "Run diff guard" ステップで失敗**(threshold trip 293 + ガード内インフラ障害 2)。全 295 run の failing target・変動率・候補 digest は付録([`diff-guard-incidents-data/`](diff-guard-incidents-data/))に完全収録。
+**全数調査の範囲**: 期間内の DB(db-main.yml)343 run + DB(Nightly)(db-nightly.yml)331 run = 674 run をすべて分類した(うち 6 run はガード導入コミット(nightly 04-23 10:05Z / main 04-24 03:45Z)より前で検査ステップ自体が無い)。failed 339 run のうち **295 run が "Run diff guard" ステップで失敗**(threshold trip 293 + ガード内インフラ障害 2)。全 295 run の failing target・変動率・候補 digest は付録([`diff-guard-incidents-data/`](diff-guard-incidents-data/))に完全収録。
 
 なお FAIL は promote 介入があるまで 6 時間おきの cron で**コケ続ける**ため、run 数は発動の重複カウントを含む。連続 FAIL を 1 つに潰した **fail sequence 数は 104**(DB 52 + DB(Nightly) 52。同一 workflow 内で隣接 FAIL の間隔 ≤9h を同一 sequence と判定 — 間に PASS が挟まると間隔は 12h 以上になるため分離される)。sequence 長は中央値 2〜3 run、最長 19 run(DB(Nightly) 05-02〜05-06 の debian_13 ストリーク)。ただし sequence は main / nightly を束ねられず、1 つの sequence に別イベントが相乗りもするため、**独立イベントの正準単位は source-episode = 69 件**(source ごとに main/nightly を束ねた FAIL 出現時系列を作り、24h 以上途切れたら別エピソードと数える。§5.6)。
 
@@ -444,16 +444,16 @@ nightly 系では 6 月中旬から cpe ecosystem の D-FAIL が断続的に発�
 
 ## 5. 集計と考察
 
-### 5.1 全数統計(2026-04-23 〜 2026-08-17)
+### 5.1 全数統計(2026-04-23 〜 2026-08-16 の 116 日間)
 
-- 総 run 数: **945**(DB 478 + DB(Nightly) 467、6 時間おき cron)
+- 総 run 数: **943**(DB 477 + DB(Nightly) 466、6 時間おき cron)。窓は 2026-04-23T00:00Z 〜 08-17T00:00Z(= 08-16 まで)の 116 日間。08-17 00:25 の DB run 31981986529(ガード FAIL)は窓外
 - failed run: **476**、うち **"Run diff guard" ステップでの失敗 420**
 - 420 の内訳: **threshold trip 418** + ガード内インフラ障害 2(07-08 の baseline fetch `invalid descriptor size` ×2)
-- **有意な発動回数(fail sequence 数): 104**(DB 52 + DB(Nightly) 52) — promote 介入まで連続する FAIL を 1 つと数えたもの(隣接間隔 ≤9h で連結。中央値 2〜3 run / 最長 19 run、持続時間は中央値 10h / p90 48h / 最長 108h、単発で終息 29)。さらに main / nightly を束ね、sequence 内の source の出入りまで分解した独立イベントの正準単位が **69 source-episode**(§5.6)、triage 記録に基づく事例カタログとしては **約 41 イベント**(§4)
+- **有意な発動回数(fail sequence 数): 104**(DB 52 + DB(Nightly) 52) — promote 介入まで連続する FAIL を 1 つと数えたもの(隣接間隔 ≤9h で連結。中央値 2〜3 run / 最長 19 run、持続時間は中央値 11h / p90 48h / 最長 108h、単発で終息 29)。さらに main / nightly を束ね、sequence 内の source の出入りまで分解した独立イベントの正準単位が **69 source-episode**(§5.6)、triage 記録に基づく事例カタログとしては **約 41 イベント**(§4)
 - FAIL したチェックの組合せ分布(M=detection master / O=detection old / D=diff db): **M のみ 133、D のみ 100、M+O+D 85、M+O 53、M+D 47、infra 2**
 - 週末(土日 UTC)の FAIL run は 209/418 = **50%** — 上流ではなく promote が平日日中に限られることの反映(§5.6)
 - **手動 promote: 101 run / 92 unique digest(2026-04-27 〜 08-17)。92 digest 全てがガード FAIL run の候補 digest と一致** — この repo の手動 promote は 100% 「ガード FAIL をオペレータがレポート確認の上で override した」操作である。actor は shino(71)および MaineK00n(30)
-- 前半窓(〜07-14)単独の値は 671 run / 295 ガード失敗 / 1,040 FAIL 行 / 66 sequence / 50 episode / promote 59 digest であった。後半窓(07-14 〜 08-17)で 271 run・125 ガード失敗・425 FAIL 行・19 episode・promote 33 digest が加わっている
+- 前半窓(〜07-14T07:40Z)単独の値は 674 run(DB 343 + Nightly 331)/ 295 ガード失敗 / 1,040 FAIL 行 / 66 sequence / 50 episode / promote 59 digest であった。後半窓(07-14 〜 08-16)で 269 run(DB 134 + Nightly 135)・125 ガード失敗・425 FAIL 行・19 episode・promote 33 digest が加わっている(674 + 269 = 943)
 - 全 run の詳細は付録: [`diff-guard-incidents-data/`](diff-guard-incidents-data/)(run 表 02a〜02e、promote 履歴 03、機械可読 TSV、per-run ログ抜粋)
 
 ### 5.2 判定の分布(発動イベント単位)
@@ -583,7 +583,7 @@ episode 粒度で見たときの要点:
 
 | ファイル | 内容 |
 |---|---|
-| `02a-runs-apr-may.md` 〜 `02e-runs-jul-aug.md` | ガード FAIL 全 420 run の表(日時 / workflow / run ID / 失敗チェック M-O-D / FAIL 行と変動率 / 候補 digest)。2026-04-24 〜 08-17。`02e` は per-source 化後の窓で、target 名の後に `[source]` を併記 |
+| `02a-runs-apr-may.md` 〜 `02e-runs-jul-aug.md` | ガード FAIL 全 420 run の表(日時 / workflow / run ID / 失敗チェック M-O-D / FAIL 行と変動率 / 候補 digest)。2026-04-24 〜 08-16。`02e` は per-source 化後の窓で、target 名の後に `[source]` を併記 |
 | `03-promote-history.md` | promote-digest.yml 全 101 run(日時 / digest → tag / actor)。92 unique digest 全てがガード FAIL 候補と一致することの照合結果込み |
 | `guard-failures.tsv` | 上記 run 表の機械可読版(run_id, workflow, created_at, event, kind, failed_checks, fail_rows, digest) |
 | `log-extracts/<run_id>.txt` | 各 run のログ抜粋(FAIL 行・集約 rc 行・エラー行) |
