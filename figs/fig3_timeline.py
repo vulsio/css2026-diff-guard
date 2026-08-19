@@ -59,7 +59,7 @@ for line in open("../data/stats-output.txt"):
 assert len(episodes) == 69, len(episodes)
 
 setup()
-fig, ax = plt.subplots(figsize=(6.7, 1.6))
+fig, ax = plt.subplots(figsize=(6.7, 1.45))
 
 MIN_W = 6 / 24  # 短い episode も見えるよう最小幅 6h
 for onset, end, src in episodes:

@@ -61,7 +61,7 @@ ax.set_ylim(FLOOR, 300)
 ax.set_yticks([0.1, 1, 10, 100])
 ax.set_yticklabels(["0.1", "1", "10", "100"])
 ax.set_ylabel("max drift rate (%)")
-tick_idx = [0, 5, 10, 16, 21, 25, 30, 34]
+tick_idx = [0, 5, 10, 16, 21, 25, 34]
 ax.set_xticks([xs[i] for i in tick_idx])
 ax.set_xticklabels([PAIRS[i][0] for i in tick_idx])
 ax.set_xlim(-1, xs[-1] + 1)

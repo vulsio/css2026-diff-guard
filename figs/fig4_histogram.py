@@ -47,9 +47,9 @@ vals = np.array([max(r, 0.1) for r in rates])
 bins = np.logspace(np.log10(1), np.log10(4000), 40)
 ax.hist(vals, bins=bins, color=BLUE, linewidth=0)
 
-for thr, lab in [(5, "5%"), (10, "10%")]:
+for thr, lab, ha, xoff in [(5, "5%", "right", 0.93), (10, "10%", "left", 1.07)]:
     ax.axvline(thr, color=GRAY, linewidth=0.8, linestyle="--")
-    ax.text(thr, ax.get_ylim()[1] * 0.97, lab, ha="center", va="top",
+    ax.text(thr * xoff, ax.get_ylim()[1] * 0.97, lab, ha=ha, va="top",
             fontsize=6.5, color="#555555")
 
 ax.set_xscale("log")
