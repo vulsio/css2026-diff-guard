@@ -41,7 +41,7 @@ print(f"parsed {len(rates)} FAIL rows")
 assert len(rates) == 1465, len(rates)
 
 setup()
-fig, ax = plt.subplots(figsize=(3.3, 1.9))
+fig, ax = plt.subplots(figsize=(3.3, 1.35))
 
 vals = np.array([max(r, 0.1) for r in rates])
 bins = np.logspace(np.log10(1), np.log10(4000), 40)
