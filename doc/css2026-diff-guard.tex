@@ -1,0 +1,386 @@
+\documentclass{css}
+%\documentclass[english]{css}
+
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{latexsym}
+\usepackage{listings}
+\usepackage{url}
+\urlstyle{same}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+
+\newcommand{\cssyear}[0]{2026}
+\newcommand{\cssname}[0]{CSS 2026}
+\newcommand{\cssversion}[0]{2026/06/01}
+\newcommand{\cssemail}[0]{css2026-office@iwsec.org}
+
+\makeatletter
+\newcommand\newblock{\hskip .11em\@plus.33em\@minus.07em}
+\makeatother
+
+\begin{document}
+
+%% 本文が和文の場合，タイトル・著者名・著者所属・概要は，和文・英文共に必須．
+
+\title{脆弱性情報の上流は安定していない: \\ 公開前差分検査による116日間の全数観測}
+\etitle{Vulnerability Feeds Are Not Stable: A 116-Day Exhaustive Study Using Pre-Publication Differential Inspection}
+
+\affiliate{FUTURE}{フューチャー株式会社\\
+Future Corporation}
+
+\author{篠原 俊一}{Shunichi Shinohara}{FUTURE}[s.shinohara.yx@future.co.jp]
+\author{中岡 典弘}{Norihiro Nakaoka}{FUTURE}[n.nakaoka.46@future.co.jp]
+\author{神戸 康多}{Kota Kanbe}{FUTURE}[k.kanbe.r4@future.co.jp]
+
+\begin{abstract}
+脆弱性データベースが依存する外部フィードでは，データの一時的な消失や公開済みアドバイザリの遡及的な書き換えが起きる．本研究では，OSS脆弱性スキャナVulsのDB公開CIに，公開候補と直前版を比較する公開前差分検査を実装した．検査はスキャナの検知結果とDB内の検知条件構造を比較し，対象ごとの変動率が閾値を超えると公開を保留する．116日間・943 runの全数調査では，420件の検査失敗runを69件のsource-episodeに集約し，59件を上流由来，10件を自前の処理由来に帰属した．日常変動と構造的イベントは変動率で概ね桁が分離し，検査は欠損DB 2件と異常な候補1件の公開を防いだ．以上から，全工程の履歴に基づく差分検査が，上流フィードの縦断観測とDB公開の安全網を両立できることを示す．
+\end{abstract}
+
+\begin{jkeyword}
+脆弱性データベース，データ品質，公開前検査，履歴管理，ソフトウェアサプライチェーン
+\end{jkeyword}
+
+\begin{eabstract}
+External feeds used by vulnerability databases may temporarily lose data or retroactively rewrite published advisories. We implemented a pre-publication differential inspection in the CI pipeline of Vuls, an open-source vulnerability scanner. It compares each candidate database with the previous release using scanner detection results and detection-criteria structures, withholding publication when a per-target change rate exceeds its threshold. In an exhaustive study of 943 runs over 116 days, we consolidated 420 failed runs into 69 source episodes and attributed 59 to upstream changes and 10 to our own processing. Everyday changes and structural events were generally separated by an order of magnitude. The inspection prevented two releases of incomplete databases and one anomalous candidate. Differential inspection backed by end-to-end history can therefore serve both as a longitudinal observer of vulnerability feeds and as a publication safety net.
+\end{eabstract}
+
+\begin{ekeyword}
+Vulnerability Database, Data Quality, Pre-Publication Inspection, History Management, Software Supply Chain
+\end{ekeyword}
+
+\maketitle
+
+\section{はじめに}
+\label{sec:intro}
+
+脆弱性スキャナの検知結果は，ディストリビュータやベンダが公開するアドバイザリと脆弱性フィードに依存する．これらを集約した脆弱性データベース(以下，脆弱性DB)から情報が欠ければ，スキャナの実装を変更していなくても検知漏れが生じる．それにもかかわらず，DBの自動更新では，上流フィードは概ね安定しており，その変化は新規脆弱性の追加を中心とする，という仮定が暗黙に置かれやすい．この仮定はどの程度正しいのだろうか．
+
+実際の上流フィードは，この仮定ほど単純ではない．月次データが一時的に消えることも，過去のアドバイザリが予告なく再編されることもある．変更が上流に由来するのか，収集・変換・DB構築といった自前の処理に由来するのかも，完成したDBだけからは判断しにくい．従来研究は脆弱性DBの品質を主に外部から静的に測定してきたが，公開パイプラインの内部でフィードの経時変化を継続観測し，公開可否の判断に結び付けた実運用の報告は限られている．
+
+我々は，OSS脆弱性スキャナVuls\cite{vuls}向けのDB(vuls.db)を，40超のデータソースから6時間ごとに構築・公開している．前稿\cite{nakaoka2025}では，収集(fetch)，変換(extract)，構築(db build)の全工程を履歴管理し，任意時点の入力と生成物を追跡・再現する基盤を報告した．本研究ではこの基盤を利用し，公開候補DBと直前の公開版(baseline)を自動比較する\textbf{公開前差分検査}(diff guard)を導入した．変動率が閾値を超えた候補は公開せず，人間が差分と工程履歴を確認する．第一義には公開事故を防ぐ安全網だが，116日間に蓄積した発動履歴は同時に，上流がいかに大きく，頻繁に，時に黙って動くかを捉える縦断観測データとなった．図\ref{fig:arch}に全体像を示す．
+
+本稿では，次の3つの研究質問に答える．
+
+\begin{enumerate}
+\item \textbf{RQ1: 何が公開前差分検査を発動させるか．} 発動をイベント単位に集約し，上流と自前の処理に原因帰属する．
+\item \textbf{RQ2: 上流フィードはどのように不安定か．} 可用性，完全性，変動規模の観点から，代表的な変更とその影響を明らかにする．
+\item \textbf{RQ3: 差分検査は公開事故を防げるか．} 阻止できた事例だけでなく，承認判断を誤った事例と運用コストも評価する．
+\end{enumerate}
+
+116日間・943 runを全数調査した結果，検査による420件の失敗runは69件のsource-episodeに集約され，59件が上流由来，10件が自前の処理由来であった(RQ1)．上流では，月次データの消失と復活，過去アドバイザリの縮退，更新情報を伴わないマッピング変更を観測した．日常変動とこれらの構造的イベントは，変動率で概ね桁が分離した(RQ2)．検査は欠損DBの公開を2回，異常な候補DBの公開を1回阻止した．一方，検査が発動しても人間が不適切に承認すれば事故は残るため，ソース単位の比較，削除方向の扱い，承認手続きが重要である(RQ3)．
+
+本稿の貢献は，(1) 本番パイプラインの全発動を対象とした上流変化の縦断データ，(2) 全工程の履歴を使って変化の発生箇所を切り分ける再現可能な原因帰属手順，(3) 閾値の継続調整と監査証跡付き手動承認を含む公開前差分検査の設計，の3点である．
+
+\begin{figure}[tb]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[font=\footnotesize, >=Stealth,
+  b/.style={draw, rounded corners=1pt, align=center, inner sep=3pt, minimum height=5mm},
+  hist/.style={b, fill=gray!15},
+  lbl/.style={font=\scriptsize, text=black!70},
+  note/.style={font=\scriptsize, text=black!60, align=left}]
+  \node[b]    (up)   at (0,0)     {上流データソース(40+)};
+  \node[hist] (raw)  at (0,-0.85) {raw(Git履歴)};
+  \node[hist] (ext)  at (0,-1.7)  {extracted(Git履歴)};
+  \node[hist] (cand) at (0,-2.55) {候補DB(digestのみでpush)};
+  \node[b, fill=orange!20] (g) at (0,-3.4) {公開前検査(Dn / Do / DB)};
+  \node[b]    (pub)  at (-1.7,-4.45) {GHCRタグ公開};
+  \node[hist] (hold) at (1.8,-4.45)  {保留(タグなしdigest)};
+  \draw[->] (up) -- (raw)   node[midway,left,lbl] {fetch};
+  \draw[->] (raw) -- (ext)  node[midway,left,lbl] {extract(抽出器)};
+  \draw[->] (ext) -- (cand) node[midway,left,lbl] {db build(ビルダ)};
+  \draw[->] (cand) -- (g);
+  \draw[->] (g) -- (pub)  node[midway,left,lbl]  {PASS};
+  \draw[->] (g) -- (hold) node[midway,right,lbl] {FAIL};
+  \draw[->] (hold) -- (pub) node[midway,below=5pt,lbl] {人間レビュー後promote};
+  \draw[->, dashed] (pub.west) .. controls +(-0.75,0.3) and +(-1.3,-0.1) .. (g.west)
+    node[pos=0.45,left,lbl,align=center] {baseline\\(直前公開版)};
+  \node[note] (n1) at (3.35,-0.85) {上流確定};
+  \node[note] (n2) at (3.35,-1.7)  {抽出器除外};
+  \node[note] (n3) at (3.35,-2.55) {ビルダ除外};
+  \node[note, align=center] at (3.35,-0.2) {原因帰属(\ref{sec:method}節)\\が参照};
+  \draw[densely dotted] (raw.east)  -- (n1.west);
+  \draw[densely dotted] (ext.east)  -- (n2.west);
+  \draw[densely dotted] (cand.east) -- (n3.west);
+\end{tikzpicture}
+}
+\caption{脆弱性DB公開パイプラインと公開前検査．全工程がGit履歴管理\cite{nakaoka2025}され，原因帰属(\ref{sec:method}節)は各工程の履歴を参照する．}
+\label{fig:arch}
+\end{figure}
+
+\section{対象システムと公開前差分検査}
+\label{sec:background}
+
+\subsection{履歴管理されたDB公開パイプライン}
+\label{sec:infra}
+
+vuls.dbの生成は，fetch，extract，db buildの3工程からなる\cite{nakaoka2025,vuls-data-update,vuls-data-db}．fetch工程は一次情報源からデータを取得し，原形をほぼ保ったrawデータとしてGitで履歴管理する．extract工程はrawデータを共通スキーマへ変換し，extractedデータとして同様に履歴管理する．db build工程はextractedデータからBoltDB形式のvuls.dbを構築し，GitHub Container Registry(以下，GHCR)へ公開する．本稿では，extract工程の変換コードを\textbf{抽出器}，db build工程の構築コードを\textbf{ビルダ}と呼ぶ．
+
+各DBには入力データとビルダのバージョンが記録され，GHCR上の生成物はdigestで固定できる．したがって，任意時点のrawデータまでコミット単位で遡り，同じDBによる検知結果を再現できる．公開前差分検査は，この追跡可能性を公開可否の判断に利用する(図\ref{fig:arch})．
+
+\subsection{動機となった2つのインシデント}
+\label{sec:incidents}
+
+2026年3月，ビルドは成功したものの，検知結果が大きく誤るDBを2回公開した．
+
+\textbf{インシデント1(Red Hat VEX，false negative)}:
+データ形式を変更した日に，上流から不正なVEX(Vulnerability Exploitability eXchange)データが配信された．変換処理はエラーとなり，データは旧形式のまま残ったが，後段のフィルタは新形式を前提としていたため空データを生成した．その結果，redhat:9で本来検知されるCVEの51.9\%(3,387件)を「影響なし」とするDBが公開された．上流の異常と，工程間の形式整合を保証しない自前の実装が複合した事例である．
+
+\textbf{インシデント2(Ubuntu \texttt{vulnerable: false}，false positive)}:
+DBに導入したマーカを旧バージョンのスキャナが解釈できず，ubuntu\_2204の検知件数が5,968件から12,296件へ増えた(+106.0\%)．DBとスキャナはそれぞれ単体では正常であり，両者の組み合わせに互換性がなかった．
+
+従来のCIは処理の正常終了を確認していたが，生成物の意味的な妥当性は確認していなかった．また，インシデント1はDBの構造から，インシデント2はDBと旧スキャナを組み合わせた検知結果から初めて分かる．そこで，DB構造と実際の検知結果を相補的に比較する検査を設計した．
+
+\label{sec:design}
+
+\subsection{閾値設計の事前検証}
+\label{sec:benchmark}
+
+脆弱性DBには日常的な追加・更新があるため，差分の有無だけでは異常を判定できない．閾値検査が成立するには，日常変動と確認すべきイベントが変動率で分離する必要がある．
+
+導入前に，GHCRに残る37日分のDB(2026-02-15から03-29)から連続する1日ペア35組を作り，DB構造の変動率を測定した．検証環境のディスク不足により，03-10から03-15までの6日分は欠測である．日常変動の中央値は0.3\%，最大値は6.2\%であった．10\%を超えた2組は，Red Hat VEXの構造変更(redhat:6で65.1\%)とSUSE OVALの大規模更新(12--16\%)であり，いずれも実在する上流イベントであった(図\ref{fig:benchmark})．この桁の分離を根拠に，DB構造差分の既定閾値を10\%とした．
+
+\begin{figure}[tb]
+\centering
+\includegraphics[width=\linewidth]{./figures/fig2-benchmark.pdf}
+\caption{導入前ベンチマーク: 連続1日ペア35組の最大変動率(対数軸，破線はdb既定閾値10\%)．橙は実在の上流イベント(Red Hat VEX 65.1\%，SUSE OVAL 16.1\%)で，正常帯(中央値0.3\%)と桁で分離する．}
+\label{fig:benchmark}
+\end{figure}
+
+\subsection{3つのチェック}
+\label{sec:checks}
+
+公開CIでは，候補DBの構築後，タグを付けて公開する前に次の3チェックを実行する．検知結果差分をDnとDo，DB構造差分をDBと略記する．
+
+\begin{itemize}
+\item \textbf{Dn(最新版による検知結果差分)}: baselineと候補DBのそれぞれに対し，最新版のスキャナを同じfixture群で実行し，fixtureごとの検知CVE集合を比較する．fixtureは実機スキャンに由来する75ファイルで，Windowsを含む12 OSファミリとCPE系6ソースを対象とする．
+\item \textbf{Do(旧版による検知結果差分)}: 固定した旧バージョンのスキャナで同じ比較を行う．DBと旧スキャナの組み合わせでのみ生じる非互換を検出するためのチェックである．
+\item \textbf{DB(DB構造差分)}: BoltDBを直接読み，ecosystem，後にはソースごとに，検知条件木をleaf Criterionまで平坦化して比較する．バイト列ではなくCriterionを比較することで，JSONのキー順など意味を変えない差分を除外する．全体の分母は約330万Criterionであり，日常的な小変更は小さなdriftとして現れる．一方，fixtureに含まれない対象はこのチェックだけが観測する．
+\end{itemize}
+
+変動率は，追加数と削除数の和をbaselineの要素数で割って求める．対象ごとに1行の結果を出力し，1行でも閾値を超えればrun全体をFAILとする．baselineに存在しない対象の変動率は100\%とする．CIのJob Summaryには，変動率，増減数，変化したCVEまたはアドバイザリIDを常に出力する．先に失敗したチェックが後続の情報を隠さないよう，3チェックをすべて実行した後に結果を集約する．
+
+\subsection{FAIL時の運用: 監査証跡付き手動promote}
+\label{sec:promote}
+
+候補DBは，検査前にタグを付けずdigestだけでGHCRへpushする．検査がPASSした場合に限り公開タグを付ける．FAILした候補もdigestで取得できるため，公開せずに事後検証できる．
+
+正当な変更と判断した場合，オペレータは専用workflowで候補digestにタグを付ける．この操作を\textbf{promote}と呼ぶ．実行者，digest，タグはworkflowの履歴に残り，判断材料となったレポートはFAILしたrunに残る．したがって，検査を手動で越える操作にも監査証跡がある．promoteの判断と実行は人間に限定し，AIエージェントには許可していない．
+
+\subsection{閾値のper-target / per-source化とgrooming}
+\label{sec:threshold}
+
+既定閾値はDnとDoが5\%，DBが10\%である．DBの値は事前検証に基づき，検知結果の値は経験的な初期値として定めた．ただし，新しいディストリビューションの一括triage，rolling release，ベンダの月次更新など，正当で反復的な大変動もある．そこで対象別のoverrideを用意し，失敗履歴の「観測ピーク+ヘッドルーム」から値を導出する．単発のスパイクは緩和せず，人間の確認対象として残す．
+
+overrideが現状と乖離しないよう，約2か月ごとに全対象の値を再導出する．本稿ではこの作業を\textbf{grooming}と呼ぶ．また，運用後期には，ecosystem全体を分母にすると大きなソースが小さなソースの異常を希釈することが分かったため，レポートと閾値をソース単位に細分化した．なお，現在の変動率は追加と削除を対称に扱う．overrideを緩和すると，検知漏れに直結する削除への感度も下がるため，追加・削除を分けた閾値が必要である．
+
+\section{評価方法}
+\label{sec:method}
+
+評価では，RQ1に対して全runをイベントへ集約し，工程履歴から原因を帰属する．RQ2では，上流由来のイベントを可用性，完全性，変動規模の観点で分類する．RQ3では，公開を阻止した事例，阻止できなかった事例，および運用コストを調べる．
+
+\subsection{観測期間と収集データ}
+
+観測期間は，検査を本番導入した2026-04-23から08-16までの116日間である．安定版と開発版の2系統で実行された全943 runについて，runログ，関連PR，promote履歴をGitHub APIから収集した．したがって，標本抽出ではなく期間内の全数調査である．
+
+各runから，実行系統，時刻，成否，失敗工程，チェック種別，対象，変動率，増減数を抽出した．後述の原因帰属には，ビルダのバージョン，抽出器と取得設定のコミット履歴，rawおよびextractedデータのGit差分を用いた．
+
+\subsection{runからsource-episodeへの集約}
+
+FAIL中は公開版であるbaselineが更新されない．そのため，同じ候補との差分が6時間ごとに繰り返し検出され，run数は実イベント数より多くなる．この重複を除くため，まず同一系統の連続FAILを\textbf{fail sequence}として104件にまとめた．次に，安定版と開発版を統合し，一つのFAILに複数ソースが含まれる場合は分解して，\textbf{source-episode} 69件を得た．以後，原因分布を数える単位はsource-episodeとする．
+
+同一ソースの発動に24時間以上の途切れがあれば，別のepisodeとして扱う．この規則は時間的な集約であり，上流イベントの独立性を保証しない．分割間隔を12時間にすると77件，48時間にすると62件となる．全期間のソース族はtarget名から推定し，ソース名を直接出力するようになった後半期間のレポートで推定内訳を検証した．
+
+\subsection{工程履歴に基づく原因帰属}
+
+各source-episodeについて，生成物から入力側へ遡り，次の順で原因候補を除外する．
+
+\begin{enumerate}
+\item \textbf{ビルダ}: baselineと候補DBのメタデータを比較する．ビルダのバージョンが同じなら，構築コードの変更を除外する．
+\item \textbf{抽出器}: 対象期間のコード履歴を調べる．当該ソースのfetchまたはextractコードに変更がなければ，変換処理の変更を除外する．
+\item \textbf{取得設定}: DB公開リポジトリの履歴を調べる．seedリストや取得対象ソースに変更がなければ，入力範囲の変更を除外する．
+\item \textbf{上流}: rawデータのコミットを特定し，検査レポートと件数またはIDが一致する変更実体を探す．例えば，アドバイザリ群の追加やディレクトリ全体の消失が直接の証拠となる．
+\end{enumerate}
+
+この手順は，DBメタデータ，コード履歴，rawおよびextractedデータの履歴を工程ごとに対応付ける．全69 episodeは，上流由来または自前の処理由来まで帰属できた．ただし，証拠の粒度には差がある．自前の処理由来10件のうち6件は原因コミットまたはPRを特定したが，4件は開発版で先行したCPE関連の変更系列までの帰属であり，抽出器とビルダのどちらかは確定していない．上流由来59件では，自前の3工程に関係する変更がないことを履歴から確認し，代表事例についてraw差分の直接証拠まで確認した．この帰属手順はtriage手順書とAIエージェント用スキルにも記述したが，報告の検証と公開判断は人間が行う(\ref{sec:guardrail}節)．
+
+\subsection{妥当性への脅威}
+
+第一に，本稿が全数調査するのはrunであり，上流の全変更ではない．episodeは設定した閾値を超えた変更だけを含むため，打ち切り観測である．この影響を補うため，発動件数だけでなく，原因の内訳，変動率の分布，および日常変動も含む事前検証(\ref{sec:benchmark}節)を併せて示す．第二に，episodeの件数は24時間という集約規則に依存するため，12時間と48時間の場合も感度分析として示した．第三に，観測期間中も検査を改良し，3チェックの全実行化，fixtureとoverrideの追加，ソース単位化を行った．したがって，結果は固定した測定器による同質な標本ではなく，運用中に改善された検査の発動履歴である．
+
+\subsection{再現用資料の公開}
+
+検査のworkflow，閾値，override設定はvuls-data-db\cite{vuls-data-db}で公開している．収集したrun表，fail sequence，source-episodeごとの判定表，集計コードは，本研究の公開リポジトリ\footnote{\url{https://github.com/vulsio/css2026-diff-guard}}に収録した．
+
+\section{結果}
+\label{sec:results}
+
+\subsection{RQ1: 発動規模と原因分布}
+\label{sec:scale}
+
+全943 runのうち476 runが失敗した．内訳は，公開前差分検査420 run(閾値超過418，検査内のインフラ障害2)，ビルド工程39 run，runner障害など17 runである．検査の失敗を集約すると69 source-episodeとなった．チェック別では，DB単独が23件，Dn単独が16件，複数チェックの同時発動が30件であり，Do単独は0件であった(\ref{sec:blindspots}節)．
+
+原因帰属の結果を表\ref{tab:attribution}に示す．上流由来は59件(85.5\%)，自前の処理由来は10件(14.5\%)であった．上流由来の大半は正当な変更だが，一時的な全消失2件と恒久的な品質イベント2件も含む．自前の処理由来では，抽出器のバグ1件，意図した抽出器変更3件，取得設定変更2件を原因コミットまで特定した．残る4件は開発版のCPE関連変更系列まで特定したが，抽出器とビルダのどちらに属するかは確定できなかった．
+
+\begin{table}[tb]
+\caption{source-episode 69件の原因分布．複数の変化を含む場合は，公開判断を左右した原因を代表値とした．}
+\label{tab:attribution}
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\vspace{4pt}
+\begin{tabular}{llll}
+\hline
+判定 & 件数 & 代表例 & 捕捉 \\
+\hline
+上流: 正当な変更 & 55 & 月次パッチ等 & 混在 \\
+上流: 一時的障害 & 2 & CVRF消失 & Dn \\
+上流: 恒久的品質イベント & 2 & errata再編 & 全て \\
+抽出器由来(コードバグ) & 1 & 非決定的出力 & DB \\
+抽出器由来(意図的変更) & 3 & 検知の補完 & DB \\
+自前由来(工程未確定) & 4 & 開発版cpe系列 & DB \\
+取得設定由来 & 2 & seed追加 & DB \\
+ビルダ由来 & 0 & (事例無し) & -- \\
+\hline
+\end{tabular}
+\end{table}
+
+自前の変更も十分に大きな発動を生じた．例えば，Windows更新プログラムのseedを追加した直後にはmicrosoft/microsoft-msucが211.3\%，新規データソースを追加した直後にはmicrosoft/microsoft-servicingが100.0\%で発動した．いずれも上流や抽出器ではなく，「何を取得するか」という設定の変更である．また，2012年から2022年のアドバイザリへ検知を補完する抽出器変更では，検知を持つファイルが643件から1,065件に増え，fortinet-cvrfが135.5\%で発動した．検査は異常だけでなく，意図した大規模変更の影響範囲も可視化した．
+
+\begin{figure*}[tb]
+\centering
+\includegraphics[width=\textwidth]{./figures/fig3-timeline.pdf}
+\caption{116日間に観測したsource-episode 69件．横棒は最初のFAILから終端まで，点線はoverride，ソース単位化，groomingの導入時点を示す．}
+\label{fig:timeline}
+\end{figure*}
+
+\subsection{RQ3: 欠損・異常DBの公開を阻止した3件}
+\label{sec:prevented}
+
+検査は，欠損DBの公開を2回，異常な候補DBの公開を1回阻止した．前者は上流データの一時的な全消失，後者は自前のコードに起因する異常である．
+
+\begin{enumerate}
+\item \textbf{Microsoft CVRF月次データの全消失(2件)}: 上流APIが当月分のセキュリティ更新文書700--1,300ファイルを返さなくなり，Windows系13対象で最大53.6\%の削除が生じた．2件目では約1,270 CVEの検知消失に相当する．候補を破棄し，上流回復後に再構築することで，false negativeを含むDBの公開を防いだ．raw履歴では，当月ファイル数が$1273 \rightarrow 0 \rightarrow 1273 \rightarrow 0 \rightarrow 1278$と変化しており，取得処理の単発失敗ではなく，上流配信のフラッピングであった．
+\item \textbf{抽出器の非決定性バグ(1件)}: rawデータの変更が266ファイルであるのに，extractedデータは23,163ファイル変化した．DBチェックはこの不均衡を274.5\%のdriftとして検出した．原因は型の取り違えによりソート処理が実行されず，出力順が非決定になったことであった．候補を公開せず，抽出器の修正に至った．
+\end{enumerate}
+
+利用者報告と事後分析の範囲では，検査が発動しないまま公開された破損は確認していない．ただし，未検知の破損がないことを網羅的に確認する手段はない．
+
+\subsection{RQ3: 発動しても防ぎ切れなかった2件}
+\label{sec:missed}
+
+一方，検査が発動しても実害を防ぎ切れず，検査と運用の改良に帰結した事例が2件ある．検査は差分を検出して公開を保留するが，最終的なpromoteは人間が判断する．
+
+\begin{enumerate}
+\item \textbf{AlmaLinux errataの縮退}:
+1週間に複数回の再編があり，アドバイザリ数は279件から一時60件へ減少した．削除されたアドバイザリが参照していた434 CVEのうち376件(87\%)はフィード全体から消え，残ったkernelアドバイザリも検知対象が73パッケージから2パッケージへ縮退した．検査は縮退時に99.2\%，巻き戻し時には最大428.3\%で発動した．しかし，滞留したFAILを解消する際にオペレータが縮退候補をpromoteし，数時間だけ公開した．同日中に縮退前のコミットへ入力を固定して巻き戻し，後に履歴から消失分を復元する取得処理を実装した(\ref{sec:integrity}節)．
+\item \textbf{VulnCheck一斉ロールアウト}:
+生成CPE(Common Platform Enumeration)を一斉付与する単一コミットにより，145,672ファイル，957万行が追加された．当時のDBチェックはecosystem全体でcpe 28.9\%と報告し，候補はpromoteされた．事後にソース単位で再計算すると，当該ソースは189.6\%変化し，実検知が60--75\%消失する退行を含んでいた．この事例を受け，レポートと閾値をソース単位へ変更した(\ref{sec:threshold}節)．
+\end{enumerate}
+
+2件とも，差分の検出と公開保留までは成功した．残った問題は，レポートの分解能と人間の承認判断である．削除方向の自動ブロック，大規模消失時の複数名承認，承認時に確認すべき項目の明文化が必要である．
+
+\subsection{正当な変更を止める意味}
+\label{sec:fp}
+
+発動69件のうち55件は正当な上流変更であった．しかし，これらをすべて誤報とはみなさない．例えば，822 CVEを含むカーネル更新や，約600パッケージ・5,312検知条件を一度に更新するアドバイザリは，正当でも公開前に影響を確認する価値がある．一方，反復性が確認できた月次更新などは対象別overrideへ反映し，人間の確認を単発または未知の大変動へ集中させる．この調整を含む運用負荷は\ref{sec:opscost}節で検討する．
+
+\section{考察}
+\label{sec:discussion}
+
+\subsection{消える・戻る・また消える: 可用性}
+\label{sec:avail}
+
+Microsoft CVRFの月次データ全消失は2か月連続で起き，2回目には2日間で消失と復活を4回繰り返した．APIの応答が構文的に正しくても，取得した時点が欠損状態なら，パイプラインは正常終了したまま不完全なDBを作る．すなわち，取得成功とデータの可用性は同義ではない．
+
+対策には二つの段階がある．fetch時に件数や既知IDの消失を確認すれば，不完全な入力の履歴化を早期に止められる．さらに公開前に直前版と比較すれば，fetch側で想定していない欠損も，利用者へ届く前に検出できる．本事例は，入力境界と公開境界の両方で検査する必要性を示す．
+
+\subsection{遡及的に書き換わる: 完全性と一貫性}
+\label{sec:integrity}
+
+上流の変化は一時的な障害だけではなかった．過去データを意図的または暗黙に書き換える，次の3種類を観測した．
+
+\begin{itemize}
+\item \textbf{errataの検知条件の縮退}:
+AlmaLinuxでは，フィード，OSV(Open Source Vulnerabilities)，HTMLの三者が同じ縮退を示した．上流への報告に対し，フィードが現行バージョンの情報だけを保持する仕様に起因するとの回答を得た\footnote{\url{https://bugs.almalinux.org/view.php?id=644}}．上流が仕様どおりでも，過去バージョンを検査する下流にとっては情報の欠損になる．
+\item \textbf{サイレントなサーバ側再編}:
+Cisco openVuln APIでは，アドバイザリの更新日時とバージョンを変えずに，影響バージョンの対応だけが日次で書き換わった．93アドバイザリから製品バージョン2,022件が削除され，2014年のあるアドバイザリでは製品リストが149件から36件になった．過剰な対応付けの修正とも解釈できるが，下流から見れば，告知も更新印もない検知消失である．
+\item \textbf{一斉再生成の両義性}:
+VulnCheckによる全年代CVEへの生成CPE一括付与は，情報量を増やす一方，CPE語彙の変更による検知退行も含んだ．2週間後には上流の修正による回復が再び大変動として現れた．変動率だけでは，拡充，退行，回復の意味を判定できない．
+\end{itemize}
+
+以上から，上流の変更を単純に正常・異常へ二分することは難しい．公開前検査の役割は変更の意味を自動決定することではなく，平常帯から外れた変更を，履歴とともに人間へ提示することである．
+
+\subsection{正当でも桁違いに動く: 変動率の効用と限界}
+\label{sec:scaledist}
+
+観測された大変動は，新規リリースfedora:46の3433.3\%，AlmaLinux errata再編の428.3\%，CPE系の305.9\%などである．一方，発動した日常変動の多くは5--20\%にあり，構造的イベントとは概ね桁が分離した．この結果は，単純な閾値を一次選別に利用できることを支持する．
+
+ただし，変動率は比較条件に依存する．第一に，baselineが小さい新規対象は，少数の正当な追加でも100\%を超える．第二に，FAIL中はbaselineが更新されないため，比較期間が伸び，複数回の日常変動が累積する．第三に，大きなソースと小さなソースを同じ分母で集計すると，小さなソースの異常が希釈される．対象別閾値，迅速な承認，ソース単位の比較は，それぞれの影響を緩和するために必要である．
+
+\begin{figure}[tb]
+\centering
+\includegraphics[width=\linewidth]{./figures/fig4-histogram.pdf}
+\caption{FAILした1,465行の変動率分布(対数軸)．5--20\%の帯に対し，100\%を超える構造的イベントが裾を形成する．cronによる重複を含み，閾値未満の更新を含まない．}
+\label{fig:histogram}
+\end{figure}
+
+\subsection{チェックの相補性と比較粒度}
+\label{sec:blindspots}
+
+CVRF全消失では，DBチェックがWindows更新プログラムのキー集合だけを比較していたため，キーに紐付くCVEが消えても0\%となった．一方，Dnは実検知の減少を捉えて公開を止めた．逆に，fixtureにない対象や，検知集合を変えない内部構造の大変化はDBだけが捉える．異なる表現を比較することで，一方の盲点をもう一方が補った．
+
+Doだけが発動したepisodeは0件であった．したがって，本観測期間では旧スキャナによる追加の検出効果を実証できなかった．ただし，Doは導入前に実際に起きたバージョン非互換を対象としており，互換性監視を不要と結論付けることもできない．どの旧版をどの期間まで検査するかは，利用実態と実行コストに基づく今後の評価が必要である．
+
+比較粒度も結果を左右した．ソース単位化後，従来はcpe全体だった変動を，vulncheck-nist-nvd2の110行からjvn-feed-rssの5行まで6ソースへ分解できた．後半期間では，VulnCheck事例と同型の希釈は観測していない．また，安定版と開発版でoverrideが非対称だと，一方だけが慢性的にFAILした．現在はgrooming時に両系統を同時に再評価している．
+
+\subsection{運用コストの実態}
+\label{sec:opscost}
+
+検査は943 run中420 run(44.6\%)を止めた．手動promoteは116日間で92 unique digest，1日当たり0.79件であり，ほぼ毎日，人間による確認が必要だった．ただし，この件数には同じイベントを繰り返し検出したrunが含まれるため，検査の誤報率とは一致しない．
+
+fail sequenceの持続時間は中央値11時間，90パーセンタイル48時間であった．run単位のFAILの50\%が土日に記録されたのは，上流イベントが週末に偏るからではなく，平日日中までpromoteされず，同じ差分が繰り返し検出されるためである．したがって，持続時間は主にオペレータの応答時間を表す．また，保留中は直前版を配信し続けるため，慎重な保留は新規CVEの反映遅延という別のリスクを生む．通知の改善，承認期限，削除量に応じた承認者数など，検出後の運用設計が必要である．
+
+計算時間はDBチェックが約1分，DnとDoを含む検知チェックが約9分であり，6時間周期のCIには常設できた．本事例では，計算資源よりも人間の確認が主要な運用コストであった．
+
+\subsection{出力検査は開発の最終ガードレールになる}
+\label{sec:guardrail}
+
+工程単位のテストやコードレビューだけでは，集約後のデータが意味的に正しいことを保証できない．実際，型の取り違えによるソート漏れはコンパイルと既存テストを通過し，出力の大規模な構造差分として初めて見つかった．公開前差分検査は，実装方法ではなく生成物の振る舞いを検査する最後の境界として機能した．
+
+開発版へ変更を先行投入して影響規模を測る，想定した対象だけがFAILすることを確認して混入を検出する，といった用途にも利用できる．本運用では一次調査の一部をAIエージェントに委ねる一方，根拠の検証とpromoteは人間に限定した(\ref{sec:promote}節)．コード生成の主体にかかわらず，生成物に対する独立した検査と，人間が最終判断する境界を分けることが重要である．
+
+\section{関連研究}
+\label{sec:related}
+
+\subsection{脆弱性DBとフィードの品質測定}
+
+NVDをはじめとする脆弱性DBについては，影響バージョンの不整合\cite{dong19}，品質監査と自動修正\cite{anwar22}，国際的なDB間差\cite{lin26}が調査されている．また，スキャナやSCA(Software Composition Analysis)ツール間の検知差が，利用するDBの差に由来することも報告されている\cite{imtiaz21,churakova25}．NVD enrichmentの停滞に関する継続的な観測\cite{vulncheck24,anchore25}は，上流の運用状態が下流へ波及することを示す．
+
+脅威インテリジェンスフィードでは，量，カバレッジ，遅延，正確性などをフィード間で比較し，重複の少なさや品質の見えにくさが示されている\cite{li19,bouwman20,griffioen20}．これらが複数DBまたはフィードを外部から比較する横断的な測定であるのに対し，本研究は同じ公開物の連続版を本番パイプライン内で比較し，経時変化を公開判断へ結び付ける．
+
+国内では，JVNの提案\cite{terada05}以降，OSSの脆弱性修正状況\cite{kuzuno24}やPSIRT向けスクリーニング\cite{kanai24}が研究されてきた．JVN iPediaの登録状況レポート\cite{ipa-jvnipedia}は，2024年のNVD公開遅延によって国内DBの登録数が減少したことを報告している．一方，フィード内容の経時的不安定性を，下流の公開パイプラインで全数観測した国内研究は，我々の調査範囲では見当たらない．
+
+\subsection{データパイプラインの品質検査}
+
+データ品質検査には，宣言的制約を用いる方法\cite{schelter18,breck19}と，過去の実行履歴から制約を導出する方法\cite{tu23,redyuk21}がある．本研究に最も近いのは，新しいデータバッチが履歴から逸脱した場合に，MLモデルの再学習を止めるゲートである\cite{shankar23}．履歴との差分に基づいて下流での利用を保留する点は共通する．
+
+本研究は，列統計ではなく，脆弱性の検知集合と検知条件というドメイン固有の意味を比較する．また，監査証跡付きの手動promoteを公開フローに組み込み，発動履歴そのものを上流フィードの縦断観測に利用する．直前公開版をオラクルとするdifferential testing\cite{mckeeman98}の時間軸方向への適用であり，データに対する回帰テスト\cite{yoo12}とも位置付けられる．
+
+\section{おわりに}
+\label{sec:conclusion}
+
+本研究では，Vulsの脆弱性DB公開CIに公開前差分検査を実装し，116日間・943 runを全数調査した．検知結果とDB構造の変化を対象別に測り，閾値を超えた候補の公開を人間の確認まで保留した．
+
+上流は消え，戻り，遡及的に書き換わり，アナウンスなく再編される．しかも，その大半は正当な変更である．
+
+RQ1について，420件の検査失敗runを69件のsource-episodeへ集約し，59件を上流由来，10件を自前の処理由来に帰属した．この切り分けには，収集，変換，構築の各工程を履歴管理し，生成物からrawデータまで遡れることが不可欠であった．RQ2について，上流では，月次データの一時的な全消失，過去アドバイザリの縮退，更新情報を伴わない対応関係の再編を観測した．上流が仕様どおり，または品質改善のために変更されても，下流では検知消失になり得る．RQ3について，検査は不完全なDB 2件と異常な候補1件の公開を防いだ．一方，検査が発動しても，人間が不適切にpromoteした事例があり，検出と承認を分けて設計する必要がある．
+
+運用から得た設計上の要点は，意味の異なる複数の差分をソース単位で比較すること，閾値を履歴から定期的に再導出すること，追加と削除を別に扱うこと，手動承認に監査証跡と明確な判断基準を持たせることである．全工程の履歴に基づく差分検査は，上流フィードの縦断観測と，公開物に対する最後の安全網を同じ仕組みで実現できる．
+
+今後は，fetch段階での欠損検出，追加・削除の非対称閾値，停滞したbaselineに対する経過時間の補正，週末滞留を減らす通知・承認フローを検討する．さらに観測期間を延ばし，同じ上流を利用する他の脆弱性管理エコシステムと結果を突き合わせる．
+
+\bibliographystyle{junsrt}
+\bibliography{./refs.bib}
+
+\end{document}
