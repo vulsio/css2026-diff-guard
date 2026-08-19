@@ -126,7 +126,7 @@ vuls.dbの生成は，\textbf{収集(fetch)}，\textbf{変換(extract)}，\textb
 \textbf{インシデント1(Red Hat VEX，false negative)}:
 データ形式を変更した日に，上流から不正なVEX(Vulnerability Exploitability eXchange)データが配信された．変換処理はエラーとなり，データは旧形式のまま残ったが，後段のフィルタは新形式を前提としていたため空データを生成した．その結果，redhat:9で本来検知されるCVEの51.9\%(3,387件)を「影響なし」とするDBが公開された．上流の異常と，工程間の形式整合を保証しない自前の実装が複合した事例である．
 
-\textbf{インシデント2(Ubuntu \texttt{vulnerable: false}，false positive)}:
+\textbf{インシデント2(Ubuntu CVE Tracker，\mbox{false} \mbox{positive})}:
 DBに導入したマーカを旧バージョンのスキャナが解釈できず，ubuntu\_2204の検知件数が5,968件から12,296件へ増えた(+106.0\%)．DBとスキャナはそれぞれ単体では正常であり，両者の組み合わせに互換性がなかった．
 
 従来のCIは処理の正常終了を確認していたが，生成物の意味的な妥当性は確認していなかった．また，インシデント1はDBの構造から，インシデント2はDBと旧スキャナを組み合わせた検知結果から初めて分かる．そこで，DB構造と実際の検知結果を相補的に比較する検査を設計した．
