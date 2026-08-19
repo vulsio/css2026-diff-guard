@@ -6,7 +6,7 @@ CSS 2026 OWS トラック投稿論文「脆弱性情報の上流は安定して�
 - **ビルド**: `cd docs && make build`(Docker の paperist/alpine-texlive-ja + latexmk。css2026-data の構成を移植)。ビルド済み [docs/css2026-diff-guard.pdf](docs/css2026-diff-guard.pdf) は共有用にコミットする(ソース変更時は再ビルドして一緒にコミット)
 - **図**: 図 1 は TeX 内 TikZ。図 2〜4 は [figs/](figs/) の matplotlib スクリプトで `docs/figures/*.pdf` を生成(データは [data/](data/) を参照)。`cd figs && python3 fig{2,3,4}_*.py`
 - 2026-08-19 時点で本文+参考文献 8 ページ(上限内)。研究倫理節は昨年同様不要と判断し削除済み。codex レビュー 3 巡と中岡レビュー(review-mainek00n-1)対応済み
-- **データ**: 発動事例の確定データセット(事例カタログ・run 表・TSV・ログ抜粋・集計スクリプト・episode 別判定表)は [data/](data/) に収録(2026-08-17 確定、08-19 に窓と判定表を更新)。設計・検証ドキュメント `diff-guard.md` は maintainer ローカル参照、昨年論文は [vulsio/css2025-vuls2](https://github.com/vulsio/css2025-vuls2)
+- **データ**: 発動事例の確定データセット(事例カタログ・run 表・TSV・ログ抜粋・集計スクリプト・episode 別判定表)は [data/](data/) に収録(2026-08-17 確定、08-19 に窓と判定表を更新)。昨年論文は [vulsio/css2025-vuls2](https://github.com/vulsio/css2025-vuls2)
 
 ## 締切(CSS 2026)
 
