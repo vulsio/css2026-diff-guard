@@ -145,7 +145,7 @@ db build工程はextractedデータからBoltDB形式のvuls.dbを構築し，�
 
 2026年3月，生成物としてのDBが壊れているのに公開が成功してしまう事象を2件経験した．
 
-\textbf{インシデント1(RHEL VEX，false negative)}:
+\textbf{インシデント1(Red Hat VEX，false negative)}:
 我々がパイプラインにデータ形式変更を投入したのと同じ日に，上流から不正なVEX(Vulnerability Exploitability eXchange)データが配信された．
 変換はエラー終了してデータが旧形式のまま残り，新形式を前提とする後段フィルタが空データを生成した．
 結果，redhat:9で本来検知されるべきCVEの51.9\%(3,387件)が「影響なし」となるDBが公開された．
