@@ -33,7 +33,7 @@ Future Corporation}
 \author{神戸 康多}{Kota Kanbe}{FUTURE}[k.kanbe.r4@future.co.jp]
 
 \begin{abstract}
-脆弱性DBが依存する外部フィードでは，データの一時消失や公開済みアドバイザリの遡及的書き換えが起きる．本研究では，OSS脆弱性スキャナVulsのDB公開CIに，候補と直前版を比較する公開前検査を実装した．検知結果とDB内の検知条件構造を比較し，変動率が閾値を超えると公開を保留する．116日間・943 runの全数調査では，閾値超過418 runを69件のsource-episodeに集約し，上流由来59件(平均約2日に1件)，自前の処理由来10件に帰属した．日常変動と構造的イベントは変動率で概ね桁が分離し，欠損DB 2件と異常な候補1件の公開を防いだ．以上から，全工程の履歴に基づく公開前検査が，上流の縦断観測とDB公開の安全網を両立できることを示す．
+脆弱性DBが依存する外部フィードは，安定していない．データは一時的に消え，公開済みアドバイザリは遡って書き換えられる．本研究では，OSS脆弱性スキャナVulsのDB公開CIに，候補と直前版を比較する公開前検査を実装した．検知結果とDB内の検知条件構造を比較し，変動率が閾値を超えると公開を保留する．116日間・943 runの全数調査では，閾値超過418 runを69件のsource-episodeに集約し，上流由来59件(平均約2日に1件)，自前の処理由来10件に帰属した．日常変動と構造的イベントは変動率で概ね桁が分離し，欠損DB 2件と異常な候補1件の公開を防いだ．以上から，全工程の履歴に基づく公開前検査が，上流の縦断観測とDB公開の安全網を両立できることを示す．
 \end{abstract}
 
 \begin{jkeyword}
@@ -41,7 +41,7 @@ Future Corporation}
 \end{jkeyword}
 
 \begin{eabstract}
-External vulnerability feeds may temporarily lose data or retroactively rewrite published advisories. We implemented pre-publication inspection in the database CI of Vuls, an open-source vulnerability scanner. It compares each candidate with the previous release through detection results and detection-criteria structures, withholding publication above a per-target change-rate threshold. Across all 943 runs over 116 days, 418 threshold-exceeding runs formed 69 source episodes: 59 upstream (roughly one every two days) and 10 internal. Everyday changes and structural events generally differed by an order of magnitude. The inspection prevented two incomplete databases and one anomalous candidate from being released. Backed by end-to-end history, it can serve both as a longitudinal observer and as a publication safety net.
+External vulnerability feeds are not stable: data temporarily disappears, and published advisories are retroactively rewritten. We implemented pre-publication inspection in the database CI of Vuls, an open-source vulnerability scanner. It compares each candidate with the previous release through detection results and detection-criteria structures, withholding publication above a per-target change-rate threshold. Across all 943 runs over 116 days, 418 threshold-exceeding runs formed 69 source episodes: 59 upstream (roughly one every two days) and 10 internal. Everyday changes and structural events generally differed by an order of magnitude. The inspection prevented two incomplete databases and one anomalous candidate from being released. Backed by end-to-end history, it can serve both as a longitudinal observer and as a publication safety net.
 \end{eabstract}
 
 \begin{ekeyword}
@@ -53,11 +53,11 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
 \section{はじめに}
 \label{sec:intro}
 
-脆弱性スキャナの検知結果は，ディストリビュータやベンダが公開するアドバイザリと脆弱性フィードに依存する．これらを集約した脆弱性データベース(以下，脆弱性DB)から情報が欠ければ，スキャナの実装を変更していなくても検知漏れが生じる．それにもかかわらず，DBの自動更新では，上流フィードは概ね安定しており，その変化は新規脆弱性の追加を中心とする，という仮定が暗黙に置かれやすい．この仮定はどの程度正しいのだろうか．
+脆弱性スキャナの検知結果は，ディストリビュータやベンダが公開するアドバイザリと脆弱性フィードに依存する．これらを集約した脆弱性データベース(以下，脆弱性DB)から情報が欠ければ，スキャナの実装を1行も変えていなくても検知漏れが生じる．それにもかかわらず，DBの自動更新では，上流フィードは概ね安定しており，その変化は新規脆弱性の追加を中心とする，という仮定が暗黙に置かれやすい．この仮定はどの程度正しいのだろうか．
 
-実際の上流フィードは，この仮定ほど単純ではない．月次データが一時的に消えることも，過去のアドバイザリが予告なく再編されることもある．本稿では，消失，縮退，無告知の再編と平常帯外の大変動を「不安定」と呼ぶ．変更が上流に由来するのか，収集・変換・DB構築といった自前の処理に由来するのかも，完成したDBだけからは判断しにくい．従来研究は脆弱性DBの品質を主に外部から静的に測定してきたが，公開パイプラインの内部でフィードの経時変化を継続観測し，公開可否の判断に結び付けた実運用の報告は限られている．
+実際の上流フィードは，この仮定ほど単純ではない．月次データは丸ごと消え，過去のアドバイザリは予告なく再編される．本稿では，消失，縮退，無告知の再編と平常帯外の大変動を「不安定」と呼ぶ．変更が上流に由来するのか，収集・変換・DB構築といった自前の処理に由来するのかも，完成したDBを眺めても分からない．従来研究は脆弱性DBの品質を主に外部から静的に測定してきた．公開パイプラインの内部で経時変化を継続観測し，公開可否の判断に結び付けた実運用の報告は限られている．
 
-我々は，OSS脆弱性スキャナVuls\cite{vuls}向けのDB(vuls.db)を，40超のデータソースから6時間ごとに構築して公開している．前稿\cite{nakaoka2025}では，収集(fetch)，変換(extract)，DB構築(db build)の全工程を履歴管理し，任意時点の入力と生成物を追跡して再現する基盤を報告した．本稿はその続編である．前稿が変化を\textbf{記録できる}ことを示したのに対し，本稿はその記録で，上流が実際に\textbf{どう変化しているか}を測り，公開品質管理へ実用化する．測定の装置は単純で，公開候補DBと直前の公開版(baseline)を自動比較する\textbf{公開前検査}(diff guard)である．検査は，変動率が閾値を超えた候補の自動公開を保留して人間の確認を強制するが，変更の正誤は判定しない．そして116日分の発動履歴は副産物として，上流がいかに大きく，頻繁に，時に黙って動くかの縦断観測データとなった(図\ref{fig:arch})．
+我々は，OSS脆弱性スキャナVuls\cite{vuls}向けのDB(vuls.db)を，40超のデータソースから6時間ごとに構築して公開している．前稿\cite{nakaoka2025}では，収集(fetch)，変換(extract)，DB構築(db build)の全工程を履歴管理し，任意時点の入力と生成物を追跡して再現する基盤を報告した．本稿はその続編である．前稿が変化を\textbf{記録できる}ことを示したのに対し，本稿はその記録で，上流が実際に\textbf{どう変化しているか}を測り，公開品質管理へ実用化する．測定の装置は単純で，公開候補DBと直前の公開版(baseline)を自動比較する\textbf{公開前検査}(diff guard)である．検査は，変動率が閾値を超えた候補の自動公開を保留して人間の確認を強制するが，変更の正誤は判定しない．116日分の発動履歴は副産物として，上流がいかに大きく，頻繁に，時に黙って動くかの縦断観測データとなった(図\ref{fig:arch})．
 
 本稿では，次の3つの研究質問に答える．
 
@@ -373,7 +373,7 @@ NVDをはじめとする脆弱性DBについては，影響バージョンの不
 
 RQ1では，閾値超過418 runを69件に集約し，全工程の履歴により，上流由来59件(平均約2日に1件)と自前由来10件に帰属した．RQ2では，月次データの全消失，過去アドバイザリの縮退，更新情報のない再編を観測した．上流が仕様どおりでも，下流では検知消失になり得る．RQ3では，欠損DB 2件と異常な候補1件の公開を防いだが，不適切なpromoteもあった．検査が保証するのは自動保留までであり，最終判断は人間に残る．
 
-運用には，ソース単位の差分，履歴による閾値再導出，追加と削除の分離，監査証跡と判断基準を備えた手動承認が要る．上流の恒久的な劣化には，正常なコミットへのピン留めと，収集履歴からの復元も必要となる．全工程の履歴に基づく公開前検査は，上流の縦断観測とDB公開の安全網を同じ仕組みで実現する．これは，前稿が課題とした論理的な差分提示とパイプラインの堅牢化\cite{nakaoka2025}に対する，実運用を伴う回答でもある．
+運用には，ソース単位の差分，履歴による閾値再導出，追加と削除の分離，監査証跡と判断基準を備えた手動承認が要る．上流の恒久的な劣化には，正常なコミットへのピン留めと収集履歴からの復元という出口が要る．全工程の履歴に基づく公開前検査は，上流の縦断観測とDB公開の安全網を同じ仕組みで実現する．これは，前稿が課題とした論理的な差分提示とパイプラインの堅牢化\cite{nakaoka2025}に対する，実運用を伴う回答でもある．
 
 今後は，収集時の欠損検出，追加と削除の非対称閾値，baseline停滞の補正，通知と承認の改善，観測期間の延長と他の脆弱性管理エコシステムとの比較に取り組む．
 
