@@ -27,7 +27,7 @@ GAP_AFTER = 21  # index of "03-09" — この後に欠測ギャップ
 FLOOR = 0.05    # log 軸表示用の下駄(0.0% はこの値で描く)
 
 setup()
-fig, ax = plt.subplots(figsize=(3.3, 1.35))
+fig, ax = plt.subplots(figsize=(3.3, 1.28))
 
 xs, vals, colors = [], [], []
 x = 0
