@@ -458,7 +458,7 @@ nightly 系では 6 月中旬から cpe ecosystem の DB-FAIL が断続的に発
 
 ### 5.2 判定の分布(発動イベント単位)
 
-**注**: 本節は事例カタログ(§4)単位の分布。69 source-episode 単位の帰属と証拠水準は [`04-episode-verdicts.md`](04-episode-verdicts.md) を正とする(episode 単位では 上流59 / 自前10 = 55+2+2 / 1+3+4+2)。
+**注**: 本節は事例カタログ(§4)単位の分布。69 source-episode 単位の帰属と証拠水準は [`04-episode-verdicts.md`](04-episode-verdicts.md) を正とする(episode 単位では 上流59 / 自前10 = 55+2+2 / 1+7+2)。
 
 | 判定 | 件数 | 事例 |
 |---|---|---|
