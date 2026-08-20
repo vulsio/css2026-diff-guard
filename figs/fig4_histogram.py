@@ -41,7 +41,7 @@ print(f"parsed {len(rates)} FAIL rows")
 assert len(rates) == 1465, len(rates)
 
 setup()
-fig, ax = plt.subplots(figsize=(3.3, 1.35))
+fig, ax = plt.subplots(figsize=(3.3, 1.28))
 
 vals = np.array([max(r, 0.1) for r in rates])
 bins = np.logspace(np.log10(1), np.log10(4000), 40)
@@ -60,5 +60,5 @@ ax.set_ylabel("rows")
 ax.grid(axis="x", visible=False)
 
 fig.tight_layout(pad=0.3)
-fig.savefig("../docs/figures/fig4-histogram.pdf")
+fig.savefig("../doc/figures/fig4-histogram.pdf")
 print("wrote fig4-histogram.pdf")

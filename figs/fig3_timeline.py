@@ -85,5 +85,5 @@ ax.set_xlim(mdates.date2num(datetime(2026, 4, 23)),
 ax.grid(axis="y", visible=False)
 
 fig.tight_layout(pad=0.3)
-fig.savefig("../docs/figures/fig3-timeline.pdf")
+fig.savefig("../doc/figures/fig3-timeline.pdf")
 print("wrote fig3-timeline.pdf")

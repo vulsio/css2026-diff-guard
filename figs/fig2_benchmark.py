@@ -68,5 +68,5 @@ ax.set_xlim(-1, xs[-1] + 1)
 ax.grid(axis="x", visible=False)
 
 fig.tight_layout(pad=0.3)
-fig.savefig("../docs/figures/fig2-benchmark.pdf")
+fig.savefig("../doc/figures/fig2-benchmark.pdf")
 print("wrote fig2-benchmark.pdf")
