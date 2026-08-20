@@ -33,7 +33,7 @@ Future Corporation}
 \author{神戸 康多}{Kota Kanbe}{FUTURE}[k.kanbe.r4@future.co.jp]
 
 \begin{abstract}
-脆弱性データベースが依存する外部フィードでは，データの一時的な消失や公開済みアドバイザリの遡及的な書き換えが起きる．本研究では，OSS脆弱性スキャナVulsのDB公開CIに，公開候補と直前版を比較する公開前検査を実装した．検査はスキャナの検知結果とDB内の検知条件構造を比較し，対象ごとの変動率が閾値を超えると公開を保留する．116日間・943 runの全数調査では，420件の検査失敗runを69件のsource-episodeに集約し，59件を上流由来，10件を自前の処理由来に帰属した．日常変動と構造的イベントは変動率で概ね桁が分離し，検査は欠損DB 2件と異常な候補1件の公開を防いだ．以上から，全工程の履歴に基づく公開前検査が，上流フィードの縦断観測とDB公開の安全網を両立できることを示す．
+脆弱性データベースが依存する外部フィードでは，データの一時的な消失や公開済みアドバイザリの遡及的な書き換えが起きる．本研究では，OSS脆弱性スキャナVulsのDB公開CIに，公開候補と直前版を比較する公開前検査を実装した．検査はスキャナの検知結果とDB内の検知条件構造を比較し，対象ごとの変動率が閾値を超えると公開を保留する．116日間・943 runの全数調査では，閾値超過418 runを69件のsource-episodeに集約し，59件を上流由来，10件を自前の処理由来に帰属した．日常変動と構造的イベントは変動率で概ね桁が分離し，検査は欠損DB 2件と異常な候補1件の公開を防いだ．以上から，全工程の履歴に基づく公開前検査が，上流フィードの縦断観測とDB公開の安全網を両立できることを示す．
 \end{abstract}
 
 \begin{jkeyword}
@@ -41,7 +41,7 @@ Future Corporation}
 \end{jkeyword}
 
 \begin{eabstract}
-External feeds used by vulnerability databases may temporarily lose data or retroactively rewrite published advisories. We implemented a pre-publication inspection in the CI pipeline of Vuls, an open-source vulnerability scanner. It compares each candidate database with the previous release using scanner detection results and detection-criteria structures, withholding publication when a per-target change rate exceeds its threshold. In an exhaustive study of 943 runs over 116 days, we consolidated 420 failed runs into 69 source episodes and attributed 59 to upstream changes and 10 to our own processing. Everyday changes and structural events were generally separated by an order of magnitude. The inspection prevented two releases of incomplete databases and one anomalous candidate. Pre-publication inspection backed by end-to-end history can therefore serve both as a longitudinal observer of vulnerability feeds and as a publication safety net.
+External feeds used by vulnerability databases may temporarily lose data or retroactively rewrite published advisories. We implemented a pre-publication inspection in the CI pipeline of Vuls, an open-source vulnerability scanner. It compares each candidate database with the previous release using scanner detection results and detection-criteria structures, withholding publication when a per-target change rate exceeds its threshold. In an exhaustive study of 943 runs over 116 days, we consolidated 418 threshold-exceeding runs into 69 source episodes and attributed 59 to upstream changes and 10 to our own processing. Everyday changes and structural events were generally separated by an order of magnitude. The inspection prevented two releases of incomplete databases and one anomalous candidate. Pre-publication inspection backed by end-to-end history can therefore serve both as a longitudinal observer of vulnerability feeds and as a publication safety net.
 \end{eabstract}
 
 \begin{ekeyword}
@@ -55,7 +55,7 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
 
 脆弱性スキャナの検知結果は，ディストリビュータやベンダが公開するアドバイザリと脆弱性フィードに依存する．これらを集約した脆弱性データベース(以下，脆弱性DB)から情報が欠ければ，スキャナの実装を変更していなくても検知漏れが生じる．それにもかかわらず，DBの自動更新では，上流フィードは概ね安定しており，その変化は新規脆弱性の追加を中心とする，という仮定が暗黙に置かれやすい．この仮定はどの程度正しいのだろうか．
 
-実際の上流フィードは，この仮定ほど単純ではない．月次データが一時的に消えることも，過去のアドバイザリが予告なく再編されることもある．変更が上流に由来するのか，収集・変換・DB構築といった自前の処理に由来するのかも，完成したDBだけからは判断しにくい．従来研究は脆弱性DBの品質を主に外部から静的に測定してきたが，公開パイプラインの内部でフィードの経時変化を継続観測し，公開可否の判断に結び付けた実運用の報告は限られている．
+実際の上流フィードは，この仮定ほど単純ではない．月次データが一時的に消えることも，過去のアドバイザリが予告なく再編されることもある．本稿では，消失，縮退，無告知の再編と平常帯外の大変動を「不安定」と呼ぶ．変更が上流に由来するのか，収集・変換・DB構築といった自前の処理に由来するのかも，完成したDBだけからは判断しにくい．従来研究は脆弱性DBの品質を主に外部から静的に測定してきたが，公開パイプラインの内部でフィードの経時変化を継続観測し，公開可否の判断に結び付けた実運用の報告は限られている．
 
 我々は，OSS脆弱性スキャナVuls\cite{vuls}向けのDB(vuls.db)を，40超のデータソースから6時間ごとに構築して公開している．前稿\cite{nakaoka2025}では，収集(fetch)，変換(extract)，DB構築(db build)の全工程を履歴管理し，任意時点の入力と生成物を追跡して再現する基盤を報告した．本稿はその続編として，この履歴を用いて上流の変化を測定し，公開品質管理へ実用化する．具体的には，公開候補DBと直前の公開版(baseline)を自動比較する\textbf{公開前検査}(diff guard)を導入した．検査は，変動率が閾値を超えた候補の自動公開を保留して人間の確認を強制するが，変更の正誤は判定しない．116日間に蓄積した発動履歴は同時に，上流がいかに大きく，頻繁に，時に黙って動くかを捉える縦断観測データとなった．図\ref{fig:arch}に全体像を示す．
 
@@ -67,7 +67,7 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
 \item \textbf{RQ3: 差分検査は公開事故を防げるか．} 阻止できた事例だけでなく，承認判断を誤った事例と運用コストも評価する．
 \end{enumerate}
 
-116日間・943 runを全数調査した結果，検査による420件の失敗runは69件のsource-episodeに集約され，59件が上流由来，10件が自前の処理由来であった(RQ1)．上流では，月次データの消失と復活，過去アドバイザリの縮退，更新情報を伴わないマッピング変更を観測した．日常変動とこれらの構造的イベントは，変動率で概ね桁が分離した(RQ2)．検査は欠損DBの公開を2回，異常な候補DBの公開を1回阻止した．一方，検査が発動しても人間が不適切に承認すれば事故は残るため，ソース単位の比較，削除方向の扱い，承認手続きが重要である(RQ3)．
+116日間・943 runを全数調査した結果，閾値超過418 runは69件のsource-episodeに集約され，59件が上流由来，10件が自前の処理由来であった(RQ1)．上流では，月次データの消失と復活，過去アドバイザリの縮退，更新情報を伴わないマッピング変更を観測した．日常変動とこれらの構造的イベントは，変動率で概ね桁が分離した(RQ2)．検査は欠損DBの公開を2回，異常な候補DBの公開を1回阻止した．一方，検査が発動しても人間が不適切に承認すれば事故は残るため，ソース単位の比較，削除方向の扱い，承認手続きが重要である(RQ3)．
 
 本稿の貢献は，(1) 本番パイプラインの全発動を対象とした上流変化の縦断データ，(2) 全工程の履歴を使って変化の発生箇所を切り分ける再現可能な原因帰属手順，(3) 閾値の継続調整と監査証跡付き手動承認を含む公開前検査の設計，の3点である．
 
@@ -80,8 +80,8 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
   lbl/.style={font=\scriptsize, text=black!70},
   note/.style={font=\scriptsize, text=black!60, align=left}]
   \node[b]    (up)   at (0,0)     {上流データソース(40+)};
-  \node[hist] (raw)  at (0,-0.85) {raw(履歴)};
-  \node[hist] (ext)  at (0,-1.7)  {extracted(履歴)};
+  \node[hist] (raw)  at (0,-0.85) {raw(Git履歴)};
+  \node[hist] (ext)  at (0,-1.7)  {extracted(Git履歴)};
   \node[hist] (cand) at (0,-2.55) {候補DB(digestのみでpush)};
   \node[b, fill=orange!20] (g) at (0,-3.4) {公開前検査(Dn / Do / DB)};
   \node[b]    (pub)  at (-1.7,-4.45) {GHCRタグ公開};
@@ -143,7 +143,7 @@ DBに導入したマーカを旧バージョンのスキャナが解釈できず
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\linewidth]{./figures/fig2-benchmark.pdf}
-\caption{導入前ベンチマーク: 連続1日ペア35組の最大変動率(対数軸，破線はdb既定閾値10\%)．橙は実在の上流イベント(Red Hat VEX 65.1\%，SUSE OVAL 16.1\%)で，正常帯(中央値0.3\%)と桁で分離する．}
+\caption{導入前ベンチマーク: 連続1日ペア35組の最大変動率(対数軸，破線はDB既定閾値10\%)．橙は実在の上流イベント(Red Hat VEX 65.1\%，SUSE OVAL 16.1\%)で，正常帯(中央値0.3\%)と桁で分離する．}
 \label{fig:benchmark}
 \end{figure}
 
@@ -154,7 +154,7 @@ DBに導入したマーカを旧バージョンのスキャナが解釈できず
 
 \begin{itemize}
 \item \textbf{Dn(最新版による検知結果差分)}: baselineと候補DBのそれぞれに対し，最新版のスキャナを同じfixture群で実行し，fixtureごとの検知CVE集合を比較する．fixtureは実機スキャンに由来する75ファイルで，Windowsを含む12 OSファミリとCPE系6ソースを対象とする．
-\item \textbf{Do(旧版による検知結果差分)}: 固定した旧バージョンのスキャナで同じ比較を行う．DBと旧スキャナの組み合わせでのみ生じる非互換を検出するためのチェックである．
+\item \textbf{Do(旧版による検知結果差分)}: commitで固定した旧版で同じ比較を行う．旧版は対応OSの拡大時に更新し，観測期間中は1回更新した．DBと旧スキャナの組み合わせでのみ生じる非互換を検出する．
 \item \textbf{DB(DB構造差分)}: BoltDBを直接読み，ecosystem，後にはソースごとに，検知条件木をleaf Criterionまで平坦化して比較する．バイト列ではなくCriterionを比較することで，JSONのキー順など意味を変えない差分を除外する．全体の分母は約330万Criterionであり，日常的な小変更は小さなdriftとして現れる．一方，fixtureに含まれない対象はこのチェックだけが観測する．
 \end{itemize}
 
@@ -218,7 +218,7 @@ FAIL中は公開版であるbaselineが更新されない．そのため，同�
 \subsection{RQ1: 発動規模と原因分布}
 \label{sec:scale}
 
-全943 runのうち476 runが失敗した．内訳は，公開前検査420 run(閾値超過418，検査内のインフラ障害2)，DB構築工程39 run，runner障害など17 runである．検査の失敗を集約すると69 source-episodeとなった．チェック別では，DB単独が23件，Dn単独が16件，複数チェックの同時発動が30件であり，Do単独は0件であった(\ref{sec:blindspots}節)．
+全943 runのうち476 runが失敗した．内訳は，公開前検査420 run(閾値超過418，検査内のインフラ障害2)，DB構築工程39 run，runner障害など17 runである．閾値超過runを集約すると69 source-episodeとなった．チェック別では，DB単独が23件，Dn単独が16件，複数チェックの同時発動が30件であり，Do単独は0件であった(\ref{sec:blindspots}節)．
 
 原因帰属の結果を表\ref{tab:attribution}に示す．上流由来は59件(85.5\%)，自前の処理由来は10件(14.5\%)であった．上流由来の大半は正当な変更だが，一時的な全消失2件と恒久的な品質イベント2件も含む．自前の処理由来は，変換コードのバグ1件，意図した変換コード変更7件，収集対象設定の変更2件であった．このうち6件は原因コミットまで特定し，残る4件は開発版で先行したCPE関連の変換コード変更系列へ帰属した．収集工程とDB構築工程に帰属したepisodeはなかった．
 
@@ -340,7 +340,7 @@ Doだけが発動したepisodeは0件であり，Doだけが捉える互換性�
 
 fail sequenceの持続時間は中央値11時間，90パーセンタイル48時間であった．run単位のFAILの50\%が土日に記録されたのは，上流イベントが週末に偏るからではなく，平日日中までpromoteされず，同じ差分が繰り返し検出されるためである．したがって，持続時間は主にオペレータの応答時間を表す．また，保留中は直前版を配信し続けるため，慎重な保留は新規CVEの反映遅延という別のリスクを生む．通知の改善，承認期限，削除量に応じた承認者数など，検出後の運用設計が必要である．
 
-計算時間はDBチェックが約1分，DnとDoを含む検知チェックが約9分であり，6時間周期のCIには常設できた．本事例では，計算資源よりも人間の確認が主要な運用コストであった．
+計算時間はDBチェックが約1分，DnとDoを含む検知チェックが約9分であり，6時間周期のCIには常設できた．本事例では，検出後に人間の判断を要することが主要な運用上の制約であった．
 
 \subsection{出力検査は開発の最終ガードレールになる}
 \label{sec:guardrail}
@@ -371,7 +371,7 @@ NVDをはじめとする脆弱性DBについては，影響バージョンの不
 
 上流は消え，戻り，遡及的に書き換わり，アナウンスなく再編される．しかも，その大半は正当な変更である．
 
-RQ1では，116日間・943 runの検査失敗を69件に集約し，59件を上流由来，10件を自前の処理由来に帰属した．この切り分けには，収集，変換，DB構築の全工程を遡れる履歴が不可欠であった．RQ2では，月次データの全消失，過去アドバイザリの縮退，更新情報を伴わない再編を観測した．上流が仕様どおりでも，下流では検知消失になり得る．RQ3では，欠損DB 2件と異常な候補1件の公開を防いだが，不適切なpromoteもあった．検査が保証するのは自動保留までであり，最終的な公開判断は人間に残る．
+RQ1では，閾値超過418 runを69件に集約し，59件を上流由来，10件を自前の処理由来に帰属した．この切り分けには，収集，変換，DB構築の全工程を遡れる履歴が不可欠であった．RQ2では，月次データの全消失，過去アドバイザリの縮退，更新情報を伴わない再編を観測した．上流が仕様どおりでも，下流では検知消失になり得る．RQ3では，欠損DB 2件と異常な候補1件の公開を防いだが，不適切なpromoteもあった．検査が保証するのは自動保留までであり，最終的な公開判断は人間に残る．
 
 運用には，ソース単位の差分，履歴による閾値再導出，追加と削除の分離，監査証跡と判断基準を備えた手動承認が要る．上流の恒久的な劣化には，正常なコミットへのピン留めと，収集履歴からの復元も必要となる．全工程の履歴に基づく公開前検査は，上流の縦断観測とDB公開の安全網を同じ仕組みで実現する．これは，前稿が課題とした論理的な差分提示とパイプラインの堅牢化\cite{nakaoka2025}に対する，実運用を伴う回答でもある．
 
