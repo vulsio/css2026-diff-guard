@@ -114,7 +114,7 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
 \subsection{履歴管理されたDB公開パイプライン}
 \label{sec:infra}
 
-vuls.dbの生成は，\textbf{収集(fetch)}，\textbf{変換(extract)}，\textbf{DB構築(db build)}の3工程からなる\cite{nakaoka2025,vuls-data-update,vuls-data-db}．収集工程は一次情報源からデータを取得し，原形をほぼ保ったrawデータとしてGitで履歴管理する．変換工程はrawデータを共通スキーマへ変換し，extractedデータとして同様に履歴管理する．DB構築工程はextractedデータからBoltDB形式のvuls.dbを構築し，GitHub Container Registry(以下，GHCR)へ公開する．本稿では，各工程の実装をそれぞれ\textbf{収集コード}，\textbf{変換コード}，\textbf{DB構築コード}と呼ぶ．また，収集するseedやデータソースを定めるvuls-data-db側の設定を\textbf{収集対象設定}と呼び，収集コードと区別する．
+vuls.dbの生成は，\textbf{収集(fetch)}，\textbf{変換(extract)}，\textbf{DB構築(db build)}の3工程からなる\cite{nakaoka2025,vuls-data-update,vuls2,vuls-data-db}．収集工程は一次情報源からデータを取得し，原形をほぼ保ったrawデータとしてGitで履歴管理する．変換工程はrawデータを共通スキーマへ変換し，extractedデータとして同様に履歴管理する．DB構築工程はextractedデータからBoltDB形式のvuls.dbを構築し，GitHub Container Registry(以下，GHCR)へ公開する．本稿では，各工程の実装をそれぞれ\textbf{収集コード}，\textbf{変換コード}，\textbf{DB構築コード}と呼ぶ．また，収集するseedやデータソースを定めるvuls-data-db側の設定を\textbf{収集対象設定}と呼び，収集コードと区別する．
 
 各DBには入力データとDB構築コードのバージョンが記録され，GHCR上の生成物はdigestで固定できる．したがって，任意時点のrawデータまでコミット単位で遡り，同じDBによる検知結果を再現できる．公開前検査は，この追跡可能性を公開可否の判断に利用する(図\ref{fig:arch})．
 
@@ -210,7 +210,7 @@ FAIL中は公開版であるbaselineが更新されず，同じ差分が6時間�
 
 \subsection{再現用資料の公開}
 
-検査のworkflow，閾値，override設定はvuls-data-db\cite{vuls-data-db}で公開している．収集したrun表，fail sequence，source-episodeごとの判定表，集計コードは，本研究の公開リポジトリ\footnote{\url{https://github.com/vulsio/css2026-diff-guard}}に収録した．
+検査のworkflow，閾値，override設定はvuls-data-db\cite{vuls-data-db}で，DB構築と差分検査本体の実装はvuls2\cite{vuls2}で公開している．収集したrun表，fail sequence，source-episodeごとの判定表，集計コードは，本研究の公開リポジトリ\footnote{\url{https://github.com/vulsio/css2026-diff-guard}}に収録した．
 
 \section{結果}
 \label{sec:results}
