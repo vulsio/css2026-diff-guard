@@ -33,7 +33,7 @@ Future Corporation}
 \author{神戸 康多}{Kota Kanbe}{FUTURE}[k.kanbe.r4@future.co.jp]
 
 \begin{abstract}
-脆弱性データベースが依存する外部フィードでは，データの一時的な消失や公開済みアドバイザリの遡及的な書き換えが起きる．本研究では，OSS脆弱性スキャナVulsのDB公開CIに，公開候補と直前版を比較する公開前検査を実装した．検査はスキャナの検知結果とDB内の検知条件構造を比較し，対象ごとの変動率が閾値を超えると公開を保留する．116日間・943 runの全数調査では，閾値超過418 runを69件のsource-episodeに集約し，59件を上流由来，10件を自前の処理由来に帰属した．日常変動と構造的イベントは変動率で概ね桁が分離し，検査は欠損DB 2件と異常な候補1件の公開を防いだ．以上から，全工程の履歴に基づく公開前検査が，上流フィードの縦断観測とDB公開の安全網を両立できることを示す．
+脆弱性DBが依存する外部フィードでは，データの一時消失や公開済みアドバイザリの遡及的書き換えが起きる．本研究では，OSS脆弱性スキャナVulsのDB公開CIに，候補と直前版を比較する公開前検査を実装した．検知結果とDB内の検知条件構造を比較し，変動率が閾値を超えると公開を保留する．116日間・943 runの全数調査では，閾値超過418 runを69件のsource-episodeに集約し，上流由来59件(平均約2日に1件)，自前の処理由来10件に帰属した．日常変動と構造的イベントは変動率で概ね桁が分離し，欠損DB 2件と異常な候補1件の公開を防いだ．以上から，全工程の履歴に基づく公開前検査が，上流の縦断観測とDB公開の安全網を両立できることを示す．
 \end{abstract}
 
 \begin{jkeyword}
@@ -41,7 +41,7 @@ Future Corporation}
 \end{jkeyword}
 
 \begin{eabstract}
-External feeds used by vulnerability databases may temporarily lose data or retroactively rewrite published advisories. We implemented a pre-publication inspection in the CI pipeline of Vuls, an open-source vulnerability scanner. It compares each candidate database with the previous release using scanner detection results and detection-criteria structures, withholding publication when a per-target change rate exceeds its threshold. In an exhaustive study of 943 runs over 116 days, we consolidated 418 threshold-exceeding runs into 69 source episodes and attributed 59 to upstream changes and 10 to our own processing. Everyday changes and structural events were generally separated by an order of magnitude. The inspection prevented two releases of incomplete databases and one anomalous candidate. Pre-publication inspection backed by end-to-end history can therefore serve both as a longitudinal observer of vulnerability feeds and as a publication safety net.
+External vulnerability feeds may temporarily lose data or retroactively rewrite published advisories. We implemented pre-publication inspection in the database CI of Vuls, an open-source vulnerability scanner. It compares each candidate with the previous release through detection results and detection-criteria structures, withholding publication above a per-target change-rate threshold. Across all 943 runs over 116 days, 418 threshold-exceeding runs formed 69 source episodes: 59 upstream (roughly one every two days) and 10 internal. Everyday changes and structural events generally differed by an order of magnitude. The inspection prevented two incomplete databases and one anomalous candidate from being released. Backed by end-to-end history, it can serve both as a longitudinal observer and as a publication safety net.
 \end{eabstract}
 
 \begin{ekeyword}
@@ -138,7 +138,7 @@ DBに導入したマーカを旧バージョンのスキャナが解釈できず
 
 脆弱性DBには日常的な追加や更新があるため，差分の有無だけでは異常を判定できない．閾値検査が成立するには，日常変動と確認すべきイベントが変動率で分離する必要がある．
 
-導入前に，GHCRに残る37日分のDB(2026-02-15から03-29)から連続する1日ペア35組を作り，DB構造の変動率を測定した．検証環境のディスク不足により，03-10から03-15までの6日分は欠測である．日常変動の中央値は0.3\%，最大値は6.2\%であった．10\%を超えた2組は，Red Hat VEXの構造変更(redhat:6で65.1\%)とSUSE OVALの大規模更新(12〜16\%)であり，いずれも実在する上流イベントであった(図\ref{fig:benchmark})．この桁の分離を根拠に，DB構造差分の既定閾値を10\%とした．過去の任意のDBペアを比較できること自体，公開物がdigest付きで履歴化されている\cite{nakaoka2025}ことの恩恵である．
+導入前に，GHCRに残る37日分のDB(2026-02-15から03-29)から連続1日ペア35組を作り，DB構造の変動率を測定した．03-10〜15は検証環境のディスク不足で欠測した．日常変動は中央値0.3\%，最大6.2\%であった．10\%を超えたのは，Red Hat VEX(redhat:6で65.1\%)とSUSE OVAL(12〜16.1\%)の実在する上流イベント2組であった(図\ref{fig:benchmark})．前者はインシデント1と同一で，DBチェックなら捕捉できた．インシデント2の106.0\%もDo(旧版)の5\%を超える．この桁の分離からDB既定閾値を10\%とした．任意のDBペアを比較できること自体，公開物がdigest付きで履歴化されている\cite{nakaoka2025}ことの恩恵である．
 
 \begin{figure}[tb]
 \centering
@@ -218,7 +218,7 @@ FAIL中は公開版であるbaselineが更新されない．そのため，同�
 \begin{figure*}[tb]
 \centering
 \includegraphics[width=\textwidth]{./figures/fig3-timeline.pdf}
-\caption{116日間に観測したsource-episode 69件．横棒は最初のFAILから終端まで，点線はoverride，ソース単位化，groomingの導入時点を示す．}
+\caption{116日間のsource-episode 69件．cpe行は複数のCPE系ソースを統合する．横棒は最初のFAILから終端まで，点線はoverride，ソース単位化，groomingの導入時点を示す．}
 \label{fig:timeline}
 \end{figure*}
 
@@ -256,14 +256,14 @@ FAIL中は公開版であるbaselineが更新されない．そのため，同�
 \subsection{RQ2-a: 可用性: 消え，戻り，また消える}
 \label{sec:avail}
 
-Microsoft CVRFの月次データ全消失は2か月連続で起き，2回目には2日間で消失と復活を4回繰り返した．APIの応答が構文的に正しくても，収集した時点が欠損状態なら，パイプラインは正常終了したまま不完全なDBを作る．すなわち，収集処理の成功とデータの可用性は同義ではない．
+Microsoft CVRFの月次データ全消失は2か月連続で起き，2回目には2日間で消失2回と復活2回を繰り返した．APIの応答が構文的に正しくても，収集した時点が欠損状態なら，パイプラインは正常終了したまま不完全なDBを作る．すなわち，収集処理の成功とデータの可用性は同義ではない．
 
 対策には二つの段階がある．収集時に件数や既知IDの消失を確認すれば，不完全な入力の履歴化を早期に止められる．さらに公開前に直前版と比較すれば，収集工程で想定していない欠損も，利用者へ届く前に検出できる．本事例は，入力境界と公開境界の両方で検査する必要性を示す．
 
 \subsection{RQ2-b: 完全性: 遡及的に書き換わる}
 \label{sec:integrity}
 
-上流の変化は一時的な障害だけではなかった．過去データを意図的または暗黙に書き換える，次の3種類を観測した．
+上流の変化は一時的な障害だけではなかった．過去データを意図的または暗黙に書き換える，次の3種類を観測した．表\ref{tab:attribution}では，AlmaLinuxの2件を恒久的品質イベント，CiscoとVulnCheckを正当な上流変更とした．
 
 \begin{itemize}
 \item \textbf{errataの検知条件の縮退}:
@@ -279,7 +279,7 @@ VulnCheckによる全年代CVEへの生成CPE一括付与は，情報量を増�
 \subsection{RQ2-c: 変動規模: 正当でも桁違いに動く}
 \label{sec:scaledist}
 
-観測された大変動は，新規リリースfedora:46の3433.3\%，AlmaLinux errata再編の428.3\%，CPE系の305.9\%などである．一方，発動した日常変動の多くは5〜20\%にあり，構造的イベントとは概ね桁が分離した．この結果は，単純な閾値を一次選別に利用できることを支持する．
+観測された大変動は，新規リリースfedora:46の3433.3\%，AlmaLinux errata再編の428.3\%，CPE系の別episode(cpe\_jvn，305.9\%)などである．一方，閾値超過行だけを対象とし，baseline停滞による累積を含む本番分布でも，日常変動の多くは5〜20\%にあり，構造的イベントとは概ね桁が分離した．この結果は，単純な閾値を一次選別に利用できることを支持する．
 
 ただし，変動率は比較条件に依存する．第一に，baselineが小さい新規対象は，少数の正当な追加でも100\%を超える．第二に，FAIL中はbaselineが更新されないため，比較期間が伸び，複数回の日常変動が累積する．第三に，大きなソースと小さなソースを同じ分母で集計すると，小さなソースの異常が希釈される．対象別閾値，迅速な承認，ソース単位の比較は，それぞれの影響を緩和するために必要である．
 
@@ -336,7 +336,7 @@ Doだけが発動したepisodeは0件であり，Doだけが捉える互換性�
 \subsection{運用コストの実態}
 \label{sec:opscost}
 
-検査は943 run中420 run(44.6\%)を止めた．手動promoteは116日間で92 unique digest，1日当たり0.79件であった．ただし，92件には同一イベントに対する安定版と開発版それぞれのpromoteや，再発時に別digestをpromoteした分が含まれるため，発動イベント数や誤報数とは一致しない．promoteする場合の確認は1件数分だが，promoteできない場合は原因追及に時間を要する．
+検査は943 run中420 run(44.5\%)を止めた．手動promoteは116日間で92 unique digest，1日当たり0.79件であった．ただし，92件には同一イベントに対する安定版と開発版それぞれのpromoteや，再発時に別digestをpromoteした分が含まれるため，発動イベント数や誤報数とは一致しない．promoteする場合の確認は1件あたり数分だが，promoteできない場合は原因追及に時間を要する．
 
 fail sequenceの持続時間は中央値11時間，90パーセンタイル48時間であった．run単位のFAILの50\%が土日に記録されたのは，上流イベントが週末に偏るからではなく，平日日中までpromoteされず，同じ差分が繰り返し検出されるためである．したがって，持続時間は主にオペレータの応答時間を表す．また，保留中は直前版を配信し続けるため，慎重な保留は新規CVEの反映遅延という別のリスクを生む．通知の改善，承認期限，削除量に応じた承認者数など，検出後の運用設計が必要である．
 
@@ -371,7 +371,7 @@ NVDをはじめとする脆弱性DBについては，影響バージョンの不
 
 上流は消え，戻り，遡及的に書き換わり，アナウンスなく再編される．しかも，その大半は正当な変更である．
 
-RQ1では，閾値超過418 runを69件に集約し，59件を上流由来，10件を自前の処理由来に帰属した．この切り分けには，収集，変換，DB構築の全工程を遡れる履歴が不可欠であった．RQ2では，月次データの全消失，過去アドバイザリの縮退，更新情報を伴わない再編を観測した．上流が仕様どおりでも，下流では検知消失になり得る．RQ3では，欠損DB 2件と異常な候補1件の公開を防いだが，不適切なpromoteもあった．検査が保証するのは自動保留までであり，最終的な公開判断は人間に残る．
+RQ1では，閾値超過418 runを69件に集約し，全工程の履歴により，上流由来59件(平均約2日に1件)と自前由来10件に帰属した．RQ2では，月次データの全消失，過去アドバイザリの縮退，更新情報のない再編を観測した．上流が仕様どおりでも，下流では検知消失になり得る．RQ3では，欠損DB 2件と異常な候補1件の公開を防いだが，不適切なpromoteもあった．検査が保証するのは自動保留までであり，最終判断は人間に残る．
 
 運用には，ソース単位の差分，履歴による閾値再導出，追加と削除の分離，監査証跡と判断基準を備えた手動承認が要る．上流の恒久的な劣化には，正常なコミットへのピン留めと，収集履歴からの復元も必要となる．全工程の履歴に基づく公開前検査は，上流の縦断観測とDB公開の安全網を同じ仕組みで実現する．これは，前稿が課題とした論理的な差分提示とパイプラインの堅牢化\cite{nakaoka2025}に対する，実運用を伴う回答でもある．
 
