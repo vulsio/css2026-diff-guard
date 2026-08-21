@@ -114,7 +114,7 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
 \subsection{履歴管理されたDB公開パイプライン}
 \label{sec:infra}
 
-vuls.dbの生成は，\textbf{収集(fetch)}，\textbf{変換(extract)}，\textbf{DB構築(db build)}の3工程からなる\cite{nakaoka2025,vuls-data-update,vuls2,vuls-data-db}．収集工程はデータソース(以下，ソース)からデータを取得し，原形をほぼ保ったrawデータとしてGitで履歴管理する．変換工程はrawデータを共通スキーマへ変換し，extractedデータとして同様に履歴管理する．DB構築工程はextractedデータからBoltDB形式のvuls.dbを構築し，GitHub Container Registry(以下，GHCR)へ公開する．DB内でOSの系統と版やCPEなど検知対象を分ける区分を\textbf{ecosystem}と呼び，ソースとは多対多に対応する．本稿では，各工程の実装をそれぞれ\textbf{収集コード}，\textbf{変換コード}，\textbf{DB構築コード}と呼ぶ．また，収集するseedやソースを定めるvuls-data-db側の設定を\textbf{収集対象設定}と呼び，収集コードと区別する．
+vuls.dbの生成は，\textbf{収集(fetch)}，\textbf{変換(extract)}，\textbf{DB構築(db build)}の3工程からなる\cite{nakaoka2025,vuls-data-update,vuls2,vuls-data-db}．収集工程はデータソース(以下，ソース)からデータを取得し，原形をほぼ保ったrawデータとしてGitで履歴管理する．変換工程はrawデータを共通スキーマへ変換し，extractedデータとして同様に履歴管理する．DB構築工程はextractedデータからBoltDB形式のvuls.dbを構築し，GitHub Container Registry(以下，GHCR)へ公開する．DB内でOSの系統と版やCPEなど検知対象を分ける区分を\textbf{ecosystem}と呼び，ソースとは多対多に対応する．本稿では，各工程の実装をそれぞれ\textbf{収集コード}，\textbf{変換コード}，\textbf{DB構築コード}と呼ぶ．また，収集起点となるIDやURLと対象ソースを定めるvuls-data-db側の設定を\textbf{収集対象設定}と呼び，収集コードと区別する．
 
 各DBには入力データとDB構築コードのバージョンが記録され，GHCR上の生成物はdigestで固定できる．したがって，任意時点のrawデータまでコミット単位で遡り，同じDBによる検知結果を再現できる．公開前検査は，この追跡可能性を公開可否の判断に利用する(図\ref{fig:arch})．
 
@@ -198,7 +198,7 @@ FAIL中は公開版であるbaselineが更新されず，同じ差分が6時間�
 \begin{enumerate}
 \item \textbf{DB構築工程}: baselineと候補DBのメタデータを比較する．DB構築コードのバージョンが同じなら，同工程の変更を除外する．
 \item \textbf{収集工程と変換工程}: 対象期間のコード履歴を調べる．当該ソースの収集コードと変換コードに変更がなければ，両工程の変更を除外する．
-\item \textbf{収集対象設定}: DB公開リポジトリの履歴を調べる．seedリストや収集対象ソースに変更がなければ，入力範囲の変更を除外する．
+\item \textbf{収集対象設定}: DB公開リポジトリの履歴を調べる．収集起点のIDやURLと対象ソースに変更がなければ，入力範囲の変更を除外する．
 \item \textbf{上流}: rawデータのコミットを特定し，検査レポートと件数またはIDが一致する変更実体を探す．例えば，アドバイザリ群の追加やディレクトリ全体の消失が直接の証拠となる．
 \end{enumerate}
 
@@ -245,12 +245,12 @@ FAIL中は公開版であるbaselineが更新されず，同じ差分が6時間�
 上流: 恒久的品質イベント & 2 & errata再編 & 全て \\
 変換工程由来(コードバグ) & 1 & 非決定的出力 & DB \\
 変換工程由来(意図的変更) & 7 & CPE系列等 & DB \\
-収集対象設定由来 & 2 & seed追加 & DB \\
+収集対象設定由来 & 2 & 収集起点ID追加 & DB \\
 \hline
 \end{tabular}
 \end{table}
 
-自前の変更も十分に大きな発動を生じた．例えば，Windows更新プログラムのseedを追加した直後にはmicrosoft/microsoft-msucが211.3\%，新規データソースを追加した直後にはmicrosoft/microsoft-servicingが100.0\%で発動した．いずれも上流や変換コードではなく，「何を収集するか」を定める収集対象設定の変更である．また，2012年から2022年のアドバイザリへ検知を補完する変換コード変更では，検知を持つファイルが643件から1,065件に増え，fortinet-cvrfが135.5\%で発動した．検査は異常だけでなく，意図した大規模変更の影響範囲も可視化した．
+自前の変更も十分に大きな発動を生じた．例えば，収集起点となるWindows更新プログラムIDを追加した直後にはmicrosoft/microsoft-msucが211.3\%，新規データソースを追加した直後にはmicrosoft/microsoft-servicingが100.0\%で発動した．いずれも上流や変換コードではなく，「何を収集するか」を定める収集対象設定の変更である．また，2012年から2022年のアドバイザリへ検知を補完する変換コード変更では，検知を持つファイルが643件から1,065件に増え，fortinet-cvrfが135.5\%で発動した．検査は異常だけでなく，意図した大規模変更の影響範囲も可視化した．
 この2件を契機に，収集対象設定のコミット走査を原因帰属手順へ追加した．
 
 \subsection{RQ2-a: 可用性: 消え，戻り，また消える}
