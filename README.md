@@ -69,6 +69,10 @@ GitHub Container Registry 関係
 }
 ```
 
-## Copyright
+## License / Copyright
+
+論文本体([doc/](doc/) および [css2026-diff-guard.pdf](css2026-diff-guard.pdf))を**除き**、本リポジトリの内容(data/、figs/ ほか)は [CC BY 4.0](LICENSE) で提供する。
+
+論文本体にはライセンスを付与しない。その著作権は著者および(採録後は)情報処理学会の著作権規程に従う。
 
 Copyright by Shunichi Shinohara, Norihiro Nakaoka, Kota Kanbe and Future Corporation.
