@@ -28,9 +28,9 @@
 \affiliate{FUTURE}{フューチャー株式会社\\
 Future Corporation}
 
-\author{篠原 俊一}{Shunichi Shinohara}{FUTURE}[s.shinohara.yx@future.co.jp]
-\author{中岡 典弘}{Norihiro Nakaoka}{FUTURE}[n.nakaoka.46@future.co.jp]
-\author{神戸 康多}{Kota Kanbe}{FUTURE}[k.kanbe.r4@future.co.jp]
+\author{篠原 俊一}{Shinohara, Shunichi}{FUTURE}[s.shinohara.yx@future.co.jp]
+\author{中岡 典弘}{Nakaoka, Norihiro}{FUTURE}[n.nakaoka.46@future.co.jp]
+\author{神戸 康多}{Kanbe, Kota}{FUTURE}[k.kanbe.r4@future.co.jp]
 
 \begin{abstract}
 脆弱性DBが依存する外部フィードは，安定していない．データは一時的に消え，公開済みアドバイザリは遡って書き換えられる．本研究では，OSS脆弱性スキャナVulsのDB公開CIに，候補と直前版を比較する公開前検査を実装した．検知結果とDB内の検知条件構造を比較し，変動率が閾値を超えると公開を保留する．116日間・943 runの全数調査では，閾値超過418 runを69件のsource-episodeに集約し，上流由来59件(平均約2日に1件)，自前の処理由来10件に帰属した．日常変動と構造的イベントは変動率で概ね桁が分離し，欠損DB 2件と異常な候補1件の公開を防いだ．以上から，全工程の履歴に基づく公開前検査が，上流の縦断観測とDB公開の安全網を両立できることを示す．
