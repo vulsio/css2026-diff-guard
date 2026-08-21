@@ -31,7 +31,7 @@ stats-output.txt の `## source-episodes` の 69 行(順序同一)に、事例�
 | 15 | 2026-05-18 19:42 | microsoft-cvrf | N | 28.2 | DB | 上流(a) | P-2 | 事後分類 |
 | 16 | 2026-05-20 08:47 | ubuntu-cve-tracker | M+N | 39.5 | DB+Dn+Do | 上流(a) | P-2 | 事後分類 |
 | 17 | 2026-05-23 07:59 | ubuntu-cve-tracker | M+N | 21.7 | DB | 上流(a) | P-3 ubuntu:snap Go crypto一括開示 | 事後分類 |
-| 18 | 2026-05-27 08:53 | alma-errata | M+N | 428.3 | DB+Dn+Do | 上流(c) | P-4 alma errata再編(feed/OSV/HTML三者一致) | 直接 |
+| 18 | 2026-05-27 08:53 | alma-errata | M+N | 428.3 | DB+Dn+Do | 上流(c) | P-4 alma errata再編(errata.full.json/OSV/HTML三者一致) | 直接 |
 | 19 | 2026-05-28 19:59 | rocky-errata | M+N | 5.4 | Dn+Do | 上流(a) | P-4後続 rocky単発 | 事後分類 |
 | 20 | 2026-05-29 08:58 | suse-oval | M+N | 13.6 | DB+Dn | 上流(a) | P-4後続 opensuse seeding継続 | 事後分類 |
 | 21 | 2026-05-30 08:11 | rocky-errata | M+N | 34.4 | DB+Dn+Do | 上流(a) | P-5 rocky_10 初期シーディング | 事後分類 |

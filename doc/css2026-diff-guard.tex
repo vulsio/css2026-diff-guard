@@ -267,7 +267,7 @@ Microsoft CVRFの月次データは消え，戻り，また消えた．全消失
 
 \begin{itemize}
 \item \textbf{errataの検知条件の縮退}:
-AlmaLinuxでは，フィード，OSV(Open Source Vulnerabilities)，HTMLの三者が同じ縮退を示した．上流への報告に対し，フィードが現行バージョンの情報だけを保持する仕様に起因するとの回答を得た\footnote{\url{https://bugs.almalinux.org/view.php?id=644}}．上流が仕様どおりでも，過去バージョンを検査する下流にとっては情報の欠損になる．
+AlmaLinuxでは，errata.full.json，OSV(Open Source Vulnerabilities)データ，アドバイザリHTMLの三者で，残存errataの検知条件が同様に縮退していた．上流からは，errata.full.jsonとupdateinfo.xmlは現行版リポジトリのパッケージだけを保持し，履歴にはOVALが適するとの回答を得た\footnote{\url{https://bugs.almalinux.org/view.php?id=644}}．上流が仕様どおりでも，過去バージョンを検査する下流にとっては情報の欠損になる．
 \item \textbf{サイレントなサーバ側再編}:
 Cisco openVuln APIでは，アドバイザリの更新日時とバージョンを変えずに，影響バージョンの対応だけが日次で書き換わった．93アドバイザリから製品バージョン2,022件が削除され，2014年のあるアドバイザリでは製品リストが149件から36件になった．過剰な対応付けの修正とも解釈できるが，下流から見れば，告知も更新印もない検知消失である．
 \item \textbf{一斉再生成の両義性}:
