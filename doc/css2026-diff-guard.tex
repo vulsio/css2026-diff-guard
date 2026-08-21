@@ -114,7 +114,7 @@ Vulnerability Database, Data Quality, Pre-Publication Inspection, History Manage
 \subsection{履歴管理されたDB公開パイプライン}
 \label{sec:infra}
 
-vuls.dbの生成は，\textbf{収集(fetch)}，\textbf{変換(extract)}，\textbf{DB構築(db build)}の3工程からなる\cite{nakaoka2025,vuls-data-update,vuls2,vuls-data-db}．収集工程は一次情報源からデータを取得し，原形をほぼ保ったrawデータとしてGitで履歴管理する．変換工程はrawデータを共通スキーマへ変換し，extractedデータとして同様に履歴管理する．DB構築工程はextractedデータからBoltDB形式のvuls.dbを構築し，GitHub Container Registry(以下，GHCR)へ公開する．本稿では，各工程の実装をそれぞれ\textbf{収集コード}，\textbf{変換コード}，\textbf{DB構築コード}と呼ぶ．また，収集するseedやデータソースを定めるvuls-data-db側の設定を\textbf{収集対象設定}と呼び，収集コードと区別する．
+vuls.dbの生成は，\textbf{収集(fetch)}，\textbf{変換(extract)}，\textbf{DB構築(db build)}の3工程からなる\cite{nakaoka2025,vuls-data-update,vuls2,vuls-data-db}．収集工程はデータソース(以下，ソース)からデータを取得し，原形をほぼ保ったrawデータとしてGitで履歴管理する．変換工程はrawデータを共通スキーマへ変換し，extractedデータとして同様に履歴管理する．DB構築工程はextractedデータからBoltDB形式のvuls.dbを構築し，GitHub Container Registry(以下，GHCR)へ公開する．DB内でOSの系統と版やCPEなど検知対象を分ける区分を\textbf{ecosystem}と呼び，ソースとは多対多に対応する．本稿では，各工程の実装をそれぞれ\textbf{収集コード}，\textbf{変換コード}，\textbf{DB構築コード}と呼ぶ．また，収集するseedやソースを定めるvuls-data-db側の設定を\textbf{収集対象設定}と呼び，収集コードと区別する．
 
 各DBには入力データとDB構築コードのバージョンが記録され，GHCR上の生成物はdigestで固定できる．したがって，任意時点のrawデータまでコミット単位で遡り，同じDBによる検知結果を再現できる．公開前検査は，この追跡可能性を公開可否の判断に利用する(図\ref{fig:arch})．
 
@@ -187,9 +187,9 @@ overrideが現状と乖離しないよう，約2か月ごとに全対象の値�
 
 \subsection{runからsource-episodeへの集約}
 
-FAIL中は公開版であるbaselineが更新されず，同じ差分が6時間ごとに繰り返し検出されるため，run数は実イベント数より多くなる．この重複を除くため，まず同一系統の連続FAILを\textbf{fail sequence}として104件にまとめた．次に，安定版と開発版を統合し，一つのFAILに複数ソースが含まれる場合は分解して，\textbf{source-episode} 69件を得た．以後，原因分布を数える単位はsource-episodeとする．
+FAIL中は公開版であるbaselineが更新されず，同じ差分が6時間ごとに繰り返し検出されるため，run数は実イベント数より多くなる．この重複を除くため，まず同一系統の連続FAILを\textbf{fail sequence}として104件にまとめた．次に，安定版と開発版を統合し，一つのFAILをソース(前半は推定区分)ごとに分解して，\textbf{source-episode} 69件を得た．以後，原因分布を数える単位はsource-episodeとする．
 
-同一ソースの発動に24時間以上の途切れがあれば，別のepisodeとして扱う．この規則は時間的な集約であり，上流イベントの独立性を保証しない．分割間隔を12時間にすると77件，48時間にすると62件となる．全期間のソース族はtarget名から推定し，ソース名を直接出力するようになった後半期間のレポートで推定内訳を検証した．
+同一ソースの発動に24時間以上の途切れがあれば，別のepisodeとして扱う．この規則は時間的な集約であり，上流イベントの独立性を保証しない．分割間隔を12時間にすると77件，48時間にすると62件となる．ソース名がない前半はtarget名からソース区分を推定し，後半のレポートで対応を検証した．
 
 \subsection{工程履歴に基づく原因帰属}
 
@@ -375,7 +375,7 @@ RQ1では，閾値超過418 runを69件に集約し，全工程の履歴によ�
 
 運用には，ソース単位の差分，履歴による閾値再導出，追加と削除の分離，監査証跡と判断基準を備えた手動承認が要る．上流の恒久的な劣化には，正常なコミットへのピン留めと収集履歴からの復元という出口が要る．全工程の履歴に基づく公開前検査は，上流の縦断観測とDB公開の安全網を同じ仕組みで実現する．これは，前稿が課題とした論理的な差分提示とパイプラインの堅牢化\cite{nakaoka2025}に対する，実運用を伴う回答でもある．
 
-今後は，収集時の欠損検出，追加と削除の非対称閾値，baseline停滞の補正，通知と承認の改善，観測期間の延長と他の脆弱性管理エコシステムとの比較に取り組む．
+今後は，収集時の欠損検出，追加と削除の非対称閾値，baseline停滞の補正，通知と承認の改善，観測期間の延長と他の脆弱性DB公開基盤との比較に取り組む．
 
 \bibliographystyle{junsrt}
 \bibliography{./refs.bib}
