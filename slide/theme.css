@@ -1,0 +1,54 @@
+/* @theme css2026 */
+@import 'default';
+
+:root {
+  --accent: #0072b2;      /* 図と同じ Okabe-Ito blue */
+  --ink: #1a2733;
+  --muted: #5b6b7a;
+  font-family: 'Noto Sans CJK JP', 'Hiragino Sans', 'BIZ UDPGothic', sans-serif;
+  font-size: 26px;
+  color: var(--ink);
+  background: #ffffff;
+  padding: 48px 64px;
+}
+
+h1 {
+  font-size: 1.25em;
+  color: var(--ink);
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 0.2em;
+}
+h2 { font-size: 1.05em; color: var(--accent); }
+strong { color: var(--accent); }
+em { font-style: normal; background: #fff3c4; padding: 0 0.15em; }
+
+code, pre {
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+  background: #f2f5f7;
+  border-radius: 4px;
+}
+
+table { font-size: 0.85em; border-collapse: collapse; }
+th { background: #eef4f8; border-bottom: 2px solid var(--accent); }
+td, th { border: 1px solid #cfd8de; padding: 0.3em 0.7em; }
+
+blockquote {
+  border-left: 4px solid var(--accent);
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+section.lead { text-align: center; }
+section.lead h1 { border: none; font-size: 1.5em; }
+section.lead p { color: var(--muted); }
+
+section::after { color: var(--muted); font-size: 0.6em; }  /* page number */
+
+.placeholder {
+  border: 2px dashed #b7c4cd;
+  border-radius: 6px;
+  color: var(--muted);
+  text-align: center;
+  padding: 1.2em;
+  font-size: 0.85em;
+}

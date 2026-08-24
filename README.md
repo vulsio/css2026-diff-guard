@@ -23,6 +23,7 @@ OSS 脆弱性スキャナ [Vuls](https://github.com/future-architect/vuls) の�
 | [doc/](doc/) | 原稿(TeX 単一ファイル + refs.bib)とビルド済み PDF。`cd doc && make build` で再ビルド(Docker の paperist/alpine-texlive-ja + latexmk) |
 | [data/](data/) | 観測 116 日間(2026-04-23〜08-16)の確定データセット: 発動事例カタログ、run 表、promote 履歴、機械可読 TSV、ログ抜粋、69 episode 別判定表、集計スクリプト。詳細は [data/README.md](data/README.md) |
 | [figs/](figs/) | 図 2〜4 を data/ から生成する matplotlib スクリプト |
+| [slide/](slide/) | 発表スライド(Marp)。`cd slide && make build` で slide.html / slide.pdf を生成(Docker の marpteam/marp-cli) |
 
 ## 参考 URL
 

@@ -337,3 +337,10 @@ TSWLatexianTemp*
 ## Python
 __pycache__/
 *.pyc
+
+## Node (marp-cli etc.)
+node_modules/
+npm-debug.log*
+
+## Slide build outputs (slide/slide.html, slide/slide.pdf) are committed
+## for sharing, like the paper PDF. Rebuild with `cd slide && make build`.
