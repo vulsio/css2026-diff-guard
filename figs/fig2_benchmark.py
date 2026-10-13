@@ -3,7 +3,7 @@
 
 データ: diff-guard 設計ドキュメントの 44 日間ベンチマーク表(35 ペア)からの転記.
 """
-from style import setup, BLUE, VERMILION, GRAY
+from style import setup, figsize, save, BLUE, VERMILION, GRAY
 import matplotlib.pyplot as plt
 
 # (ペア終端日ラベル, max drift %, FAIL か)
@@ -27,7 +27,7 @@ GAP_AFTER = 21  # index of "03-09" — この後に欠測ギャップ
 FLOOR = 0.05    # log 軸表示用の下駄(0.0% はこの値で描く)
 
 setup()
-fig, ax = plt.subplots(figsize=(3.3, 1.22))
+fig, ax = plt.subplots(figsize=figsize((3.3, 1.22), (9.0, 3.1)))
 
 xs, vals, colors = [], [], []
 x = 0
@@ -68,5 +68,4 @@ ax.set_xlim(-1, xs[-1] + 1)
 ax.grid(axis="x", visible=False)
 
 fig.tight_layout(pad=0.3)
-fig.savefig("../doc/figures/fig2-benchmark.pdf")
-print("wrote fig2-benchmark.pdf")
+save(fig, "fig2-benchmark")

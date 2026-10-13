@@ -1,15 +1,34 @@
 /* @theme css2026 */
 @import 'default';
 
+/* 本文フォントは slide/fonts/ に同梱(make fonts で取得)。HTML/PDF とも同じ字形になる */
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url('fonts/NotoSansJP.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
 :root {
-  --accent: #0072b2;      /* 図と同じ Okabe-Ito blue */
+  --accent: #0072b2;      /* 図と同じ Okabe-Ito blue(罫線・図用) */
+  --accent-text: #0a58ca; /* 本文の強調。彩度高め・くっきり */
   --ink: #1a2733;
-  --muted: #5b6b7a;
-  font-family: 'Noto Sans CJK JP', 'Hiragino Sans', 'BIZ UDPGothic', sans-serif;
+  --muted: #1a2733;       /* 補足文も黒。薄い文字は老眼に見えない */
+  --faint: #4a5760;       /* ページ番号だけ */
+  font-family: 'Noto Sans JP', sans-serif;
   font-size: 26px;
   color: var(--ink);
   background: #ffffff;
   padding: 48px 64px;
+}
+
+/* 本文量に関係なくタイトルと下線を上端に固定する
+   (default theme は display:block + place-content: safe center center で縦中央揃え) */
+section {
+  place-content: start;
+}
+section.lead {
+  place-content: safe center center;
 }
 
 h1 {
@@ -17,18 +36,54 @@ h1 {
   color: var(--ink);
   border-bottom: 3px solid var(--accent);
   padding-bottom: 0.2em;
+  margin: 0 0 0.8em;
+  line-height: 1.3;
 }
-h2 { font-size: 1.05em; color: var(--accent); }
-strong { color: var(--accent); }
+h2 { font-size: 1.05em; color: var(--accent-text); }
+strong { color: var(--accent-text); }
 em { font-style: normal; background: #fff3c4; padding: 0 0.15em; }
 
 code, pre {
-  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+  font-family: 'JetBrains Mono', 'Cascadia Code', 'Noto Sans Mono', monospace;
   background: #f2f5f7;
   border-radius: 4px;
 }
+/* 実データ断片(JSON / git diff / レポート)用: 小さめ・行間詰め */
+pre {
+  font-size: 0.62em;
+  line-height: 1.35;
+  padding: 0.6em 0.8em;
+  margin: 0.3em 0;
+  border: 1px solid #dde4ea;
+}
+pre code { background: transparent; }
+/* ```diff の着色(highlight.js) */
+pre .hljs-deletion { color: #b42318; background: #fde8e8; }
+pre .hljs-addition { color: #1a7f37; background: #e6f4ea; }
+pre .hljs-comment  { color: #8a98a5; }
+pre .hljs-meta     { color: #0a58ca; }
+
+/* 2 カラム: 左に箇条書き、右に断片や図 */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.2em; align-items: start; }
+.cols-wide-right { grid-template-columns: 2fr 3fr; }
+.cols-wide-left  { grid-template-columns: 3fr 2fr; }
+.cols > * { min-width: 0; }
+.cols > :last-child { border-left: 2px solid #c9d3db; padding-left: 0.8em; }
+.cols ul, .cols ol { margin-top: 0; }
+
+/* 図 */
+section > p > img:only-child { display: block; margin: 0 auto; max-width: 100%; }
+.caption { color: var(--muted); font-size: 0.7em; text-align: center; margin-top: 0.2em; }
+.source { color: var(--muted); font-size: 0.6em; text-align: right; margin-top: 0.2em; }
+
+/* 「論文後」バッジ */
+.badge { display: inline-block; font-size: 0.65em; color: #fff; background: var(--accent); border-radius: 4px; padding: 0.05em 0.5em; vertical-align: middle; margin-left: 0.4em; }
+
+ol ol, ul ol { list-style: decimal; }  /* default theme は入れ子を i, ii, iii にする */
 
 table { font-size: 0.85em; border-collapse: collapse; }
+.small table { font-size: 0.62em; }
+.small td, .small th { padding: 0.15em 0.5em; }
 th { background: #eef4f8; border-bottom: 2px solid var(--accent); }
 td, th { border: 1px solid #cfd8de; padding: 0.3em 0.7em; }
 
@@ -42,7 +97,14 @@ section.lead { text-align: center; }
 section.lead h1 { border: none; font-size: 1.5em; }
 section.lead p { color: var(--muted); }
 
-section::after { color: var(--muted); font-size: 0.6em; }  /* page number */
+/* ページ番号: 右下に「n / 総数」 */
+section::after {
+  content: attr(data-marpit-pagination) ' / ' attr(data-marpit-pagination-total);
+  color: var(--faint);
+  font-size: 0.75em;
+  right: 40px;
+  bottom: 24px;
+}
 
 .placeholder {
   border: 2px dashed #b7c4cd;

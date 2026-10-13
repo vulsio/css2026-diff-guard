@@ -8,7 +8,7 @@ import csv
 import re
 
 import numpy as np
-from style import setup, BLUE, GRAY
+from style import setup, figsize, save, BLUE, GRAY
 import matplotlib.pyplot as plt
 
 rates = []
@@ -41,7 +41,7 @@ print(f"parsed {len(rates)} FAIL rows")
 assert len(rates) == 1465, len(rates)
 
 setup()
-fig, ax = plt.subplots(figsize=(3.3, 1.15))
+fig, ax = plt.subplots(figsize=figsize((3.3, 1.15), (9.0, 3.1)))
 
 vals = np.array([max(r, 0.1) for r in rates])
 bins = np.logspace(np.log10(1), np.log10(4000), 40)
@@ -60,5 +60,4 @@ ax.set_ylabel("rows")
 ax.grid(axis="x", visible=False)
 
 fig.tight_layout(pad=0.3)
-fig.savefig("../doc/figures/fig4-histogram.pdf")
-print("wrote fig4-histogram.pdf")
+save(fig, "fig4-histogram")

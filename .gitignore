@@ -344,3 +344,6 @@ npm-debug.log*
 
 ## Slide build outputs (slide/slide.html, slide/slide.pdf) are committed
 ## for sharing, like the paper PDF. Rebuild with `cd slide && make build`.
+
+## Slide fonts are fetched by `cd slide && make fonts` (not committed)
+slide/fonts/

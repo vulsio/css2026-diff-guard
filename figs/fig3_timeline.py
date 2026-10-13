@@ -6,7 +6,7 @@ override 導入時点(vuls-data-db の PR マージ日)を縦線で重ねる.
 """
 from datetime import datetime
 
-from style import setup, BLUE, GRAY
+from style import setup, figsize, save, BLUE, GRAY
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 
@@ -59,7 +59,7 @@ for line in open("../data/stats-output.txt"):
 assert len(episodes) == 69, len(episodes)
 
 setup()
-fig, ax = plt.subplots(figsize=(6.7, 1.26))
+fig, ax = plt.subplots(figsize=figsize((6.7, 1.26), (11.5, 4.2)))
 
 MIN_W = 6 / 24  # 短い episode も見えるよう最小幅 6h
 for onset, end, src in episodes:
@@ -68,7 +68,8 @@ for onset, end, src in episodes:
     w = max(mdates.date2num(end) - x0, MIN_W)
     ax.barh(y, w, left=x0, height=0.55, color=BLUE, linewidth=0)
 
-for d, label, ha in OVERRIDES:
+from style import SLIDE
+for d, label, ha in ([] if SLIDE else OVERRIDES):  # スライド版は読めない注記を出さない
     x = mdates.date2num(datetime.strptime(d, "%Y-%m-%d"))
     ax.axvline(x, color=GRAY, linewidth=0.7, linestyle=":")
     dx = {"left": 0.3, "right": -0.3, "center": 0}[ha]
@@ -77,7 +78,7 @@ for d, label, ha in OVERRIDES:
 
 ax.set_yticks(range(len(LABELS)))
 ax.set_yticklabels(LABELS)
-ax.set_ylim(len(LABELS) - 0.4, -1.15)  # 上から並べ、override ラベル分の余白
+ax.set_ylim(len(LABELS) - 0.4, -0.6 if SLIDE else -1.15)  # 上から並べ、override ラベル分の余白
 ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=0, interval=2))
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
 ax.set_xlim(mdates.date2num(datetime(2026, 4, 23)),
@@ -85,5 +86,4 @@ ax.set_xlim(mdates.date2num(datetime(2026, 4, 23)),
 ax.grid(axis="y", visible=False)
 
 fig.tight_layout(pad=0.3)
-fig.savefig("../doc/figures/fig3-timeline.pdf")
-print("wrote fig3-timeline.pdf")
+save(fig, "fig3-timeline")
