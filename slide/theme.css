@@ -32,7 +32,7 @@ section.lead {
 }
 
 h1 {
-  font-size: 1.25em;
+  font-size: 1.45em;
   color: var(--ink);
   border-bottom: 3px solid var(--accent);
   padding-bottom: 0.2em;
@@ -75,6 +75,10 @@ pre .hljs-meta     { color: #0a58ca; }
 section > p > img:only-child { display: block; margin: 0 auto; max-width: 100%; }
 .caption { color: var(--muted); font-size: 0.7em; text-align: center; margin-top: 0.2em; }
 .source { color: var(--muted); font-size: 0.6em; text-align: right; margin-top: 0.2em; }
+
+/* 持ち帰りの枚: 大きく 3 つだけ */
+section.takeaway ol { font-size: 1.15em; line-height: 1.5; padding-left: 1.4em; margin-top: 0.6em; }
+section.takeaway li { margin: 0.8em 0; }
 
 /* 「論文後」バッジ */
 .badge { display: inline-block; font-size: 0.65em; color: #fff; background: var(--accent); border-radius: 4px; padding: 0.05em 0.5em; vertical-align: middle; margin-left: 0.4em; }
