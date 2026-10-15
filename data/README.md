@@ -14,6 +14,7 @@
 | `04-episode-verdicts.md` | 69 source-episode → 原因帰属の対応表(論文 表1 の episode 単位集計の根拠。証拠水準付き) |
 | `stats.py` | 集計スクリプト。`python3 stats.py > stats-output.txt` で再生成 |
 | `stats-output.txt` | 集計結果(sequence / episode / per-source / 時系列 / 明示ソース内訳) |
+| `post-paper-episodes.md` | **論文とは別**。観測窓(〜08-16)の後の事例(B-1〜)と、投稿後の追加調査(C-1〜)。発表スライドの「論文後」の数値の出所。`stats.py` の対象外 |
 
 - 図 3・図 4([../figs/](../figs/))はこのディレクトリの `stats-output.txt` と `guard-failures.tsv` を読む
 - 観測窓は 2026-04-23T00:00Z 〜 08-17T00:00Z の半開区間(= 04-23 〜 08-16 の 116 日間)。
