@@ -3,8 +3,11 @@
 
 データ: diff-guard 設計ドキュメントの 44 日間ベンチマーク表(35 ペア)からの転記.
 """
-from style import setup, figsize, save, BLUE, VERMILION, GRAY
+from style import setup, figsize, save, BLUE, VERMILION, GRAY, SLIDE
 import matplotlib.pyplot as plt
+
+# スライド版はリニア軸(対数軸は読み慣れない聴衆に伝わりにくい)。論文版は対数のまま
+LINEAR = SLIDE
 
 # (ペア終端日ラベル, max drift %, FAIL か)
 PAIRS = [
@@ -43,24 +46,31 @@ for i, (label, v, fail) in enumerate(PAIRS):
 
 ax.bar(xs, vals, width=0.75, color=colors, linewidth=0)
 ax.axhline(10, color=GRAY, linewidth=0.8, linestyle="--")
+note_fs = 11 if SLIDE else 6.5
+small_fs = 9 if SLIDE else 5.5
 ax.text(xs[-1] + 0.5, 10, "threshold 10%", ha="right", va="bottom",
-        fontsize=6.5, color="#555555")
+        fontsize=note_fs, color="#555555")
 if gap_x:
     ax.axvspan(gap_x[0] - 0.5, gap_x[1] + 0.5, color="#f0f0f0", zorder=0)
-    ax.text(sum(gap_x) / 2, 0.09, "no\ndata", ha="center", va="bottom",
-            fontsize=5.5, color="#888888")
+    ax.text(sum(gap_x) / 2, 1 if LINEAR else 0.09, "no\ndata", ha="center",
+            va="bottom", fontsize=small_fs, color="#888888")
 
 # FAIL 2 点の直接ラベル
 for xi, (label, v, fail) in zip(xs, PAIRS):
     if fail:
-        ax.text(xi, v * 1.15, f"{v}%", ha="center", va="bottom",
-                fontsize=6.5, color=VERMILION)
+        ax.text(xi, v + 1 if LINEAR else v * 1.15, f"{v}%", ha="center",
+                va="bottom", fontsize=note_fs, color=VERMILION)
 
-ax.set_yscale("log")
-ax.set_ylim(FLOOR, 300)
-ax.set_yticks([0.1, 1, 10, 100])
-ax.set_yticklabels(["0.1", "1", "10", "100"])
-ax.set_ylabel("max drift rate (%)")
+if LINEAR:
+    ax.set_ylim(0, 75)
+    ax.set_yticks([0, 10, 20, 40, 60])
+    ax.set_ylabel("変動率 (%)", fontfamily="Noto Sans JP")
+else:
+    ax.set_yscale("log")
+    ax.set_ylim(FLOOR, 300)
+    ax.set_yticks([0.1, 1, 10, 100])
+    ax.set_yticklabels(["0.1", "1", "10", "100"])
+    ax.set_ylabel("max drift rate (%)")
 tick_idx = [0, 5, 10, 16, 21, 25, 34]
 ax.set_xticks([xs[i] for i in tick_idx])
 ax.set_xticklabels([PAIRS[i][0] for i in tick_idx])

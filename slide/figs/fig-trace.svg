@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 285" font-family="Noto Sans JP, sans-serif" font-size="18">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b0bac4"/>
+    </marker>
+    <marker id="arr-back" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d55e00"/>
+    </marker>
+  </defs>
+  <!-- boxes (same as fig-system) -->
+  <rect x="10" y="60" width="170" height="90" rx="8" fill="#fff" stroke="#1a2733" stroke-width="2"/>
+  <text x="95" y="96" text-anchor="middle" font-weight="700">上流データソース</text>
+  <text x="95" y="126" text-anchor="middle" fill="#1a2733" font-size="15">40+ ソース</text>
+  <rect x="260" y="60" width="190" height="90" rx="8" fill="#eef4f8" stroke="#0072b2" stroke-width="2"/>
+  <text x="355" y="96" text-anchor="middle" font-weight="700">raw</text>
+  <text x="355" y="126" text-anchor="middle" fill="#1a2733" font-size="15">取得したままの形式</text>
+  <rect x="530" y="60" width="190" height="90" rx="8" fill="#eef4f8" stroke="#0072b2" stroke-width="2"/>
+  <text x="625" y="96" text-anchor="middle" font-weight="700">extracted</text>
+  <text x="625" y="126" text-anchor="middle" fill="#1a2733" font-size="15">共通スキーマに正規化</text>
+  <rect x="800" y="60" width="170" height="90" rx="8" fill="#eef4f8" stroke="#0072b2" stroke-width="2"/>
+  <text x="885" y="96" text-anchor="middle" font-weight="700">vuls.db</text>
+  <text x="885" y="126" text-anchor="middle" fill="#1a2733" font-size="15">検知用 DB</text>
+  <rect x="1030" y="60" width="120" height="90" rx="8" fill="#fff" stroke="#1a2733" stroke-width="2"/>
+  <text x="1090" y="96" text-anchor="middle" font-weight="700">Vuls</text>
+  <text x="1090" y="126" text-anchor="middle" fill="#1a2733" font-size="15">検知</text>
+  <!-- forward arrows, faded -->
+  <line x1="180" y1="105" x2="258" y2="105" stroke="#b0bac4" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="219" y="50" text-anchor="middle" fill="#8a97a3" font-weight="700">fetch</text>
+  <line x1="450" y1="105" x2="528" y2="105" stroke="#b0bac4" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="489" y="50" text-anchor="middle" fill="#8a97a3" font-weight="700">extract</text>
+  <line x1="720" y1="105" x2="798" y2="105" stroke="#b0bac4" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="759" y="50" text-anchor="middle" fill="#8a97a3" font-weight="700">db build</text>
+  <line x1="970" y1="105" x2="1028" y2="105" stroke="#b0bac4" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="999" y="50" text-anchor="middle" fill="#8a97a3" font-weight="700">公開</text>
+  <!-- identifier each artifact carries -->
+  <text x="355" y="176" text-anchor="middle" fill="#d55e00" font-weight="700" font-size="15">Git commit</text>
+  <text x="625" y="176" text-anchor="middle" fill="#d55e00" font-weight="700" font-size="15">Git commit</text>
+  <text x="885" y="176" text-anchor="middle" fill="#d55e00" font-weight="700" font-size="15">digest</text>
+  <text x="1090" y="176" text-anchor="middle" fill="#d55e00" font-weight="700" font-size="15">検知結果 JSON</text>
+  <!-- backward trace line -->
+  <line x1="1090" y1="212" x2="889" y2="212" stroke="#d55e00" stroke-width="3" marker-end="url(#arr-back)"/>
+  <line x1="885" y1="212" x2="629" y2="212" stroke="#d55e00" stroke-width="3" marker-end="url(#arr-back)"/>
+  <line x1="625" y1="212" x2="359" y2="212" stroke="#d55e00" stroke-width="3" marker-end="url(#arr-back)"/>
+  <line x1="355" y1="212" x2="97" y2="212" stroke="#d55e00" stroke-width="3" marker-end="url(#arr-back)"/>
+  <line x1="355" y1="203" x2="355" y2="221" stroke="#d55e00" stroke-width="3"/>
+  <line x1="625" y1="203" x2="625" y2="221" stroke="#d55e00" stroke-width="3"/>
+  <line x1="885" y1="203" x2="885" y2="221" stroke="#d55e00" stroke-width="3"/>
+  <line x1="1090" y1="203" x2="1090" y2="221" stroke="#d55e00" stroke-width="3"/>
+  <!-- what links each hop -->
+  <text x="999" y="246" text-anchor="middle" fill="#1a2733" font-weight="700" font-size="15">検知結果が持つ</text>
+  <text x="999" y="266" text-anchor="middle" fill="#1a2733" font-size="14">使った DB の digest</text>
+  <text x="759" y="246" text-anchor="middle" fill="#1a2733" font-weight="700" font-size="15">DB が持つ</text>
+  <text x="759" y="266" text-anchor="middle" fill="#1a2733" font-size="14">ソースごとの extracted の commit</text>
+  <text x="489" y="246" text-anchor="middle" fill="#1a2733" font-weight="700" font-size="15">extracted が持つ</text>
+  <text x="489" y="266" text-anchor="middle" fill="#1a2733" font-size="14">元になった raw の commit</text>
+  <text x="219" y="246" text-anchor="middle" fill="#1a2733" font-weight="700" font-size="15">commit を checkout</text>
+  <text x="219" y="266" text-anchor="middle" fill="#1a2733" font-size="14">= その時点の上流の姿</text>
+</svg>

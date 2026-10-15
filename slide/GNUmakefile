@@ -8,12 +8,16 @@ THEME = theme.css
 build: html pdf
 
 # 本文フォント(Noto Sans JP 可変フォント)。docker image に日本語フォントが無いので同梱する
-FONT = fonts/NotoSansJP.ttf
-FONT_URL = https://github.com/google/fonts/raw/main/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf
+FONT = fonts/NotoSansJP.ttf fonts/NotoSansMonoCJKjp-Regular.otf fonts/NotoSansMonoCJKjp-Bold.otf
+FONT_URL_NotoSansJP = https://github.com/google/fonts/raw/main/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf
+# 等幅(コードブロック・アーキ名)。docker image の等幅は WenQuanYi のみで Bold が無く、
+# 日本語を含む行の桁を揃えるには半角:全角 = 1:2 の CJK 等幅が要る
+FONT_URL_NotoSansMonoCJKjp-Regular = https://github.com/notofonts/noto-cjk/raw/main/Sans/Mono/NotoSansMonoCJKjp-Regular.otf
+FONT_URL_NotoSansMonoCJKjp-Bold = https://github.com/notofonts/noto-cjk/raw/main/Sans/Mono/NotoSansMonoCJKjp-Bold.otf
 fonts: $(FONT)
-$(FONT):
+fonts/%.ttf fonts/%.otf:
 	mkdir -p fonts
-	curl -sSL -o $@ '$(FONT_URL)'
+	curl -sSL -o $@ '$(FONT_URL_$*)'
 
 html: $(SRC) $(THEME) $(FONT)
 	$(MARP) --theme $(THEME) --allow-local-files $(SRC) -o slide.html

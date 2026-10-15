@@ -1,54 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 330" font-family="Noto Sans JP, sans-serif" font-size="18">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 270" font-family="Noto Sans JP, sans-serif" font-size="18">
   <defs>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#1a2733"/>
     </marker>
   </defs>
   <!-- candidate -->
-  <rect x="10" y="40" width="200" height="80" rx="8" fill="#eef4f8" stroke="#0072b2" stroke-width="2"/>
-  <text x="110" y="74" text-anchor="middle" font-weight="700">候補 DB</text>
-  <text x="110" y="102" text-anchor="middle" fill="#1a2733" font-size="15">今回ビルドしたもの</text>
+  <rect x="10" y="30" width="200" height="80" rx="8" fill="#eef4f8" stroke="#0072b2" stroke-width="2"/>
+  <text x="110" y="64" text-anchor="middle" font-weight="700">候補 DB</text>
+  <text x="110" y="92" text-anchor="middle" fill="#1a2733" font-size="15">今回ビルドしたもの</text>
   <!-- baseline -->
-  <rect x="10" y="190" width="200" height="80" rx="8" fill="#fff" stroke="#1a2733" stroke-width="2"/>
-  <text x="110" y="224" text-anchor="middle" font-weight="700">baseline</text>
-  <text x="110" y="252" text-anchor="middle" fill="#1a2733" font-size="15">直前に公開した DB</text>
+  <rect x="10" y="160" width="200" height="80" rx="8" fill="#fff" stroke="#1a2733" stroke-width="2"/>
+  <text x="110" y="194" text-anchor="middle" font-weight="700">baseline</text>
+  <text x="110" y="222" text-anchor="middle" fill="#1a2733" font-size="15">直前に公開した DB</text>
   <!-- guard box -->
-  <rect x="300" y="30" width="400" height="250" rx="10" fill="#fff8e6" stroke="#d6a700" stroke-width="2"/>
-  <text x="500" y="62" text-anchor="middle" font-weight="700">公開前検査 (diff guard)</text>
-  <rect x="320" y="80" width="360" height="54" rx="6" fill="#fff" stroke="#b7c4cd"/>
-  <text x="332" y="103" font-weight="700" fill="#0a58ca" font-size="15">検知(新)</text>
-  <text x="410" y="103" font-size="17">最新スキャナで検知を再実行</text>
-  <text x="410" y="125" fill="#1a2733" font-size="14">スキャン結果 75 本の検知 CVE 集合を比較</text>
-  <rect x="320" y="142" width="360" height="54" rx="6" fill="#fff" stroke="#b7c4cd"/>
-  <text x="332" y="165" font-weight="700" fill="#0a58ca" font-size="15">検知(旧)</text>
-  <text x="410" y="165" font-size="17">固定した旧スキャナで検知を再実行</text>
-  <text x="410" y="187" fill="#1a2733" font-size="14">旧版との非互換(3 月の事故 2 型)を捕捉</text>
-  <rect x="320" y="204" width="360" height="54" rx="6" fill="#fff" stroke="#b7c4cd"/>
-  <text x="332" y="227" font-weight="700" fill="#0a58ca" font-size="15">DB 構造</text>
-  <text x="410" y="227" font-size="17">DB の構造を直接比較</text>
-  <text x="410" y="249" fill="#1a2733" font-size="14">末端条件 約 330 万件、ソース別に変動率</text>
+  <rect x="300" y="30" width="400" height="210" rx="10" fill="#fff8e6" stroke="#d6a700" stroke-width="2"/>
+  <text x="500" y="68" text-anchor="middle" font-weight="700">公開前検査 (diff guard)</text>
+  <text x="500" y="108" text-anchor="middle" font-size="17">2 つの DB を 3 種の観点でくらべる</text>
+  <text x="458" y="160" text-anchor="end" font-size="17">変動率 =</text>
+  <text x="545" y="150" text-anchor="middle" font-size="16">追加 + 削除</text>
+  <line x1="478" y1="157" x2="612" y2="157" stroke="#1a2733" stroke-width="1.5"/>
+  <text x="545" y="176" text-anchor="middle" font-size="16">baseline</text>
+  <text x="500" y="216" text-anchor="middle" font-size="16">OS やソースごとに算出、1 つでも閾値超過なら FAIL</text>
   <!-- arrows in -->
-  <line x1="210" y1="80" x2="298" y2="80" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
-  <line x1="210" y1="230" x2="298" y2="230" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="210" y1="70" x2="298" y2="70" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="210" y1="200" x2="298" y2="200" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
   <!-- outcomes -->
-  <line x1="700" y1="110" x2="788" y2="80" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="735" y="78" fill="#1a7f37" font-weight="700" font-size="18">PASS</text>
-  <rect x="790" y="40" width="200" height="80" rx="8" fill="#e6f4ea" stroke="#1a7f37" stroke-width="2"/>
-  <text x="890" y="74" text-anchor="middle" font-weight="700">公開</text>
-  <text x="890" y="102" text-anchor="middle" fill="#1a2733" font-size="13">タグ付け → 次の baseline</text>
-  <line x1="700" y1="200" x2="788" y2="230" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="735" y="248" fill="#d55e00" font-weight="700" font-size="18">FAIL</text>
-  <rect x="790" y="190" width="200" height="80" rx="8" fill="#fdebe3" stroke="#d55e00" stroke-width="2"/>
-  <text x="890" y="224" text-anchor="middle" font-weight="700">保留</text>
-  <text x="890" y="252" text-anchor="middle" fill="#1a2733" font-size="14">タグなし digest で残す</text>
+  <line x1="700" y1="100" x2="788" y2="70" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="735" y="68" fill="#1a7f37" font-weight="700" font-size="18">PASS</text>
+  <rect x="790" y="30" width="200" height="80" rx="8" fill="#e6f4ea" stroke="#1a7f37" stroke-width="2"/>
+  <text x="890" y="64" text-anchor="middle" font-weight="700">公開</text>
+  <text x="890" y="92" text-anchor="middle" fill="#1a2733" font-size="13">タグ付け → 次の baseline</text>
+  <line x1="700" y1="170" x2="788" y2="200" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="735" y="218" fill="#d55e00" font-weight="700" font-size="18">FAIL</text>
+  <rect x="790" y="160" width="200" height="80" rx="8" fill="#fdebe3" stroke="#d55e00" stroke-width="2"/>
+  <text x="890" y="194" text-anchor="middle" font-weight="700">保留</text>
+  <text x="890" y="222" text-anchor="middle" fill="#1a2733" font-size="14">タグなし digest で残す</text>
   <!-- human -->
-  <line x1="990" y1="230" x2="1058" y2="230" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
-  <rect x="1060" y="150" width="90" height="160" rx="8" fill="#fff" stroke="#1a2733" stroke-width="2"/>
-  <text x="1105" y="205" text-anchor="middle" font-weight="700">人間</text>
-  <text x="1105" y="232" text-anchor="middle" fill="#1a2733" font-size="15">レポート</text>
-  <text x="1105" y="252" text-anchor="middle" fill="#1a2733" font-size="15">を確認</text>
-  <path d="M1105,150 C1105,90 1040,60 992,62" fill="none" stroke="#5b6b7a" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arr)"/>
-  <text x="1030" y="138" text-anchor="middle" fill="#1a2733" font-size="14">正当なら promote</text>
-  <!-- rule -->
-  <text x="500" y="312" text-anchor="middle" fill="#1a2733" font-size="16">変動率 = (追加 + 削除) / baseline。対象ごとに 1 行、1 行でも閾値超過なら FAIL。正誤は判定しない</text>
+  <line x1="990" y1="200" x2="1058" y2="200" stroke="#5b6b7a" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="1060" y="120" width="90" height="150" rx="8" fill="#fff" stroke="#1a2733" stroke-width="2"/>
+  <text x="1105" y="175" text-anchor="middle" font-weight="700">人間</text>
+  <text x="1105" y="202" text-anchor="middle" fill="#1a2733" font-size="15">レポート</text>
+  <text x="1105" y="222" text-anchor="middle" fill="#1a2733" font-size="15">を確認</text>
+  <path d="M1105,120 C1105,70 1040,52 992,52" fill="none" stroke="#5b6b7a" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arr)"/>
+  <text x="1078" y="40" text-anchor="middle" fill="#1a2733" font-size="14">正当なら promote</text>
 </svg>
