@@ -1,7 +1,8 @@
 # Marp slide build (docker image bundles chromium + Noto CJK)
 # fonts/ はコンテナのフォントディレクトリにも載せる(<img> で読む SVG 図は @font-face が効かず fontconfig 経由になるため)
 MARP = docker run --rm --init -e MARP_USER=$(shell id -u):$(shell id -g) -v $(CURDIR):/home/marp/app -v $(CURDIR)/fonts:/usr/share/fonts/slide:ro -e LANG=ja_JP.UTF-8 marpteam/marp-cli
-SRC = slide.md
+NAME = css2026-diff-guard
+SRC = $(NAME).md
 THEME = theme.css
 
 .PHONY: build html pdf fonts clean
@@ -20,10 +21,10 @@ fonts/%.ttf fonts/%.otf:
 	curl -sSL -o $@ '$(FONT_URL_$*)'
 
 html: $(SRC) $(THEME) $(FONT)
-	$(MARP) --theme $(THEME) --allow-local-files $(SRC) -o slide.html
+	$(MARP) --theme $(THEME) --allow-local-files $(SRC) -o $(NAME).html
 
 pdf: $(SRC) $(THEME) $(FONT)
-	$(MARP) --theme $(THEME) --allow-local-files $(SRC) -o slide.pdf
+	$(MARP) --theme $(THEME) --allow-local-files $(SRC) -o $(NAME).pdf
 
 clean:
-	rm -f slide.html slide.pdf
+	rm -f $(NAME).html $(NAME).pdf
