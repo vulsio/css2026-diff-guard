@@ -30,7 +30,7 @@ GAP_AFTER = 21  # index of "03-09" — この後に欠測ギャップ
 FLOOR = 0.05    # log 軸表示用の下駄(0.0% はこの値で描く)
 
 setup()
-fig, ax = plt.subplots(figsize=figsize((3.3, 1.22), (9.0, 3.1)))
+fig, ax = plt.subplots(figsize=figsize((3.3, 1.22), (9.0, 2.5)))
 
 xs, vals, colors = [], [], []
 x = 0
@@ -45,14 +45,18 @@ for i, (label, v, fail) in enumerate(PAIRS):
     x += 1
 
 ax.bar(xs, vals, width=0.75, color=colors, linewidth=0)
-ax.axhline(10, color=GRAY, linewidth=0.8, linestyle="--")
-note_fs = 11 if SLIDE else 6.5
-small_fs = 9 if SLIDE else 5.5
-ax.text(xs[-1] + 0.5, 10, "threshold 10%", ha="right", va="bottom",
-        fontsize=note_fs, color="#555555")
+ax.axhline(10, color="#555555" if SLIDE else GRAY, linewidth=2.0 if SLIDE else 0.8, linestyle="--")
+note_fs = 13 if SLIDE else 6.5
+small_fs = 12 if SLIDE else 5.5
+if SLIDE:
+    ax.text(xs[-1] + 0.5, 10.8, "閾値 10%", ha="right", va="bottom",
+            fontsize=15, fontweight="bold", color="#333333", fontfamily="Noto Sans JP")
+else:
+    ax.text(xs[-1] + 0.5, 10, "threshold 10%", ha="right", va="bottom",
+            fontsize=note_fs, color="#555555")
 if gap_x:
     ax.axvspan(gap_x[0] - 0.5, gap_x[1] + 0.5, color="#f0f0f0", zorder=0)
-    ax.text(sum(gap_x) / 2, 1 if LINEAR else 0.09, "no\ndata", ha="center",
+    ax.text(sum(gap_x) / 2, 28 if LINEAR else 0.09, "no\ndata", ha="center",
             va="bottom", fontsize=small_fs, color="#888888")
 
 # FAIL 2 点の直接ラベル
@@ -64,7 +68,8 @@ for xi, (label, v, fail) in zip(xs, PAIRS):
 if LINEAR:
     ax.set_ylim(0, 75)
     ax.set_yticks([0, 10, 20, 40, 60])
-    ax.set_ylabel("変動率 (%)", fontfamily="Noto Sans JP")
+    ax.set_ylabel("変動率 (%)", fontfamily="Noto Sans JP", fontsize=15)
+    ax.tick_params(labelsize=15)
 else:
     ax.set_yscale("log")
     ax.set_ylim(FLOOR, 300)

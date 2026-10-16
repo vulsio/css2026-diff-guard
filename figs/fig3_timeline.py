@@ -84,6 +84,8 @@ ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
 ax.set_xlim(mdates.date2num(datetime(2026, 4, 23)),
             mdates.date2num(datetime(2026, 8, 18)))
 ax.grid(axis="y", visible=False)
+if SLIDE:
+    ax.tick_params(labelsize=17)
 
 fig.tight_layout(pad=0.3)
 save(fig, "fig3-timeline")

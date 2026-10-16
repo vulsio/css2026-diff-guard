@@ -87,6 +87,7 @@ pre .hljs-meta     { color: #0a58ca; }
 .cols > :last-child { border-left: 2px solid #c9d3db; padding-left: 0.8em; }
 .cols ul, .cols ol { margin-top: 0; }
 .cols + ul, .cols + ol, .cols + p { margin-top: 1.4em; }
+ol + ul { margin-top: 1em; } /* 手順の番号リストの直後の箇条書きを離す(P12) */
 
 /* 図 */
 section > p > img:only-child { display: block; margin: 0 auto; max-width: 100%; }
@@ -94,7 +95,7 @@ section > p > img:only-child { display: block; margin: 0 auto; max-width: 100%; 
 .source { color: var(--muted); font-size: 0.6em; text-align: right; margin-top: 0.2em; }
 
 /* 持ち帰りの枚: 大きく 3 つだけ */
-section.takeaway ol { font-size: 1.15em; line-height: 1.5; padding-left: 1.4em; margin-top: 0.6em; }
+section.takeaway ol { font-size: 1.15em; line-height: 1.6; padding-left: 1.4em; margin-top: 0.6em; }
 section.takeaway li { margin: 0.8em 0; }
 
 /* 「論文後」バッジ */
@@ -105,6 +106,12 @@ ol ol, ul ol { list-style: decimal; }  /* default theme は入れ子を i, ii, i
 table { font-size: 0.85em; border-collapse: collapse; }
 .small table { font-size: 0.62em; }
 .small td, .small th { padding: 0.15em 0.5em; }
+/* 左にラベル、右に表(P7)。各行は * リスト項目なのでクリックで順に出る。表の左端は固定幅のラベル列で揃う */
+.labeled > ul { list-style: none; padding: 0; margin: 0 0 1.2em; }
+.labeled > ul > li { display: grid; grid-template-columns: 10em 1fr; column-gap: 1.2em; align-items: start; margin: 0 0 0.8em; }
+.labeled table { margin: 0; }
+.labeled > ul > li:first-child th:first-child, .labeled > ul > li:first-child td:first-child { min-width: 10.5em; }
+.labeled > ul > li:first-child th:last-child, .labeled > ul > li:first-child td:last-child { min-width: 3.5em; text-align: center; }
 th { background: #eef4f8; border-bottom: 2px solid var(--accent); }
 td, th { border: 1px solid #cfd8de; padding: 0.3em 0.7em; }
 
@@ -115,8 +122,12 @@ blockquote {
 }
 
 section.lead { text-align: center; }
-section.lead h1 { border: none; font-size: 1.5em; }
+section.lead h1 { border: none; font-size: 1.9em; margin-bottom: 0.25em; }
+section.lead h2 { font-size: 1.45em; color: var(--ink); font-weight: 500; margin: 0; }
 section.lead p { color: var(--muted); }
+section.lead .authors { margin-top: 2.4em; color: var(--ink); }
+section.lead .affil { font-size: 0.78em; }
+section.lead .venue { position: absolute; bottom: 40px; right: 60px; text-align: right; color: var(--muted); font-size: 0.78em; line-height: 1.5; }
 
 /* ページ番号: 右下に「n / 総数」 */
 section::after {
@@ -138,16 +149,19 @@ section::after {
 
 li > p { margin: 0; }
 .verdict { font-weight: 700; color: var(--accent-text); margin-left: 0.4em; }
+.fail { display: inline-block; font-weight: 700; color: #fff; background: var(--ink); padding: 0 0.45em; border-radius: 4px; line-height: 1.5; }
 
 /* 枚のまとめ: 本文の最後に 1 行 */
 .wrap { margin-top: 1.2em; }
 .wrap > p { margin: 0 0 0.3em 0; }
-.point { font-weight: 700; font-size: 1.1em; color: var(--accent-text); }
+.point { font-weight: 700; font-size: 1.2em; color: var(--accent-text); }
+/* 枚のまとめ行(div): 薄い帯に中央揃え。span.point(P23 の見出し)は帯にしない */
+div.point { background: #eef4f8; padding: 0.35em 0.7em; border-radius: 6px; text-align: center; margin-top: 0.6em; }
 ul ul { margin-bottom: 0; }
 
 /* 行間と箇条書きの間隔を少し広めに */
-section { line-height: 1.55; }
-li { margin: 0.3em 0; }
+section { line-height: 1.65; }
+li { margin: 0.4em 0; }
 ul ul li, ol ul li { margin: 0.12em 0; }
 
 /* 文章量の多い枚だけ行間を戻す(つなぎ。枚を削ったら外す) */
