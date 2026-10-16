@@ -7,6 +7,7 @@
 ## 資料
 
 - 論文PDF(CSS 提出版): https://raw.githubusercontent.com/vulsio/css2026-diff-guard/main/css2026-diff-guard.pdf
+- 発表スライド PDF(OWS 2026、2026-10-20): https://raw.githubusercontent.com/vulsio/css2026-diff-guard/main/slide/css2026-diff-guard.pdf
 
 cf.
 - CSS 2026: https://www.iwsec.org/css/2026/
