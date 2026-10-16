@@ -71,6 +71,7 @@ pre {
   border: 1px solid #dde4ea;
 }
 pre code { background: transparent; }
+pre mark { background: #fff3c4; color: inherit; font-weight: 700; padding: 0 0.15em; border-radius: 3px; } /* 報告文の中の見どころ(P14/P15) */
 :not(pre) > code { font-size: 1em; padding: 0.05em 0.3em; } /* 等幅は小さく見えるので本文中は少し大きく */
 /* ```diff の着色(highlight.js) */
 pre .hljs-deletion { color: #b42318; background: #fde8e8; }
@@ -96,7 +97,7 @@ section > p > img:only-child { display: block; margin: 0 auto; max-width: 100%; 
 
 /* 持ち帰りの枚: 大きく 3 つだけ */
 section.takeaway ol { font-size: 1.15em; line-height: 1.6; padding-left: 1.4em; margin-top: 0.6em; }
-section.takeaway li { margin: 0.8em 0; }
+section.takeaway li { margin: 0.6em 0; }
 
 /* 「論文後」バッジ */
 .badge { display: inline-block; font-size: 0.65em; color: #fff; background: var(--accent); border-radius: 4px; padding: 0.05em 0.5em; vertical-align: middle; margin-left: 0.4em; }
@@ -127,6 +128,7 @@ section.lead h2 { font-size: 1.45em; color: var(--ink); font-weight: 500; margin
 section.lead p { color: var(--muted); }
 section.lead .authors { margin-top: 2.4em; color: var(--ink); }
 section.lead .affil { font-size: 0.78em; }
+section.lead .links { display: inline-block; text-align: left; color: var(--muted); margin-bottom: 1em; } /* 中央に置いた左揃えブロック。ラベルが同じ長さなのでコロンが揃う */
 section.lead .venue { position: absolute; bottom: 40px; right: 60px; text-align: right; color: var(--muted); font-size: 0.78em; line-height: 1.5; }
 
 /* ページ番号: 右下に「n / 総数」 */
@@ -173,6 +175,13 @@ section.loose pre { line-height: 1.6; font-size: 0.72em; }
 
 .mid { font-size: 0.85em; }
 .mid table { font-size: 0.8em; }
+ul + .mid { margin-top: 3em; } /* 箇条書き直後の表を離す(P18) */
+.mid > p { margin: 0 0 0.3em; } /* 表の見出し行は表に寄せる */
+.center { text-align: center; }
+.center table { margin-left: auto; margin-right: auto; }
+.center td { text-align: left; } /* 表は中央に置くが、セルの文字は左のまま(数値列の右寄せは markdown 側の指定が勝つ)。見出しは中央 */
+.center th { text-align: center !important; }
+.mid + ul { margin-top: 0.9em; } /* 表の直後の箇条書きを離す(P18) */
 .mid td, .mid th { padding: 0.15em 0.5em; }
 
 /* 見出し内の等幅(アーキ名など): 背景なしで馴染ませる */
@@ -184,3 +193,4 @@ h1 code { background: transparent; padding: 0; font-size: 0.92em; font-weight: 7
 .reveal > ul > li > ul { list-style: disc; padding-left: 1.4em; margin-top: 0.3em; }
 section.takeaway .reveal > ul > li > ul { font-size: 1em; line-height: 1.5; }
 section.takeaway .reveal > ul > li > ul > li { margin: 0.3em 0; }
+.reveal li > b { display: inline-block; min-width: 7.4em; } /* 針路の課題ラベルを固定幅にして矢印を縦に揃える(P23) */
