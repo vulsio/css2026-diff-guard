@@ -50,15 +50,6 @@ paginate: true
 
 - 手元の検知結果 1 つから、**その時点の上流の姿まで** 戻れる
 
-<!--
-実物(2026-10-14 の vuls-nightly-db:0)の alma-errata レコード:
-raw ghcr.io/vulsio/vuls-data-db:vuls-data-raw-alma-errata @ ee83c674 (2026-10-13T18:35:56Z)、
-extracted vuls-data-extracted-alma-errata @ 96fe5b2d (20:47:33Z)、created_by vuls v0.0.1-alpha.0.20261013060026-42367478a97a、
-digest sha256:e267d756…。`vuls db search datasources` / `search metadata` で読める。
-extracted 自身の commit は DB 構築時(db-main.mk の db-add)に datasource.json へ埋める。
-検知結果 JSON(Vuls のスキャン結果)は config.report.vuls2.Digest に使った DB の digest を持つ(future-architect/vuls #2311、2025-09)。利用者の手元の結果 → digest で DB を特定 → datasources で raw commit まで戻れる。
--->
-
 ---
 
 # 出発点: 2026年3月、壊れた DB を2回公開した
@@ -83,7 +74,7 @@ extracted 自身の commit は DB 構築時(db-main.mk の db-add)に datasource
 </div>
 
 <!--
-口頭: 利用者から問い合わせ → 運用チームがバックアップからリストア → 利用者にお詫び。迷惑をかけたのは利用者だけでなく運用チームにも。サービス名は出さない。
+口頭: 運用チームがバックアップからリストア → お詫び
 -->
 
 ---
@@ -98,7 +89,6 @@ extracted 自身の commit は DB 構築時(db-main.mk の db-add)に datasource
 * 止めた DB はタグなしで残る。正当なら人が **promote**(公開に昇格)する
 
 <!--
-3 観点の呼び方: 検知(新)= 最新スキャナ、検知(旧)= 固定した旧スキャナ、DB 構造 = DB を直接比較。論文の Dn / Do / DB。
 質疑: 検知(旧)だけで止まった件は 116 日で 0 件。それでも置くのは、DB とスキャナの更新周期が一致しない中で、継続利用される旧版との互換性を公開境界で確かめる回帰テストだから(3 月の 2 件目の型)。
 -->
 
@@ -139,12 +129,6 @@ GitHub Actions のジョブ要約。
 
 </div>
 
-<!--
-2026-06-16 の run(あとで出てくる Microsoft の件)。まとめ表は 2026-08-24 以降の形式。列名は P6 の図に合わせて日本語化(実物は scan result / baseline / target / added / removed / change rate / threshold / result)。この run 当時は 1 行のテキスト(diff guard failed: detection(master)=1 ...)。
-TODO: 本物のスクショに差し替え候補(run 27646259547 の Summary タブ)。
-threshold 列は省いた。この run の windows の閾値は override で 10% / 20% に上げてあり(既定 5%)、override の話はしないので混乱を避けるため。聞かれたら「windows は月例更新で毎月大きく動くので閾値を上げてあった。それでも超えた」。
-質疑: 検知(旧)が PASS なのは、旧版用の検知入力に windows が入っていないため(カタログ A-4)。DB 構造も PASS だったのは KB の集合しか見ていなかったから。
--->
 
 ---
 
@@ -177,9 +161,7 @@ threshold 列は省いた。この run の windows の閾値は override で 10%
 </div>
 
 <!--
-口頭(数字): 最初の 3 週間で promote 10 回。116 日で promote は 1 日 0.79 回。FAIL した run の半分(50%、Sat 96 / Sun 113 の 209 run、418 run 中、data/stats-output.txt)が土日で、promote はほぼ平日日中なので金曜夕方の出来事が週末じゅう止まり続ける。人間系の話はここでは深追いせず、P22 の「承認する側」に回す。
-この枚の焦点は「鳴りすぎ」。大半が正当な追加(P13)なので、増える方向と減る方向で閾値を分ける(P23 の針路)につながる。
-口頭(削った話): 止まっているあいだ前回版は動かないので同じ差分が 6 時間ごとに鳴り続ける。当初は 1 つ FAIL したら終わる作りで、debian_13 が ubuntu:26.04 の FAIL を隠していた(05-08 修正)。
+数字: 最初の 3 週間で promote 10 回。116 日で promote は 1 日 0.79 回。
 -->
 
 ---
@@ -204,9 +186,6 @@ threshold 列は省いた。この run の windows の閾値は override で 10%
 
 <div class="caption">69 件をデータソースごとに並べたもの。横棒は最初の FAIL から解消まで</div>
 
-<!--
-削減候補: 前スライドに吸収。
--->
 
 ---
 
@@ -229,11 +208,6 @@ threshold 列は省いた。この run の windows の閾値は override で 10%
 
 </div>
 
-<!--
-手順 1 の補足: DB はデータのハッシュだけでなく、それを作った vuls2 の版(created_by)も持つ。
-手順 2 の補足: 取得・変換のコードの版は raw / extracted に記録されていない。2 つの extracted commit の日付範囲で、そのソースの pkg/{fetch,extract}/ に触ったコミットを探す。次の実物の 2 行目がそれ。
-削減候補: 次の「実物」と統合。
--->
 
 ---
 
@@ -255,8 +229,6 @@ threshold 列は省いた。この run の windows の閾値は override で 10%
 
 <!--
 口頭: 上流が原因の 59 件(正当 55 + 障害 2 + 品質 2)÷ 116 日 = 2 日に 1 件(P2 の数字)。
-帯の「改善の余地」は P23 の針路 1(増える方向と減る方向で閾値を分け、減る方向を厳しく)への伏線。55 件の正当な変更はほぼ「追加」なので、減る方向だけ厳しくすれば鳴る回数は減り、Microsoft 型(減る)は止まる。
-自分: 意図した変更 9 = 変換コードの意図した変更 7 + 収集対象設定の変更 2(論文の表 2 では別行)。
 質疑: 正当な変更 55 件で止まるのは誤報ではないか → 月例や新 OS 立ち上がりのような反復する正当な大変動は対象別 override で吸収し、単発の大変動(例: Oracle UEK の 1 advisory に CVE 822 件)は人が見る対象として残す設計。
 -->
 
@@ -284,8 +256,6 @@ FAIL: 検知(新)(旧)で amazon_2023 2080 → 2233(<mark>Added 153</mark>、7.4
 - **promote の実行判断は人間**。エージェントに workflow を動かす権限は渡さない
 
 <!--
-当時の triage 原文は無く、data/diff-guard-incidents.md A-7(2026-06-23、DB run 28014227227)の数値から報告形式に再構成したもの。識別子は実データ。settings の行は vuls-data-db の 06-13〜23 のコミット一覧(jvn-feed-detail / mitre / vulncheck の追加、rename、rocky_10 の閾値)で確認(2026-10-15)。promote は d2155fc0 → :0(06-23 12:26)。同じ run で amazon_2_extra_kernel も 1299 → 1367(Added 68、5.2%)、ALAS2KERNEL-5.15-2026-107(CVE-2026-43079 ほか)。
-Cisco(A-21、productNames 149 → 36 でも promote)の方は「整理に見えるが検知が消える」の例として予備スライドにある。
 口頭: 「原因の特定はほぼ AI に任せ、公開の最終判断だけ人がする」はまとめ(P2)から外したので、ここで言う。
 -->
 ---
@@ -353,10 +323,8 @@ raw の `git log`
 </div>
 
 <!--
-HTTP 200 の根拠: 当時の fetcher(vuls-data-update e99c239f、pkg/fetch/microsoft/cvrf)は一覧 API も各 CVRF も 200 以外なら即エラーで fetch が失敗する。6 月の fetch は成功して raw が commit されたので、API は 200 で 6 月分を一覧から落としていた。
 質疑: なぜ取得時に止めないのか → 月データの全消失のような既知の条件は取得時にも止められる(件数や既知 ID の消失の確認)が、全ソース共通の完全性条件は作れないので、公開境界の差分検査と併用する(論文 5.2 節)。
 raw の消失は 3 回(06-16、07-02、07-03)。事例としては 2 件(A-4 = 06-16、A-12 = 07-02〜03)で、P21 の「消失 × 2」はこの事例数。3 回とも直後の DB run で検知(新)が windows 13 本の削除のみ FAIL を出した(07-02 13:22、07-03 13:25 の run)。
-raw は vuls-data-raw-microsoft-cvrf(6 月分の実際のディレクトリ名は 2026-Jun/)。7 枚目のレポートがこの件。commit: 4b5baa90ccf(06-15)/ 44181ca9cd1(06-16 03:02、1460 files)/ 34a4bd55a5f / 5a0dbb67385 / 55abc741d7d(07-02 02:01、1273 files)/ 6dba0210f16 / 07846b78042 / 0b4ba6131cc。
 -->
 
 ---
@@ -379,8 +347,9 @@ raw は vuls-data-raw-microsoft-cvrf(6 月分の実際のディレクトリ名�
 - 対応: 落とされた advisory を **raw 履歴から復元** して取り込む
 
 <!--
-残った 136 advisory のうち 79 件(58%)で対象パッケージ数が半分以下。消えた 143 advisory が参照していた 434 CVE のうち 376 件(87%)は errata 全体から消失。AlmaLinux 10.2 は 2026-05-26 リリース(phoronix / wiki.almalinux.org)。2025-11-26 にも 102 件のパージがあり、マイナーが上がるたびに起きる。復元は vuls-data-db #191(2026-07-07、fetch-alma-errata.yml)。縮退前の snapshot commit と対象 advisory の一覧を workflow に明記し、fetch のたびにその分だけ戻す(1 回目 143 件、2 回目 102 件)。それまでは取り込みを縮退前の commit に固定していた。質疑: OVAL に切り替えないのか → alma-oval の取得は復活させた(vuls-data-update #882)が DB では未使用。updateinfo への切り替えを検討中で、DB はいまも errata。
-raw vuls-data-raw-alma-errata。05-20 の 47a66696b = 202 packages / 75 種、05-27 の e64c5ca88 = 2(−2406/+6 行)。消えたのは kernel, kernel-core, kernel-rt-64k-debug など 73 種、残ったのは kernel-doc と kernel-abi-stablelists。updated_date 1771853654 → 1771853624(どちらも 2026-02-23)。
+AlmaLinux 10.2 は 2026-05-26 リリース(phoronix / wiki.almalinux.org)。2025-11-26 にも 102 件のパージがあり、マイナーが上がるたびに起きる。復元は vuls-data-db #191(2026-07-07、fetch-alma-errata.yml)。縮退前の snapshot commit と対象 advisory の一覧を workflow に明記し、fetch のたびにその分だけ戻す(1 回目 143 件、2 回目 102 件)。
+
+質疑: OVAL に切り替えないのか → alma-oval の取得は復活させた(vuls-data-update #882)が DB では未使用。updateinfo への切り替えを検討中で、DB はいまも errata。
 -->
 
 ---
@@ -408,7 +377,8 @@ raw vuls-data-raw-alma-errata。05-20 の 47a66696b = 202 packages / 75 種、05
 </div>
 
 <!--
-発表 1 週間前の出来事。候補は 10-13 05:44 に :0 / :nightly へ promote した。5 月の minor 全削除のときとは違い、x86_64_v2 の見逃しと、止め続けて新しい CVE が届かない遅れを天秤にかけて判断した。検知の観点は PASS(スキャン結果の fixture が x86_64 のため)。366 件のうち 159 件は x86_64_v2 が全部消え、207 件は一部。raw の x86_64_v2 エントリは 5660(10-12 以前)→ 3864(10-12 20:40Z、0d591540ed)→ 5759(10-13 18:35Z、ee83c674cf)→ 5804(10-14)。上流の説明は未発見。DB 構造と検知の 2 観点の相補性の例でもある。
+発表 1 週間前の出来事。候補は 10-13 05:44 に :0 / :nightly へ promote した。5 月の minor 全削除のときとは違い、x86_64_v2 の見逃しと、止め続けて新しい CVE が届かない遅れを天秤にかけて判断した。
+
 例: ALSA-2026:19009(postgresql18)x86_64_v2 13 → 0、x86_64 13 → 13。repo.almalinux.org の AppStream/x86_64_v2/os/Packages/ には postgresql18-server-18.3-1.el10_2.x86_64_v2.rpm がある。
 guard: DB run 38324240469 alma:10 46.6% FAIL(単一閾値)、Nightly 38325837023 は added 1.0% / changed 22.8% / removed 0.0% で FAIL。検知(新)alma_10 774 → 776 PASS。
 -->
@@ -432,10 +402,8 @@ guard: DB run 38324240469 alma:10 46.6% FAIL(単一閾値)、Nightly 38325837023
 - 「増えた」の陰に「検知が減った」が隠れていた。**止めたが、人が通した**
 
 <!--
-口頭: 検知入力(cpe_cisco の fixture)は a:cisco:adaptive_security_appliance_software:9.8.1 を持つので、o: に変わった条件とは一致しない。
-口頭(削った細部): +957 万行。CVE-1999-0001 にまで matchCriteriaId "" の条件が付いた。DB 構造は cpe で added 587 / removed 64 / changed 135,457。検知の減少は cpe_jvn 75%、cpe_cisco 64%、cpe_nvd 21%。例の CPE は 2.3 形式に揃えて表示(lastModified は 2026-06-16 のまま)。
-翌日(2026-07-09)の DB 構造の観点: | cpe | detection 28.9% | KB 0.0% | threshold 10.0% | FAIL |、root ID added 587 / removed 64 / changed 135,457。
-スキャン結果の fixture(vulsio/integration data/results/cpe_cisco.json)の実際の表記は cpe:/a:cisco:adaptive_security_appliance_software:9.8.1(2.2 形式)。スライドでは見やすさのため 2.3 形式に揃えた。a:cisco:adaptive_security_appliance_software を criteria に持つファイルは 82 → 46 に減った(raw 0bab5f54afd の前後、2026-10-14 調査)。
+口頭(削った細部): DB 構造は cpe で added 587 / removed 64 / changed 135,457。
+
 口頭: この promote は、CPE 検知がまだ開発中で本番の検知には影響しないと見て「開発版だからええやろ」と通したもの。
 当時 cpe は 7 ソースをまとめて比較していて、VulnCheck 単体では 189.6% だったのが NVD の大きさに埋もれて 28.9% に薄まっていた。検知の減少は cpe_jvn 69 → 17、cpe_cisco 67 → 24、cpe_nvd 24 → 19(予備スライド「ソース単位で測り直すと」)。この件を機に閾値をソース単位にし、CPE のスキャン結果も検知の観点に足した(2026-07-14)。
 -->
@@ -462,10 +430,10 @@ guard: DB run 38324240469 alma:10 46.6% FAIL(単一閾値)、Nightly 38325837023
 </div>
 
 <!--
-「ムカつく」枚。raw vuls-data-raw-vulncheck-nist-nvd2。commit: 0bab5f54afd / b2d593f6c56 / ae7c83caf56 / 8e030dba52d / 1f21242a634 / c2c205a79ae。往復の一致率は、各コミットの変更ファイル 3,000 件を抽出して 2 つ前の blob と比較。
+往復の一致率は、各コミットの変更ファイル 3,000 件を抽出して 2 つ前の blob と比較。
 CVE-2013-5510(Cisco ASA)では CPE が 255 本 ↔ 171 本(part はどちらも o:)。
+
 検知(新)cpe_cisco / vulncheck-nist-nvd2: 07-22 01:14 baseline 22 → target 67(added 45、204.5% FAIL)、07-22 08:01 67 → 22(removed 45、67.2% FAIL)。
-削減候補: 時間が無ければ前の枚に「07-22 に 22→67→22」の 1 行だけ残す。
 -->
 ---
 
@@ -475,15 +443,11 @@ CVE-2013-5510(Cisco ASA)では CPE が 255 本 ↔ 171 本(part はどちらも 
 - **Microsoft CVRF の 6 月分の消失 × 2**:<br>Windows の 6 月分 CVE(最大約 1,270 件)の検知が消える DB を **公開せずに捨てた**
 - **自分の変換コードのバグ × 1**(fedora):<br>検知には効かないが、**出力が揺れる** バグ。<br>テストでは見つからず、揺れは履歴の調査も邪魔する。出力の差分で初めて見えた
 
-<!--
-質疑: 止まらずに通った破損は無いのか → 利用者報告と事後分析の範囲では確認していない。ただし未検知の破損が無いことを網羅的に確かめる手段は無い(論文 5.3 節)。
-fedora のバグ(A-6、2026-06-19): DB 構造の観点が fedora:45 で 274.5%。raw は 266 ファイルなのに extracted は 23,163 → 上流ではなく自分。FEDORA-2026-54c7ad647e の package "bind" の architectures が ["aarch64","i686",…] → ["src","x86_64","aarch64",…] と並び順だけ変わっていた(raw はバイト同一)。vuls-data-update pkg/extract/fedora/api/api.go で util.Write(path, &data) とポインタを渡していたため type switch の case Data: に落ちず Sort() されない。修正 PR #854。
--->
 ---
 
 # 現在地(2): 公開前検査が止めきれなかった2件
 
-- **AlmaLinux の骨抜き**:<br>たまった FAIL を片づける流れで promote → **数時間公開してしまった**
+- **AlmaLinux の骨抜き**:<br>連続 FAIL を片づける流れで promote → **数時間公開してしまった**
 - **VulnCheck**:<br>DB 構造の観点は cpe 全体(7 データソース合算)で **28.9%**。単体なら **189.6%**<br>薄まった数字を見て promote → 検知が減った DB を公開した
 
 - 対策(2026-07-14): **データソースごと** に測る
